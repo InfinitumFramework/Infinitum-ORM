@@ -1,3 +1,22 @@
+/*
+ * Copyright (c) 2012 Tyler Treat
+ * 
+ * This file is part of Infinitum Framework.
+ *
+ * Infinitum Framework is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Infinitum Framework is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Infinitum Framework.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.clarionmedia.infinitum.orm.context;
 
 import java.util.List;
@@ -9,8 +28,29 @@ import com.clarionmedia.infinitum.http.rest.AuthenticationStrategy;
 import com.clarionmedia.infinitum.orm.Session;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
 
-public interface OrmContext extends InfinitumContext {
-	
+/**
+ * <p>
+ * {@code InfinitumOrmContext} is an extension of {@link InfinitumContext} that
+ * contains configuration information for the framework ORM. It describes an
+ * application's domain model and how it should be persisted. Entity persistence
+ * can be configured using one of two policies: XML map files or annotations.
+ * </p>
+ * <p>
+ * {@code InfinitumOrmContext} is used to retrieve {@link Session} instances for
+ * configured data sources. For example, a SQLite {@code Session} would be
+ * retrieved by doing the following:
+ * </p>
+ * 
+ * <pre>
+ * Session session = context.getSession(DataSource.SQLITE);
+ * </pre>
+ * 
+ * @author Tyler Treat
+ * @version 1.0 12/23/12
+ * @since 1.0
+ */
+public interface InfinitumOrmContext extends InfinitumContext {
+
 	/**
 	 * Represents the entity persistence configuration mode.
 	 */
@@ -33,7 +73,7 @@ public interface OrmContext extends InfinitumContext {
 	public static enum DataSource {
 		SQLITE, REST
 	}
-	
+
 	/**
 	 * Retrieves a new {@link Session} instance for the configured data source.
 	 * 
@@ -44,7 +84,7 @@ public interface OrmContext extends InfinitumContext {
 	 *             if the specified {@code DataSource} was not configured
 	 */
 	Session getSession(DataSource source) throws InfinitumConfigurationException;
-	
+
 	/**
 	 * Returns the {@link ConfigurationMode} value of this
 	 * {@code InfinitumContext}, indicating which style of configuration this
@@ -117,7 +157,7 @@ public interface OrmContext extends InfinitumContext {
 	 * @return {@code RestfulConfiguration}
 	 */
 	RestfulContext getRestfulConfiguration();
-	
+
 	/**
 	 * Retrieves the application {@link PersistencePolicy}, which is configured
 	 * in {@code infinitum.cfg.xml}.
@@ -125,7 +165,7 @@ public interface OrmContext extends InfinitumContext {
 	 * @return {@code PersistencePolicy} for this application
 	 */
 	PersistencePolicy getPersistencePolicy();
-	
+
 	/**
 	 * Sets the {@link AuthenticationStrategy} for this
 	 * {@code RestfulConfiguration} based on one of the framework-defined
@@ -136,8 +176,7 @@ public interface OrmContext extends InfinitumContext {
 	 * @throws InfinitumConfigurationException
 	 *             if the given strategy does not exist
 	 */
-	void setAuthStrategy(String strategy)
-			throws InfinitumConfigurationException;
+	void setAuthStrategy(String strategy) throws InfinitumConfigurationException;
 
 	/**
 	 * Sets the {@link AuthenticationStrategy} for this

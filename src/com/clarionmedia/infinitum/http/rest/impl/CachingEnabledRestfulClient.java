@@ -55,7 +55,7 @@ import com.clarionmedia.infinitum.http.rest.RestfulClient;
 import com.clarionmedia.infinitum.internal.DateFormatter;
 import com.clarionmedia.infinitum.internal.caching.AbstractCache;
 import com.clarionmedia.infinitum.logging.Logger;
-import com.clarionmedia.infinitum.orm.context.OrmContext;
+import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 
 /**
  * <p>
@@ -77,7 +77,7 @@ public class CachingEnabledRestfulClient implements RestfulClient {
 	/**
 	 * Creates a new {@code CachingEnabledRestfulClient}.
 	 */
-	public CachingEnabledRestfulClient(OrmContext context) {
+	public CachingEnabledRestfulClient(InfinitumOrmContext context) {
 		mLogger = Logger.getInstance(context, getClass().getSimpleName());
 		mHttpParams = new BasicHttpParams();
 		mResponseCache = new RestResponseCache();

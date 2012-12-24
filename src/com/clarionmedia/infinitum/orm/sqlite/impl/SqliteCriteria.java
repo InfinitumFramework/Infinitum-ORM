@@ -26,7 +26,7 @@ import java.util.List;
 import android.database.Cursor;
 
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
-import com.clarionmedia.infinitum.orm.context.OrmContext;
+import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
 import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
 import com.clarionmedia.infinitum.orm.internal.OrmPreconditions;
@@ -67,7 +67,7 @@ public class SqliteCriteria<T> implements Criteria<T> {
 	 * @throws InfinitumRuntimeException
 	 *             if {@code entityClass} is transient
 	 */
-	public SqliteCriteria(OrmContext context, Class<T> entityClass, SqliteSession session, SqliteModelFactory modelFactory, SqlBuilder sqlBuilder, SqliteMapper mapper)
+	public SqliteCriteria(InfinitumOrmContext context, Class<T> entityClass, SqliteSession session, SqliteModelFactory modelFactory, SqlBuilder sqlBuilder, SqliteMapper mapper)
 			throws InfinitumRuntimeException {
 		OrmPreconditions.checkPersistenceForLoading(entityClass, context.getPersistencePolicy());
 		mSession = session;

@@ -43,7 +43,7 @@ import com.clarionmedia.infinitum.http.rest.RestfulModelMap;
 import com.clarionmedia.infinitum.internal.caching.LruCache;
 import com.clarionmedia.infinitum.logging.Logger;
 import com.clarionmedia.infinitum.orm.Session;
-import com.clarionmedia.infinitum.orm.context.OrmContext;
+import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
 import com.clarionmedia.infinitum.orm.exception.SQLGrammarException;
 import com.clarionmedia.infinitum.orm.internal.OrmPreconditions;
@@ -72,7 +72,7 @@ public abstract class RestfulSession implements Session {
 	protected PersistencePolicy mPersistencePolicy;
 
 	@Autowired
-	protected OrmContext mInfinitumContext;
+	protected InfinitumOrmContext mInfinitumContext;
 
 	@Autowired
 	protected RestfulContext mRestContext;

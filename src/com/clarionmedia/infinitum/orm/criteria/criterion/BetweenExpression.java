@@ -21,7 +21,7 @@ package com.clarionmedia.infinitum.orm.criteria.criterion;
 
 import java.lang.reflect.Field;
 
-import com.clarionmedia.infinitum.orm.context.OrmContext;
+import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
 import com.clarionmedia.infinitum.orm.exception.InvalidCriteriaException;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
@@ -65,7 +65,7 @@ public class BetweenExpression extends Criterion {
 		StringBuilder query = new StringBuilder();
 		Class<?> clazz = criteria.getEntityClass();
 		Field field = null;
-		PersistencePolicy policy = mContextFactory.getContext(OrmContext.class).getPersistencePolicy();
+		PersistencePolicy policy = mContextFactory.getContext(InfinitumOrmContext.class).getPersistencePolicy();
 		field = policy.findPersistentField(clazz, mFieldName);
 		if (field == null)
 		    throw new InvalidCriteriaException(String.format("Invalid Criteria for type '%s'", clazz.getName()));

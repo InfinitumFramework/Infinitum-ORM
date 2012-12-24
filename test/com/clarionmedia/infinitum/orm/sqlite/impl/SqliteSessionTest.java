@@ -53,7 +53,7 @@ import com.clarionmedia.infinitum.http.rest.RestfulPairsTypeAdapter;
 import com.clarionmedia.infinitum.logging.Logger;
 import com.clarionmedia.infinitum.orm.ResultSet;
 import com.clarionmedia.infinitum.orm.Session;
-import com.clarionmedia.infinitum.orm.context.OrmContext;
+import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
 import com.clarionmedia.infinitum.orm.persistence.TypeResolutionPolicy.SqliteDataType;
@@ -70,7 +70,7 @@ public class SqliteSessionTest {
 	private static final long BAZ_MODEL_ID = 211;
 	
 	@Mock
-	private OrmContext mockInfinitumContext = mock(OrmContext.class);
+	private InfinitumOrmContext mockInfinitumContext = mock(InfinitumOrmContext.class);
 	
 	@Mock
 	private SqliteTemplate mockSqliteTemplate;

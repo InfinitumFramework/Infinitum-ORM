@@ -23,7 +23,7 @@ import java.lang.reflect.Field;
 
 import com.clarionmedia.infinitum.context.ContextFactory;
 import com.clarionmedia.infinitum.orm.annotation.ManyToMany;
-import com.clarionmedia.infinitum.orm.context.OrmContext;
+import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
 
 /**
@@ -43,7 +43,7 @@ public class ManyToManyRelationship extends ModelRelationship {
 	
 	public ManyToManyRelationship() {
 		mRelationType = RelationType.ManyToMany;
-		mPolicy = ContextFactory.newInstance().getContext(OrmContext.class).getPersistencePolicy();
+		mPolicy = ContextFactory.newInstance().getContext(InfinitumOrmContext.class).getPersistencePolicy();
 	}
 
 	public ManyToManyRelationship(Field f) {

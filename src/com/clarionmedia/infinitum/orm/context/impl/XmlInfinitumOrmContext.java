@@ -1,3 +1,22 @@
+/*
+ * Copyright (c) 2012 Tyler Treat
+ * 
+ * This file is part of Infinitum Framework.
+ *
+ * Infinitum Framework is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Infinitum Framework is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Infinitum Framework.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.clarionmedia.infinitum.orm.context.impl;
 
 import static java.lang.Boolean.parseBoolean;
@@ -28,7 +47,7 @@ import com.clarionmedia.infinitum.http.rest.impl.RestfulSession;
 import com.clarionmedia.infinitum.http.rest.impl.RestfulXmlMapper;
 import com.clarionmedia.infinitum.http.rest.impl.SharedSecretAuthentication;
 import com.clarionmedia.infinitum.orm.Session;
-import com.clarionmedia.infinitum.orm.context.OrmContext;
+import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
 import com.clarionmedia.infinitum.orm.persistence.impl.AnnotationsPersistencePolicy;
 import com.clarionmedia.infinitum.orm.persistence.impl.DefaultTypeResolutionPolicy;
@@ -41,12 +60,29 @@ import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteModelFactory;
 import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteSession;
 import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteTemplate;
 
-public class OrmContextImpl implements OrmContext {
+/**
+ * <p>
+ * Implementation of {@link InfinitumOrmContext} which is initialized through
+ * XML as a child of an {@link XmlApplicationContext} instance.
+ * </p>
+ * 
+ * @author Tyler Treat
+ * @version 1.0 12/23/12
+ * @since 1.0
+ */
+public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 
 	private XmlApplicationContext mParentContext;
 	private List<InfinitumContext> mChildContexts;
 
-	public OrmContextImpl(XmlApplicationContext parentContext) {
+	/**
+	 * Creates a new {@code XmlInfinitumOrmContext} instance as a child of the
+	 * given {@link XmlApplicationContext}.
+	 * 
+	 * @param parentContext
+	 *            the parent of this context
+	 */
+	public XmlInfinitumOrmContext(XmlApplicationContext parentContext) {
 		mParentContext = parentContext;
 		mChildContexts = new ArrayList<InfinitumContext>();
 	}
@@ -134,7 +170,7 @@ public class OrmContextImpl implements OrmContext {
 			return true;
 		return parseBoolean(autocommit);
 	}
-	
+
 	@Override
 	public void setAuthStrategy(String strategy) throws InfinitumConfigurationException {
 		XmlRestfulContext restContext = mParentContext.getRestContext();
@@ -171,7 +207,7 @@ public class OrmContextImpl implements OrmContext {
 		} else
 			throw new InfinitumConfigurationException("Unrecognized authentication strategy '" + strategy + "'.");
 	}
-	
+
 	@Override
 	public <T extends AuthenticationStrategy> void setAuthStrategy(T strategy) {
 		XmlRestfulContext restContext = mParentContext.getRestContext();
@@ -220,7 +256,7 @@ public class OrmContextImpl implements OrmContext {
 	public boolean isComponentScanEnabled() {
 		return mParentContext.isComponentScanEnabled();
 	}
-	
+
 	@Override
 	public List<InfinitumContext> getChildContexts() {
 		return mChildContexts;
@@ -239,7 +275,7 @@ public class OrmContextImpl implements OrmContext {
 	private void registerOrmComponents() {
 		BeanFactory beanFactory = mParentContext.getBeanFactory();
 		BeanDefinitionBuilder beanDefinitionBuilder = new GenericBeanDefinitionBuilder(beanFactory);
-		AbstractBeanDefinition beanDefinition = beanDefinitionBuilder.setName("$OrmContext").setType(OrmContextImpl.class).build();
+		AbstractBeanDefinition beanDefinition = beanDefinitionBuilder.setName("$OrmContext").setType(XmlInfinitumOrmContext.class).build();
 		beanFactory.registerBean(beanDefinition);
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put("mIsAutocommit", isAutocommit());

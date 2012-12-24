@@ -50,7 +50,7 @@ import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.internal.Pair;
 import com.clarionmedia.infinitum.logging.Logger;
 import com.clarionmedia.infinitum.orm.ModelFactory;
-import com.clarionmedia.infinitum.orm.context.OrmContext;
+import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy.Cascade;
@@ -73,7 +73,7 @@ public class SqliteTemplateTest {
 	private static final String BAR_MODEL_TABLE = "bar";
 	
 	@Mock
-	private OrmContext mockInfinitumContext;
+	private InfinitumOrmContext mockInfinitumContext;
 	
 	@Mock
 	private SqliteSession mockSqliteSession;

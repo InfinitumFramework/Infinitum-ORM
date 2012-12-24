@@ -30,7 +30,7 @@ import com.clarionmedia.infinitum.di.annotation.Autowired;
 import com.clarionmedia.infinitum.di.annotation.PostConstruct;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.internal.PropertyLoader;
-import com.clarionmedia.infinitum.orm.context.OrmContext;
+import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
 import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
 import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
@@ -67,7 +67,7 @@ public class SqliteBuilder implements SqlBuilder {
 	private PackageReflector mPackageReflector;
 
 	@Autowired
-	private OrmContext mContext;
+	private InfinitumOrmContext mContext;
 
 	private PropertyLoader mPropLoader;
 

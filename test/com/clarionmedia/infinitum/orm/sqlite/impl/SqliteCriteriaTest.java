@@ -19,7 +19,7 @@ import org.junit.runner.RunWith;
 import android.database.Cursor;
 
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
-import com.clarionmedia.infinitum.orm.context.OrmContext;
+import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
 import com.clarionmedia.infinitum.orm.sql.SqlBuilder;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
@@ -29,7 +29,7 @@ public class SqliteCriteriaTest {
 
 	private SqlBuilder mockSqlBuilder;
 	private SqliteSession mockSqliteSession;
-	private OrmContext mockInfinitumContext;
+	private InfinitumOrmContext mockInfinitumContext;
 	private SqliteModelFactory mockSqliteModelFactory;
 	private SqliteMapper mockSqliteMapper;
 	private Class<Object> entityClass;
@@ -41,7 +41,7 @@ public class SqliteCriteriaTest {
 	public void setup() {
 		entityClass = Object.class;
 		mockSqliteSession = mock(SqliteSession.class);
-		mockInfinitumContext = mock(OrmContext.class);
+		mockInfinitumContext = mock(InfinitumOrmContext.class);
 		mockSqlBuilder = mock(SqlBuilder.class);
 		mockSqliteModelFactory = mock(SqliteModelFactory.class);
 		mockSqliteMapper = mock(SqliteMapper.class);

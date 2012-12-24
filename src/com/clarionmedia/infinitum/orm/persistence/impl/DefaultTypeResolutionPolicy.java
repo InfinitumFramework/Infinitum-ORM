@@ -24,7 +24,7 @@ import java.lang.reflect.Field;
 
 import com.clarionmedia.infinitum.di.annotation.Autowired;
 import com.clarionmedia.infinitum.internal.Primitives;
-import com.clarionmedia.infinitum.orm.context.OrmContext;
+import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.persistence.TypeResolutionPolicy;
 
 /**
@@ -39,7 +39,7 @@ import com.clarionmedia.infinitum.orm.persistence.TypeResolutionPolicy;
 public class DefaultTypeResolutionPolicy implements TypeResolutionPolicy {
 
 	@Autowired
-	private OrmContext mContext;
+	private InfinitumOrmContext mContext;
 
 	@Override
 	public boolean isValidPrimaryKey(Field pkField, Serializable pk) {

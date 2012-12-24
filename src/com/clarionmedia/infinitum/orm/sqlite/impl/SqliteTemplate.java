@@ -42,7 +42,7 @@ import com.clarionmedia.infinitum.internal.Pair;
 import com.clarionmedia.infinitum.internal.Primitives;
 import com.clarionmedia.infinitum.internal.PropertyLoader;
 import com.clarionmedia.infinitum.logging.Logger;
-import com.clarionmedia.infinitum.orm.context.OrmContext;
+import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
 import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
 import com.clarionmedia.infinitum.orm.exception.SQLGrammarException;
@@ -75,7 +75,7 @@ import com.clarionmedia.infinitum.reflection.ClassReflector;
 public class SqliteTemplate implements SqliteOperations {
 
 	@Autowired
-	protected OrmContext mInfinitumContext;
+	protected InfinitumOrmContext mInfinitumContext;
 	
 	@Autowired
 	protected SqliteSession mSession;
