@@ -91,6 +91,8 @@ public class SqliteBuilder implements SqlBuilder {
 				db.execSQL(sql);
 				count++;
 			}
+			// Sort of hackish...this loads the M:M rels into cache so we can access them below
+			// TODO Consider revisiting this
 			mPersistencePolicy.getManyToManyRelationships(c);
 		}
 		for (ManyToManyRelationship r : mPersistencePolicy.getManyToManyCache()

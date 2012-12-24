@@ -47,10 +47,10 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
-import com.clarionmedia.infinitum.context.AuthenticationStrategy;
 import com.clarionmedia.infinitum.context.RestfulContext;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.http.impl.HashableHttpRequest;
+import com.clarionmedia.infinitum.http.rest.AuthenticationStrategy;
 import com.clarionmedia.infinitum.http.rest.RestfulClient;
 import com.clarionmedia.infinitum.internal.DateFormatter;
 import com.clarionmedia.infinitum.internal.caching.AbstractCache;
@@ -85,7 +85,7 @@ public class CachingEnabledRestfulClient implements RestfulClient {
 		RestfulContext restContext = context.getRestfulConfiguration();
 		if (restContext != null) {
 			mIsAuthenticated = restContext.isRestAuthenticated();
-			mAuthStrategy = restContext.getAuthStrategy();
+			mAuthStrategy = context.getAuthStrategy();
 		}
 	}
 

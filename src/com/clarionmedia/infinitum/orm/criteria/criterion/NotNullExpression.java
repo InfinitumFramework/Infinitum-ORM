@@ -55,7 +55,7 @@ public class NotNullExpression extends Criterion {
 		StringBuilder query = new StringBuilder();
 		Class<?> c = criteria.getEntityClass();
 		Field f = null;
-		PersistencePolicy policy = ((OrmContext) mContextFactory.getContext()).getPersistencePolicy();
+		PersistencePolicy policy = mContextFactory.getContext(OrmContext.class).getPersistencePolicy();
 		try {
 			f = policy.findPersistentField(c, mFieldName);
 			if (f == null)

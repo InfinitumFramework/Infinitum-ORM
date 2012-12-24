@@ -43,7 +43,7 @@ public class ManyToManyRelationship extends ModelRelationship {
 	
 	public ManyToManyRelationship() {
 		mRelationType = RelationType.ManyToMany;
-		mPolicy = ((OrmContext) ContextFactory.newInstance()).getPersistencePolicy();
+		mPolicy = ContextFactory.newInstance().getContext(OrmContext.class).getPersistencePolicy();
 	}
 
 	public ManyToManyRelationship(Field f) {

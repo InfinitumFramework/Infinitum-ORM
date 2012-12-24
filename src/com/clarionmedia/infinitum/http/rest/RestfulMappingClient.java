@@ -26,7 +26,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.params.HttpParams;
 
-import com.clarionmedia.infinitum.context.AuthenticationStrategy;
 import com.clarionmedia.infinitum.http.rest.impl.RestResponse;
 
 /**

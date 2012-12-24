@@ -65,7 +65,7 @@ public class BetweenExpression extends Criterion {
 		StringBuilder query = new StringBuilder();
 		Class<?> clazz = criteria.getEntityClass();
 		Field field = null;
-		PersistencePolicy policy = ((OrmContext) mContextFactory.getContext()).getPersistencePolicy();
+		PersistencePolicy policy = mContextFactory.getContext(OrmContext.class).getPersistencePolicy();
 		field = policy.findPersistentField(clazz, mFieldName);
 		if (field == null)
 		    throw new InvalidCriteriaException(String.format("Invalid Criteria for type '%s'", clazz.getName()));

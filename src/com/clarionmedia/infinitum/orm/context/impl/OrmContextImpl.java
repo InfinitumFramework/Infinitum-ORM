@@ -13,15 +13,20 @@ import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.context.RestfulContext;
 import com.clarionmedia.infinitum.context.exception.InfinitumConfigurationException;
 import com.clarionmedia.infinitum.context.impl.XmlApplicationContext;
+import com.clarionmedia.infinitum.context.impl.XmlRestfulContext;
+import com.clarionmedia.infinitum.context.impl.XmlRestfulContext.Authentication;
 import com.clarionmedia.infinitum.di.AbstractBeanDefinition;
 import com.clarionmedia.infinitum.di.BeanDefinitionBuilder;
 import com.clarionmedia.infinitum.di.BeanFactory;
 import com.clarionmedia.infinitum.di.impl.GenericBeanDefinitionBuilder;
+import com.clarionmedia.infinitum.http.rest.AuthenticationStrategy;
+import com.clarionmedia.infinitum.http.rest.TokenGenerator;
 import com.clarionmedia.infinitum.http.rest.impl.RestfulJsonMapper;
 import com.clarionmedia.infinitum.http.rest.impl.RestfulJsonSession;
 import com.clarionmedia.infinitum.http.rest.impl.RestfulNameValueMapper;
 import com.clarionmedia.infinitum.http.rest.impl.RestfulSession;
 import com.clarionmedia.infinitum.http.rest.impl.RestfulXmlMapper;
+import com.clarionmedia.infinitum.http.rest.impl.SharedSecretAuthentication;
 import com.clarionmedia.infinitum.orm.Session;
 import com.clarionmedia.infinitum.orm.context.OrmContext;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
@@ -37,8 +42,6 @@ import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteSession;
 import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteTemplate;
 
 public class OrmContextImpl implements OrmContext {
-
-	private static PersistencePolicy sPersistencePolicy;
 
 	private XmlApplicationContext mParentContext;
 	private List<InfinitumContext> mChildContexts;
@@ -71,17 +74,7 @@ public class OrmContextImpl implements OrmContext {
 
 	@Override
 	public PersistencePolicy getPersistencePolicy() {
-		if (sPersistencePolicy == null) {
-			switch (getConfigurationMode()) {
-			case ANNOTATION:
-				sPersistencePolicy = getBean("$AnnotationsPersistencePolicy", AnnotationsPersistencePolicy.class);
-				break;
-			case XML:
-				sPersistencePolicy = getBean("$XmlPersistencePolicy", XmlPersistencePolicy.class);
-				break;
-			}
-		}
-		return sPersistencePolicy;
+		return getBean("$PersistencePolicy", PersistencePolicy.class);
 	}
 
 	@Override
@@ -140,6 +133,52 @@ public class OrmContextImpl implements OrmContext {
 		if (autocommit == null)
 			return true;
 		return parseBoolean(autocommit);
+	}
+	
+	@Override
+	public void setAuthStrategy(String strategy) throws InfinitumConfigurationException {
+		XmlRestfulContext restContext = mParentContext.getRestContext();
+		Authentication auth = restContext.getAuthentication();
+		if (auth == null)
+			auth = new Authentication();
+		if ("token".equalsIgnoreCase(strategy))
+			auth.setStrategy("token");
+		else
+			throw new InfinitumConfigurationException("Unrecognized authentication strategy '" + strategy + "'.");
+	}
+
+	@Override
+	public AuthenticationStrategy getAuthStrategy() {
+		XmlRestfulContext restContext = mParentContext.getRestContext();
+		Authentication auth = restContext.getAuthentication();
+		if (auth == null)
+			return null;
+		if (auth.getAuthBean() != null) {
+			return mParentContext.getBean(auth.getAuthBean(), AuthenticationStrategy.class);
+		}
+		String strategy = auth.getStrategy();
+		if ("token".equalsIgnoreCase(strategy)) {
+			SharedSecretAuthentication strat = new SharedSecretAuthentication();
+			strat.setHeader(auth.isHeader());
+			Map<String, String> props = auth.getAuthProperties();
+			if (props.containsKey("tokenName"))
+				strat.setTokenName(props.get("tokenName"));
+			if (props.containsKey("token"))
+				strat.setToken(props.get("token"));
+			if (auth.getGenerator() != null)
+				strat.setTokenGenerator(mParentContext.getBean(auth.getGenerator(), TokenGenerator.class));
+			return strat;
+		} else
+			throw new InfinitumConfigurationException("Unrecognized authentication strategy '" + strategy + "'.");
+	}
+	
+	@Override
+	public <T extends AuthenticationStrategy> void setAuthStrategy(T strategy) {
+		XmlRestfulContext restContext = mParentContext.getRestContext();
+		Authentication auth = restContext.getAuthentication();
+		if (auth == null)
+			auth = new Authentication();
+		setAuthStrategy(strategy.getClass().getSimpleName());
 	}
 
 	@Override
