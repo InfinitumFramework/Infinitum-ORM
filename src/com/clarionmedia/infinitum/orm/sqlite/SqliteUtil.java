@@ -22,7 +22,7 @@ package com.clarionmedia.infinitum.orm.sqlite;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 
-import com.clarionmedia.infinitum.aop.AopProxy;
+import com.clarionmedia.infinitum.di.AopProxy;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;

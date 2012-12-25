@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.clarionmedia.infinitum.aop.AopProxy;
+import com.clarionmedia.infinitum.di.AopProxy;
 import com.clarionmedia.infinitum.http.rest.RestfulMapper;
 import com.clarionmedia.infinitum.http.rest.RestfulPairsTypeAdapter;
 import com.clarionmedia.infinitum.internal.Primitives;

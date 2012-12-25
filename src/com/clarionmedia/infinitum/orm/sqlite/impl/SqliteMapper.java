@@ -26,7 +26,7 @@ import java.util.Map;
 
 import android.content.ContentValues;
 
-import com.clarionmedia.infinitum.aop.AopProxy;
+import com.clarionmedia.infinitum.di.AopProxy;
 import com.clarionmedia.infinitum.internal.Primitives;
 import com.clarionmedia.infinitum.orm.ObjectMapper;
 import com.clarionmedia.infinitum.orm.exception.InvalidMappingException;

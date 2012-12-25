@@ -86,6 +86,11 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 		mParentContext = parentContext;
 		mChildContexts = new ArrayList<InfinitumContext>();
 	}
+	
+	@Override
+	public void postProcess(Context context) {
+		registerOrmComponents();
+	}
 
 	@Override
 	public Session getSession(DataSource source) throws InfinitumConfigurationException {
@@ -220,11 +225,6 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 	@Override
 	public RestfulContext getRestfulConfiguration() {
 		return mParentContext.getRestContext();
-	}
-
-	@Override
-	public void postProcess(Context context) {
-		registerOrmComponents();
 	}
 
 	@Override
