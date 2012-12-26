@@ -22,9 +22,7 @@ package com.clarionmedia.infinitum.orm.context;
 import java.util.List;
 
 import com.clarionmedia.infinitum.context.InfinitumContext;
-import com.clarionmedia.infinitum.context.RestfulContext;
 import com.clarionmedia.infinitum.context.exception.InfinitumConfigurationException;
-import com.clarionmedia.infinitum.http.rest.AuthenticationStrategy;
 import com.clarionmedia.infinitum.orm.Session;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
 
@@ -150,49 +148,11 @@ public interface InfinitumOrmContext extends InfinitumContext {
 	boolean isAutocommit();
 
 	/**
-	 * Retrieves the {@link RestfulContext} for this {@code InfinitumContext}.
-	 * The {@code RestfulConfiguration} contains configuration settings for the
-	 * RESTful client.
-	 * 
-	 * @return {@code RestfulConfiguration}
-	 */
-	RestfulContext getRestfulConfiguration();
-
-	/**
 	 * Retrieves the application {@link PersistencePolicy}, which is configured
 	 * in {@code infinitum.cfg.xml}.
 	 * 
 	 * @return {@code PersistencePolicy} for this application
 	 */
 	PersistencePolicy getPersistencePolicy();
-
-	/**
-	 * Sets the {@link AuthenticationStrategy} for this
-	 * {@code RestfulConfiguration} based on one of the framework-defined
-	 * strategies, such as {@code token}.
-	 * 
-	 * @param strategy
-	 *            the framework-defined strategy to use
-	 * @throws InfinitumConfigurationException
-	 *             if the given strategy does not exist
-	 */
-	void setAuthStrategy(String strategy) throws InfinitumConfigurationException;
-
-	/**
-	 * Sets the {@link AuthenticationStrategy} for this
-	 * {@code RestfulConfiguration}.
-	 * 
-	 * @param strategy
-	 *            the {@code AuthenticationStrategy} to use
-	 */
-	<T extends AuthenticationStrategy> void setAuthStrategy(T strategy);
-
-	/**
-	 * Retrieves the configured {@link AuthenticationStrategy} for this
-	 * {@code RestfulConfiguration}.
-	 * 
-	 * @return the {@code AuthenticationStrategy}
-	 */
-	AuthenticationStrategy getAuthStrategy();
 
 }

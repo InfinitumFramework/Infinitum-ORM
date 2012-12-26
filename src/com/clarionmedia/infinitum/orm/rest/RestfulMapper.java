@@ -17,7 +17,7 @@
  * along with Infinitum Framework.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.clarionmedia.infinitum.http.rest;
+package com.clarionmedia.infinitum.orm.rest;
 
 import java.lang.reflect.Field;
 

@@ -17,40 +17,44 @@
  * along with Infinitum Framework.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.clarionmedia.infinitum.http.rest.impl;
+package com.clarionmedia.infinitum.orm.rest.impl;
 
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.clarionmedia.infinitum.http.rest.RestfulJsonTypeAdapter;
-import com.clarionmedia.infinitum.http.rest.RestfulMapper;
-import com.clarionmedia.infinitum.http.rest.RestfulPairsTypeAdapter;
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
+
+import com.clarionmedia.infinitum.orm.ObjectMapper;
 import com.clarionmedia.infinitum.orm.exception.InvalidMappingException;
 import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
 import com.clarionmedia.infinitum.orm.persistence.TypeAdapter;
-import com.google.gson.Gson;
+import com.clarionmedia.infinitum.orm.rest.RestfulMapper;
+import com.clarionmedia.infinitum.orm.rest.RestfulPairsTypeAdapter;
+import com.clarionmedia.infinitum.orm.rest.RestfulXmlTypeAdapter;
 
 /**
  * <p>
- * This implementation of {@link RestfulMapper} provides methods to map domain
- * models to RESTful web service resources for JSON message types.
+ * This implementation of {@link ObjectMapper} provides methods to map domain
+ * models to RESTful web service resources for XML message types.
  * </p>
  * 
  * @author Tyler Treat
  * @version 1.0 08/05/12
  * @since 1.0
  */
-public class RestfulJsonMapper extends RestfulMapper {
+public class RestfulXmlMapper extends RestfulMapper {
 
-	private Map<Class<?>, RestfulJsonTypeAdapter<?>> mTypeAdapters;
-	private Gson mGson;
+	private Map<Class<?>, RestfulXmlTypeAdapter<?>> mTypeAdapters;
+	private Serializer mSerializer;
 
 	/**
 	 * Constructs a new {@code RestfulJsonMapper}.
 	 */
-	public RestfulJsonMapper() {
-		mTypeAdapters = new HashMap<Class<?>, RestfulJsonTypeAdapter<?>>();
-		mGson = new Gson();
+	public RestfulXmlMapper() {
+		mTypeAdapters = new HashMap<Class<?>, RestfulXmlTypeAdapter<?>>();
+		mSerializer = new Persister();
 	}
 
 	@Override
@@ -59,19 +63,26 @@ public class RestfulJsonMapper extends RestfulMapper {
 		if (!mPersistencePolicy.isPersistent(model.getClass()))
 			return null;
 		RestfulStringModelMap modelMap = new RestfulStringModelMap(model);
-		String json;
+		String xml;
 		if (mTypeAdapters.containsKey(model.getClass()))
-			json = mTypeAdapters.get(model.getClass()).serializeObjectToJson(model);
-		else
-			json = mGson.toJson(model);
-		modelMap.setMessage(json);
+			xml = mTypeAdapters.get(model.getClass()).serializeObjectToXml(model);
+		else {
+			StringWriter writer = new StringWriter();
+			try {
+				mSerializer.write(model, writer);
+				xml = writer.toString();
+			} catch (Exception e) {
+				return null;
+			}
+		}
+		modelMap.setMessage(xml);
 		return modelMap;
 	}
 
 	@Override
 	public <T> void registerTypeAdapter(Class<T> type, TypeAdapter<T> adapter) {
-		if (RestfulJsonTypeAdapter.class.isAssignableFrom(adapter.getClass()))
-		    mTypeAdapters.put(type, (RestfulJsonTypeAdapter<?>) adapter);
+		if (RestfulXmlTypeAdapter.class.isAssignableFrom(adapter.getClass()))
+		    mTypeAdapters.put(type, (RestfulXmlTypeAdapter<?>) adapter);
 	}
 
 	@Override

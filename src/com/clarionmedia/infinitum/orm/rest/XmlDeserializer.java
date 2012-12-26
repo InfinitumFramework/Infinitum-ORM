@@ -17,44 +17,39 @@
  * along with Infinitum Framework.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.clarionmedia.infinitum.http;
+package com.clarionmedia.infinitum.orm.rest;
 
-import java.util.Map;
-
-import org.apache.http.HttpMessage;
+import java.util.List;
 
 /**
  * <p>
- * Encapsulates an HTTP message, either a request or response.
+ * Provides an API for deserializing XML responses into domain model instances.
  * </p>
  * 
  * @author Tyler Treat
- * @version 1.0 08/15/12
- * @since 1.0
+ * @version 1.0
+ * @since 05/21/12
  */
-public interface HttpClientMessage {
-	
-	/**
-	 * Returns the wrapped {@link HttpMessage}.
-	 * 
-	 * @return {@code HttpMessage}
-	 */
-	HttpMessage unwrap();
+public abstract class XmlDeserializer<T> implements Deserializer<T> {
 
 	/**
-	 * Returns the headers that were included with the response.
+	 * Deserializes the given XML {@link String} into an Object of the generic
+	 * type.
 	 * 
-	 * @return {@link Map} containing headers
+	 * @param xml
+	 *            the XML {@code String} to deserialize
+	 * @return {@code Object}
 	 */
-	Map<String, String> getHeaders();
+	public abstract T deserializeObject(String xml);
 
 	/**
-	 * Returns the value for the given header.
+	 * Deserializes the given XML {@link String} consisting of an object
+	 * collection into a {@link List} of objects of the generic type.
 	 * 
-	 * @param header
-	 *            the header to retrieve
-	 * @return header value
+	 * @param xml
+	 *            the XML {@code String} to deserialize
+	 * @return {@code List} of {@code Objects}
 	 */
-	String getHeader(String header);
+	public abstract List<T> deserializeObjects(String xml);
 
 }

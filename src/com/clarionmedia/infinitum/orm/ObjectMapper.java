@@ -25,7 +25,6 @@ import java.util.Map;
 import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
 import com.clarionmedia.infinitum.di.annotation.PostConstruct;
-import com.clarionmedia.infinitum.http.rest.impl.RestfulNameValueMapper;
 import com.clarionmedia.infinitum.internal.Pair;
 import com.clarionmedia.infinitum.internal.PropertyLoader;
 import com.clarionmedia.infinitum.logging.Logger;
@@ -39,6 +38,7 @@ import com.clarionmedia.infinitum.orm.relationship.ManyToOneRelationship;
 import com.clarionmedia.infinitum.orm.relationship.ModelRelationship;
 import com.clarionmedia.infinitum.orm.relationship.OneToManyRelationship;
 import com.clarionmedia.infinitum.orm.relationship.OneToOneRelationship;
+import com.clarionmedia.infinitum.orm.rest.impl.RestfulNameValueMapper;
 import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteMapper;
 import com.clarionmedia.infinitum.reflection.ClassReflector;
 

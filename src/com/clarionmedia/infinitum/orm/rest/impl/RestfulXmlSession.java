@@ -17,66 +17,70 @@
  * along with Infinitum Framework.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.clarionmedia.infinitum.http.rest.impl;
+package com.clarionmedia.infinitum.orm.rest.impl;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.HttpStatus;
+import org.simpleframework.xml.core.Persister;
 
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
-import com.clarionmedia.infinitum.http.rest.Deserializer;
-import com.clarionmedia.infinitum.http.rest.JsonDeserializer;
 import com.clarionmedia.infinitum.orm.Session;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
+import com.clarionmedia.infinitum.orm.internal.OrmPreconditions;
+import com.clarionmedia.infinitum.orm.rest.Deserializer;
+import com.clarionmedia.infinitum.orm.rest.XmlDeserializer;
+import com.clarionmedia.infinitum.web.rest.impl.RestResponse;
 
 /**
  * <p>
  * Concrete implementation of {@link RestfulSession} for web services which send
- * responses back as JSON.
+ * responses back as XML.
  * </p>
  * 
  * @author Tyler Treat
- * @version 1.0 03/21/12
+ * @version 1.0 05/21/12
  * @since 1.0
  */
-public class RestfulJsonSession extends RestfulSession {
+public class RestfulXmlSession extends RestfulSession {
 
-	protected Map<Class<?>, JsonDeserializer<?>> mJsonDeserializers;
+	protected Map<Class<?>, XmlDeserializer<?>> mXmlDeserializers;
 
 	/**
-	 * Creates a new {@code RestfulJsonSession}.
+	 * Creates a new {@code RestfulXmlSession}.
 	 */
-	public RestfulJsonSession() {
-		mJsonDeserializers = new HashMap<Class<?>, JsonDeserializer<?>>();
+	public RestfulXmlSession() {
+		mXmlDeserializers = new HashMap<Class<?>, XmlDeserializer<?>>();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T loadEntity(Class<T> type, Serializable id) throws InfinitumRuntimeException, IllegalArgumentException {
+		OrmPreconditions.checkPersistenceForLoading(type, mPersistencePolicy);
 		mLogger.debug("Sending GET request to retrieve entity");
 		String uri = mHost + mPersistencePolicy.getRestEndpoint(type) + "/" + id;
 		Map<String, String> headers = new HashMap<String, String>();
-		headers.put("Accept", "application/json");
+		headers.put("Accept", "application/xml");
 		try {
 			RestResponse response = mRestClient.executeGet(uri, headers);
 			if (response.getStatusCode() == HttpStatus.SC_OK) {
-				String jsonResponse = response.getResponseDataAsString();
-				T ret;
+				String xmlResponse = response.getResponseDataAsString();
+				T ret = null;
 				// Attempt to use a registered deserializer
-				if (mJsonDeserializers.containsKey(type))
-					ret = (T) mJsonDeserializers.get(type).deserializeObject(jsonResponse);
-				// Otherwise fallback to Gson
+				if (mXmlDeserializers.containsKey(type))
+					ret = (T) mXmlDeserializers.get(type).deserializeObject(xmlResponse);
+				// Otherwise fallback to Simple
 				else
-					ret = new Gson().fromJson(jsonResponse, type);
-				int objHash = mPersistencePolicy.computeModelHash(ret);
-				cache(objHash, ret);
+					ret = new Persister().read(type, xmlResponse);
+				if (ret != null) {
+				    int objHash = mPersistencePolicy.computeModelHash(ret);
+				    cache(objHash, ret);
+				}
 				return ret;
 			}
-		} catch (JsonSyntaxException e) {
-			mLogger.error("Unable to deserialize web service response", e);
+		} catch (Exception e) {
+			mLogger.error("Unable to read web service response", e);
 			return null;
 		}
 		return null;
@@ -84,8 +88,8 @@ public class RestfulJsonSession extends RestfulSession {
 
 	@Override
 	public <T> Session registerDeserializer(Class<T> type, Deserializer<T> deserializer) {
-		if (JsonDeserializer.class.isAssignableFrom(deserializer.getClass()))
-			mJsonDeserializers.put(type, (JsonDeserializer<T>) deserializer);
+		if (XmlDeserializer.class.isAssignableFrom(deserializer.getClass()))
+			mXmlDeserializers.put(type, (XmlDeserializer<T>) deserializer);
 		return this;
 	}
 

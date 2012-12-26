@@ -32,26 +32,21 @@ import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.context.RestfulContext;
 import com.clarionmedia.infinitum.context.exception.InfinitumConfigurationException;
 import com.clarionmedia.infinitum.context.impl.XmlApplicationContext;
-import com.clarionmedia.infinitum.context.impl.XmlRestfulContext;
-import com.clarionmedia.infinitum.context.impl.XmlRestfulContext.Authentication;
 import com.clarionmedia.infinitum.di.AbstractBeanDefinition;
 import com.clarionmedia.infinitum.di.BeanDefinitionBuilder;
 import com.clarionmedia.infinitum.di.BeanFactory;
 import com.clarionmedia.infinitum.di.impl.GenericBeanDefinitionBuilder;
-import com.clarionmedia.infinitum.http.rest.AuthenticationStrategy;
-import com.clarionmedia.infinitum.http.rest.TokenGenerator;
-import com.clarionmedia.infinitum.http.rest.impl.RestfulJsonMapper;
-import com.clarionmedia.infinitum.http.rest.impl.RestfulJsonSession;
-import com.clarionmedia.infinitum.http.rest.impl.RestfulNameValueMapper;
-import com.clarionmedia.infinitum.http.rest.impl.RestfulSession;
-import com.clarionmedia.infinitum.http.rest.impl.RestfulXmlMapper;
-import com.clarionmedia.infinitum.http.rest.impl.SharedSecretAuthentication;
 import com.clarionmedia.infinitum.orm.Session;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
 import com.clarionmedia.infinitum.orm.persistence.impl.AnnotationsPersistencePolicy;
 import com.clarionmedia.infinitum.orm.persistence.impl.DefaultTypeResolutionPolicy;
 import com.clarionmedia.infinitum.orm.persistence.impl.XmlPersistencePolicy;
+import com.clarionmedia.infinitum.orm.rest.impl.RestfulJsonMapper;
+import com.clarionmedia.infinitum.orm.rest.impl.RestfulJsonSession;
+import com.clarionmedia.infinitum.orm.rest.impl.RestfulNameValueMapper;
+import com.clarionmedia.infinitum.orm.rest.impl.RestfulSession;
+import com.clarionmedia.infinitum.orm.rest.impl.RestfulXmlMapper;
 import com.clarionmedia.infinitum.orm.sqlite.SqliteUtil;
 import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteBuilder;
 import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteDbHelper;
@@ -98,7 +93,7 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 		case SQLITE:
 			return getBean("$SqliteSession", SqliteSession.class);
 		case REST:
-			String client = getRestfulConfiguration().getClientBean();
+			String client = mParentContext.getRestContext().getClientBean();
 			RestfulSession session;
 			if (client == null) {
 				// Use RestfulJsonSession if no client is defined
@@ -177,57 +172,6 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 	}
 
 	@Override
-	public void setAuthStrategy(String strategy) throws InfinitumConfigurationException {
-		XmlRestfulContext restContext = mParentContext.getRestContext();
-		Authentication auth = restContext.getAuthentication();
-		if (auth == null)
-			auth = new Authentication();
-		if ("token".equalsIgnoreCase(strategy))
-			auth.setStrategy("token");
-		else
-			throw new InfinitumConfigurationException("Unrecognized authentication strategy '" + strategy + "'.");
-	}
-
-	@Override
-	public AuthenticationStrategy getAuthStrategy() {
-		XmlRestfulContext restContext = mParentContext.getRestContext();
-		Authentication auth = restContext.getAuthentication();
-		if (auth == null)
-			return null;
-		if (auth.getAuthBean() != null) {
-			return mParentContext.getBean(auth.getAuthBean(), AuthenticationStrategy.class);
-		}
-		String strategy = auth.getStrategy();
-		if ("token".equalsIgnoreCase(strategy)) {
-			SharedSecretAuthentication strat = new SharedSecretAuthentication();
-			strat.setHeader(auth.isHeader());
-			Map<String, String> props = auth.getAuthProperties();
-			if (props.containsKey("tokenName"))
-				strat.setTokenName(props.get("tokenName"));
-			if (props.containsKey("token"))
-				strat.setToken(props.get("token"));
-			if (auth.getGenerator() != null)
-				strat.setTokenGenerator(mParentContext.getBean(auth.getGenerator(), TokenGenerator.class));
-			return strat;
-		} else
-			throw new InfinitumConfigurationException("Unrecognized authentication strategy '" + strategy + "'.");
-	}
-
-	@Override
-	public <T extends AuthenticationStrategy> void setAuthStrategy(T strategy) {
-		XmlRestfulContext restContext = mParentContext.getRestContext();
-		Authentication auth = restContext.getAuthentication();
-		if (auth == null)
-			auth = new Authentication();
-		setAuthStrategy(strategy.getClass().getSimpleName());
-	}
-
-	@Override
-	public RestfulContext getRestfulConfiguration() {
-		return mParentContext.getRestContext();
-	}
-
-	@Override
 	public boolean isDebug() {
 		return mParentContext.isDebug();
 	}
@@ -270,6 +214,11 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 	@Override
 	public InfinitumContext getParentContext() {
 		return mParentContext;
+	}
+	
+	@Override
+	public RestfulContext getRestContext() {
+		return mParentContext.getRestContext();
 	}
 
 	private void registerOrmComponents() {

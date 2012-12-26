@@ -17,7 +17,7 @@
  * along with Infinitum Framework.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.clarionmedia.infinitum.http.rest.impl;
+package com.clarionmedia.infinitum.orm.rest.impl;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 
-import com.clarionmedia.infinitum.http.rest.RestfulModelMap;
+import com.clarionmedia.infinitum.orm.rest.RestfulModelMap;
 
 /**
  * <p>

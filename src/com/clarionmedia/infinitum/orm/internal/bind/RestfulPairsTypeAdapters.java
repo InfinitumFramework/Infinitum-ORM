@@ -26,9 +26,9 @@ import java.util.List;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
-import com.clarionmedia.infinitum.http.rest.RestfulPairsTypeAdapter;
 import com.clarionmedia.infinitum.internal.DateFormatter;
 import com.clarionmedia.infinitum.orm.ResultSet;
+import com.clarionmedia.infinitum.orm.rest.RestfulPairsTypeAdapter;
 
 /**
  * <p>

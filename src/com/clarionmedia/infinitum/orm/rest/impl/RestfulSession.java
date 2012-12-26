@@ -17,7 +17,7 @@
  * along with Infinitum Framework.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.clarionmedia.infinitum.http.rest.impl;
+package com.clarionmedia.infinitum.orm.rest.impl;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -37,9 +37,6 @@ import com.clarionmedia.infinitum.context.RestfulContext.MessageType;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
 import com.clarionmedia.infinitum.di.annotation.PostConstruct;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
-import com.clarionmedia.infinitum.http.rest.RestfulClient;
-import com.clarionmedia.infinitum.http.rest.RestfulMapper;
-import com.clarionmedia.infinitum.http.rest.RestfulModelMap;
 import com.clarionmedia.infinitum.internal.caching.LruCache;
 import com.clarionmedia.infinitum.logging.Logger;
 import com.clarionmedia.infinitum.orm.Session;
@@ -49,6 +46,12 @@ import com.clarionmedia.infinitum.orm.exception.SQLGrammarException;
 import com.clarionmedia.infinitum.orm.internal.OrmPreconditions;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
 import com.clarionmedia.infinitum.orm.persistence.TypeAdapter;
+import com.clarionmedia.infinitum.orm.rest.RestfulMapper;
+import com.clarionmedia.infinitum.orm.rest.RestfulModelMap;
+import com.clarionmedia.infinitum.web.context.InfinitumWebContext;
+import com.clarionmedia.infinitum.web.rest.RestfulClient;
+import com.clarionmedia.infinitum.web.rest.impl.CachingEnabledRestfulClient;
+import com.clarionmedia.infinitum.web.rest.impl.RestResponse;
 
 /**
  * <p>
@@ -73,8 +76,10 @@ public abstract class RestfulSession implements Session {
 
 	@Autowired
 	protected InfinitumOrmContext mInfinitumContext;
-
+	
 	@Autowired
+	protected InfinitumWebContext mWebContext;
+
 	protected RestfulContext mRestContext;
 
 	protected boolean mIsOpen;
@@ -103,6 +108,7 @@ public abstract class RestfulSession implements Session {
 	@PostConstruct
 	private void init() {
 		mLogger = Logger.getInstance(mInfinitumContext, getClass().getSimpleName());
+		mRestContext = mInfinitumContext.getRestContext();
 		switch (mRestContext.getMessageType()) {
 		case XML:
 			mMapper = mInfinitumContext.getBean("$RestfulXmlMapper", RestfulXmlMapper.class);
@@ -116,7 +122,7 @@ public abstract class RestfulSession implements Session {
 		mHost = mRestContext.getRestHost();
 		if (!mHost.endsWith("/"))
 			mHost += '/';
-		mRestClient = new CachingEnabledRestfulClient(mInfinitumContext);
+		mRestClient = new CachingEnabledRestfulClient(mWebContext);
 		mRestClient.setHttpParams(getHttpParams());
 	}
 

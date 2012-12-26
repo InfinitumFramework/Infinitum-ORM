@@ -17,7 +17,7 @@
  * along with Infinitum Framework.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.clarionmedia.infinitum.http.rest.impl;
+package com.clarionmedia.infinitum.orm.rest.impl;
 
 import java.lang.reflect.Field;
 import java.util.Date;
@@ -25,14 +25,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.clarionmedia.infinitum.di.AopProxy;
-import com.clarionmedia.infinitum.http.rest.RestfulMapper;
-import com.clarionmedia.infinitum.http.rest.RestfulPairsTypeAdapter;
 import com.clarionmedia.infinitum.internal.Primitives;
 import com.clarionmedia.infinitum.orm.ObjectMapper;
 import com.clarionmedia.infinitum.orm.exception.InvalidMappingException;
 import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
 import com.clarionmedia.infinitum.orm.internal.bind.RestfulPairsTypeAdapters;
 import com.clarionmedia.infinitum.orm.persistence.TypeAdapter;
+import com.clarionmedia.infinitum.orm.rest.RestfulMapper;
+import com.clarionmedia.infinitum.orm.rest.RestfulPairsTypeAdapter;
 
 /**
  * <p>

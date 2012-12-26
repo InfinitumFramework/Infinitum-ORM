@@ -31,7 +31,6 @@ import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
 import com.clarionmedia.infinitum.di.annotation.PostConstruct;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
-import com.clarionmedia.infinitum.http.rest.Deserializer;
 import com.clarionmedia.infinitum.internal.caching.LruCache;
 import com.clarionmedia.infinitum.logging.Logger;
 import com.clarionmedia.infinitum.orm.Session;
@@ -39,6 +38,7 @@ import com.clarionmedia.infinitum.orm.criteria.Criteria;
 import com.clarionmedia.infinitum.orm.exception.SQLGrammarException;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
 import com.clarionmedia.infinitum.orm.persistence.TypeAdapter;
+import com.clarionmedia.infinitum.orm.rest.Deserializer;
 import com.clarionmedia.infinitum.orm.sqlite.SqliteTypeAdapter;
 
 /**
