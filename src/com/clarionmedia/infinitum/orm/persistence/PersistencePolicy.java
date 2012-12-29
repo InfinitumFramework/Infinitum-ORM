@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.clarionmedia.infinitum.context.ContextFactory;
 import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.di.AopProxy;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
@@ -143,7 +144,7 @@ public abstract class PersistencePolicy {
 	@PostConstruct
 	private void init() {
 		mLogger = Logger.getInstance(mContext, getClass().getSimpleName());
-		mPropLoader = new PropertyLoader(mContext.getAndroidContext());
+		mPropLoader = new PropertyLoader(ContextFactory.newInstance().getAndroidContext());
 	}
 
 	/**

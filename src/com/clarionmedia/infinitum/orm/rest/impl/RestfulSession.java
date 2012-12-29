@@ -81,7 +81,6 @@ public abstract class RestfulSession implements Session {
 	protected InfinitumWebContext mWebContext;
 
 	protected RestfulContext mRestContext;
-
 	protected boolean mIsOpen;
 	protected String mHost;
 	protected Logger mLogger;
@@ -108,22 +107,7 @@ public abstract class RestfulSession implements Session {
 	@PostConstruct
 	private void init() {
 		mLogger = Logger.getInstance(mInfinitumContext, getClass().getSimpleName());
-		mRestContext = mInfinitumContext.getRestContext();
-		switch (mRestContext.getMessageType()) {
-		case XML:
-			mMapper = mInfinitumContext.getBean("$RestfulXmlMapper", RestfulXmlMapper.class);
-			break;
-		case JSON:
-			mMapper = mInfinitumContext.getBean("$RestfulJsonMapper", RestfulJsonMapper.class);
-			break;
-		default:
-			mMapper = mInfinitumContext.getBean("$RestfulNameValueMapper", RestfulNameValueMapper.class);
-		}
-		mHost = mRestContext.getRestHost();
-		if (!mHost.endsWith("/"))
-			mHost += '/';
 		mRestClient = new CachingEnabledRestfulClient(mWebContext);
-		mRestClient.setHttpParams(getHttpParams());
 	}
 
 	/**
@@ -141,6 +125,22 @@ public abstract class RestfulSession implements Session {
 
 	@Override
 	public Session open() throws SQLException {
+		mRestContext = mInfinitumContext.getRestContext();
+		mRestClient.setAuthStrategy(mWebContext.getAuthStrategy());
+		mRestClient.setHttpParams(getHttpParams());
+		switch (mRestContext.getMessageType()) {
+		case XML:
+			mMapper = mInfinitumContext.getBean("$RestfulXmlMapper", RestfulXmlMapper.class);
+			break;
+		case JSON:
+			mMapper = mInfinitumContext.getBean("$RestfulJsonMapper", RestfulJsonMapper.class);
+			break;
+		default:
+			mMapper = mInfinitumContext.getBean("$RestfulNameValueMapper", RestfulNameValueMapper.class);
+		}
+		mHost = mRestContext.getRestHost();
+		if (!mHost.endsWith("/"))
+			mHost += '/';
 		mIsOpen = true;
 		mLogger.debug("Session opened");
 		return this;
@@ -227,6 +227,7 @@ public abstract class RestfulSession implements Session {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T load(Class<T> type, Serializable id) throws InfinitumRuntimeException, IllegalArgumentException {
+		OrmPreconditions.checkForOpenSession(mIsOpen);
 		OrmPreconditions.checkPersistenceForLoading(type, mPersistencePolicy);
 		// TODO Validate primary key
 		int objHash = mPersistencePolicy.computeModelHash(type, id);
@@ -237,6 +238,7 @@ public abstract class RestfulSession implements Session {
 
 	@Override
 	public long save(Object model) {
+		OrmPreconditions.checkForOpenSession(mIsOpen);
 		OrmPreconditions.checkPersistenceForModify(model, mPersistencePolicy);
 		mLogger.debug("Sending POST request to save entity");
 		String uri = mHost + mPersistencePolicy.getRestEndpoint(model.getClass());
@@ -254,6 +256,7 @@ public abstract class RestfulSession implements Session {
 
 	@Override
 	public boolean delete(Object model) {
+		OrmPreconditions.checkForOpenSession(mIsOpen);
 		OrmPreconditions.checkPersistenceForModify(model, mPersistencePolicy);
 		mLogger.debug("Sending DELETE request to delete entity");
 		Serializable pk = mPersistencePolicy.getPrimaryKey(model);
@@ -274,6 +277,7 @@ public abstract class RestfulSession implements Session {
 
 	@Override
 	public boolean update(Object model) throws InfinitumRuntimeException {
+		OrmPreconditions.checkForOpenSession(mIsOpen);
 		OrmPreconditions.checkPersistenceForModify(model, mPersistencePolicy);
 		mLogger.debug("Sending PUT request to update entity");
 		String uri = mHost + mPersistencePolicy.getRestEndpoint(model.getClass());
@@ -304,6 +308,7 @@ public abstract class RestfulSession implements Session {
 	 */
 	@Override
 	public long saveOrUpdate(Object model) {
+		OrmPreconditions.checkForOpenSession(mIsOpen);
 		OrmPreconditions.checkPersistenceForModify(model, mPersistencePolicy);
 		mLogger.debug("Sending PUT request to save or update entity");
 		String uri = mHost + mPersistencePolicy.getRestEndpoint(model.getClass());
@@ -327,6 +332,7 @@ public abstract class RestfulSession implements Session {
 
 	@Override
 	public int saveOrUpdateAll(Collection<? extends Object> models) throws InfinitumRuntimeException {
+		OrmPreconditions.checkForOpenSession(mIsOpen);
 		int count = 0;
 		for (Object model : models) {
 			if (saveOrUpdate(model) >= 0)
@@ -337,6 +343,7 @@ public abstract class RestfulSession implements Session {
 
 	@Override
 	public int saveAll(Collection<? extends Object> models) throws InfinitumRuntimeException {
+		OrmPreconditions.checkForOpenSession(mIsOpen);
 		int count = 0;
 		for (Object model : models) {
 			if (save(model) == 0)
@@ -347,6 +354,7 @@ public abstract class RestfulSession implements Session {
 
 	@Override
 	public int deleteAll(Collection<? extends Object> models) throws InfinitumRuntimeException {
+		OrmPreconditions.checkForOpenSession(mIsOpen);
 		int count = 0;
 		for (Object model : models) {
 			if (delete(model))

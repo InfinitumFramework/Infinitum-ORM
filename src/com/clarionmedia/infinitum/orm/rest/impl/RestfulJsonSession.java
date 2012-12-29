@@ -27,6 +27,7 @@ import org.apache.http.HttpStatus;
 
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.orm.Session;
+import com.clarionmedia.infinitum.orm.internal.OrmPreconditions;
 import com.clarionmedia.infinitum.orm.rest.Deserializer;
 import com.clarionmedia.infinitum.orm.rest.JsonDeserializer;
 import com.clarionmedia.infinitum.web.rest.impl.RestResponse;
@@ -57,6 +58,7 @@ public class RestfulJsonSession extends RestfulSession {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T loadEntity(Class<T> type, Serializable id) throws InfinitumRuntimeException, IllegalArgumentException {
+		OrmPreconditions.checkForOpenSession(mIsOpen);
 		mLogger.debug("Sending GET request to retrieve entity");
 		String uri = mHost + mPersistencePolicy.getRestEndpoint(type) + "/" + id;
 		Map<String, String> headers = new HashMap<String, String>();

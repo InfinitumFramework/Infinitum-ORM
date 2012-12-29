@@ -57,6 +57,7 @@ public class RestfulXmlSession extends RestfulSession {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T loadEntity(Class<T> type, Serializable id) throws InfinitumRuntimeException, IllegalArgumentException {
+		OrmPreconditions.checkForOpenSession(mIsOpen);
 		OrmPreconditions.checkPersistenceForLoading(type, mPersistencePolicy);
 		mLogger.debug("Sending GET request to retrieve entity");
 		String uri = mHost + mPersistencePolicy.getRestEndpoint(type) + "/" + id;

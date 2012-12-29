@@ -21,6 +21,7 @@ package com.clarionmedia.infinitum.orm.context;
 
 import java.util.List;
 
+import com.clarionmedia.infinitum.context.BeanProvider;
 import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.context.exception.InfinitumConfigurationException;
 import com.clarionmedia.infinitum.orm.Session;
@@ -47,7 +48,7 @@ import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
  * @version 1.0 12/23/12
  * @since 1.0
  */
-public interface InfinitumOrmContext extends InfinitumContext {
+public interface InfinitumOrmContext extends InfinitumContext, BeanProvider {
 
 	/**
 	 * Represents the entity persistence configuration mode.

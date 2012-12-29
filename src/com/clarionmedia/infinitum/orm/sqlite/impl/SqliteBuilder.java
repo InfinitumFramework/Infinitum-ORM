@@ -25,6 +25,7 @@ import java.util.List;
 
 import android.database.sqlite.SQLiteDatabase;
 
+import com.clarionmedia.infinitum.context.ContextFactory;
 import com.clarionmedia.infinitum.context.exception.InfinitumConfigurationException;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
 import com.clarionmedia.infinitum.di.annotation.PostConstruct;
@@ -73,7 +74,7 @@ public class SqliteBuilder implements SqlBuilder {
 
 	@PostConstruct
 	private void init() {
-		mPropLoader = new PropertyLoader(mContext.getAndroidContext());
+		mPropLoader = new PropertyLoader(ContextFactory.newInstance().getAndroidContext());
 	}
 
 	@Override

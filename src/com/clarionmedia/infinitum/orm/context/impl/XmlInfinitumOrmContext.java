@@ -35,7 +35,6 @@ import com.clarionmedia.infinitum.context.impl.XmlApplicationContext;
 import com.clarionmedia.infinitum.di.AbstractBeanDefinition;
 import com.clarionmedia.infinitum.di.BeanDefinitionBuilder;
 import com.clarionmedia.infinitum.di.BeanFactory;
-import com.clarionmedia.infinitum.di.impl.GenericBeanDefinitionBuilder;
 import com.clarionmedia.infinitum.orm.Session;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
@@ -49,7 +48,6 @@ import com.clarionmedia.infinitum.orm.rest.impl.RestfulSession;
 import com.clarionmedia.infinitum.orm.rest.impl.RestfulXmlMapper;
 import com.clarionmedia.infinitum.orm.sqlite.SqliteUtil;
 import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteBuilder;
-import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteDbHelper;
 import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteMapper;
 import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteModelFactory;
 import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteSession;
@@ -81,10 +79,32 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 		mParentContext = parentContext;
 		mChildContexts = new ArrayList<InfinitumContext>();
 	}
-	
+
 	@Override
 	public void postProcess(Context context) {
-		registerOrmComponents();
+	}
+
+	@Override
+	public List<AbstractBeanDefinition> getBeans(BeanDefinitionBuilder beanDefinitionBuilder) {
+		List<AbstractBeanDefinition> beans = new ArrayList<AbstractBeanDefinition>();
+		beans.add(beanDefinitionBuilder.setName("$OrmContext").setType(XmlInfinitumOrmContext.class).build());
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put("mIsAutocommit", isAutocommit());
+		beans.add(beanDefinitionBuilder.setName("$SqliteTemplate").setType(SqliteTemplate.class).setProperties(properties).build());
+		beans.add(beanDefinitionBuilder.setName("$SqliteSession").setType(SqliteSession.class).build());
+		beans.add(beanDefinitionBuilder.setName("$SqliteMapper").setType(SqliteMapper.class).build());
+		beans.add(beanDefinitionBuilder.setName("$TypeResolutionPolicy").setType(DefaultTypeResolutionPolicy.class).build());
+		beans.add(beanDefinitionBuilder.setName("$SqliteModelFactory").setType(SqliteModelFactory.class).build());
+		beans.add(beanDefinitionBuilder.setName("$SqliteBuilder").setType(SqliteBuilder.class).build());
+		beans.add(beanDefinitionBuilder.setName("$SqliteUtil").setType(SqliteUtil.class).build());
+		beans.add(beanDefinitionBuilder.setName("$RestfulXmlMapper").setType(RestfulXmlMapper.class).build());
+		beans.add(beanDefinitionBuilder.setName("$RestfulJsonMapper").setType(RestfulJsonMapper.class).build());
+		beans.add(beanDefinitionBuilder.setName("$RestfulNameValueMapper").setType(RestfulNameValueMapper.class).build());
+		beans.add(beanDefinitionBuilder.setName("$RestfulJsonSession").setType(RestfulJsonSession.class).build());
+		Class<?> type = getConfigurationMode() == ConfigurationMode.ANNOTATION ? AnnotationsPersistencePolicy.class
+				: XmlPersistencePolicy.class;
+		beans.add(beanDefinitionBuilder.setName("$PersistencePolicy").setType(type).build());
+		return beans;
 	}
 
 	@Override
@@ -215,47 +235,10 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 	public InfinitumContext getParentContext() {
 		return mParentContext;
 	}
-	
+
 	@Override
 	public RestfulContext getRestContext() {
 		return mParentContext.getRestContext();
-	}
-
-	private void registerOrmComponents() {
-		BeanFactory beanFactory = mParentContext.getBeanFactory();
-		BeanDefinitionBuilder beanDefinitionBuilder = new GenericBeanDefinitionBuilder(beanFactory);
-		AbstractBeanDefinition beanDefinition = beanDefinitionBuilder.setName("$OrmContext").setType(XmlInfinitumOrmContext.class).build();
-		beanFactory.registerBean(beanDefinition);
-		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put("mIsAutocommit", isAutocommit());
-		beanDefinition = beanDefinitionBuilder.setName("$SqliteTemplate").setType(SqliteTemplate.class).setProperties(properties).build();
-		beanFactory.registerBean(beanDefinition);
-		beanDefinition = beanDefinitionBuilder.setName("$SqliteSession").setType(SqliteSession.class).build();
-		beanFactory.registerBean(beanDefinition);
-		beanDefinition = beanDefinitionBuilder.setName("$SqliteDbHelper").setType(SqliteDbHelper.class).build();
-		beanFactory.registerBean(beanDefinition);
-		beanDefinition = beanDefinitionBuilder.setName("$SqliteMapper").setType(SqliteMapper.class).build();
-		beanFactory.registerBean(beanDefinition);
-		beanDefinition = beanDefinitionBuilder.setName("$TypeResolutionPolicy").setType(DefaultTypeResolutionPolicy.class).build();
-		beanFactory.registerBean(beanDefinition);
-		beanDefinition = beanDefinitionBuilder.setName("$SqliteModelFactory").setType(SqliteModelFactory.class).build();
-		beanFactory.registerBean(beanDefinition);
-		beanDefinition = beanDefinitionBuilder.setName("$SqliteBuilder").setType(SqliteBuilder.class).build();
-		beanFactory.registerBean(beanDefinition);
-		beanDefinition = beanDefinitionBuilder.setName("$SqliteUtil").setType(SqliteUtil.class).build();
-		beanFactory.registerBean(beanDefinition);
-		beanDefinition = beanDefinitionBuilder.setName("$RestfulXmlMapper").setType(RestfulXmlMapper.class).build();
-		beanFactory.registerBean(beanDefinition);
-		beanDefinition = beanDefinitionBuilder.setName("$RestfulJsonMapper").setType(RestfulJsonMapper.class).build();
-		beanFactory.registerBean(beanDefinition);
-		beanDefinition = beanDefinitionBuilder.setName("$RestfulNameValueMapper").setType(RestfulNameValueMapper.class).build();
-		beanFactory.registerBean(beanDefinition);
-		beanDefinition = beanDefinitionBuilder.setName("$RestfulJsonSession").setType(RestfulJsonSession.class).build();
-		beanFactory.registerBean(beanDefinition);
-		Class<?> type = getConfigurationMode() == ConfigurationMode.ANNOTATION ? AnnotationsPersistencePolicy.class
-				: XmlPersistencePolicy.class;
-		beanDefinition = beanDefinitionBuilder.setName("$PersistencePolicy").setType(type).build();
-		beanFactory.registerBean(beanDefinition);
 	}
 
 }

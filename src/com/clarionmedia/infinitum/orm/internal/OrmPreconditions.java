@@ -42,8 +42,18 @@ public class OrmPreconditions {
 	 */
 	public static void checkForTransaction(boolean autocommit, boolean txOpen) {
 		if (!autocommit && !txOpen)
-			throw new InfinitumRuntimeException(
-					"Autocommit is disabled, but there is no open transaction.");
+			throw new InfinitumRuntimeException("Autocommit is disabled, but there is no open transaction.");
+	}
+
+	/**
+	 * Verifies that a session is open.
+	 * 
+	 * @param isOpen
+	 *            indicates if session is open
+	 */
+	public static void checkForOpenSession(boolean isOpen) {
+		if (!isOpen)
+			throw new InfinitumRuntimeException("Session is not open.");
 	}
 
 	/**
@@ -55,12 +65,9 @@ public class OrmPreconditions {
 	 * @param policy
 	 *            {@link PersistencePolicy} to use
 	 */
-	public static void checkPersistenceForModify(Object model,
-			PersistencePolicy policy) {
+	public static void checkPersistenceForModify(Object model, PersistencePolicy policy) {
 		if (!policy.isPersistent(model.getClass()))
-			throw new InfinitumRuntimeException(String.format(
-					"Cannot modify transient class '%s'.", model.getClass()
-							.getName()));
+			throw new InfinitumRuntimeException(String.format("Cannot modify transient class '%s'.", model.getClass().getName()));
 	}
 
 	/**

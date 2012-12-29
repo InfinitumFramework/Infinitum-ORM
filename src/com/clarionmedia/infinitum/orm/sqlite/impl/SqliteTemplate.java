@@ -34,6 +34,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 
+import com.clarionmedia.infinitum.context.ContextFactory;
 import com.clarionmedia.infinitum.di.AopProxy;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
 import com.clarionmedia.infinitum.di.annotation.PostConstruct;
@@ -79,9 +80,6 @@ public class SqliteTemplate implements SqliteOperations {
 	
 	@Autowired
 	protected SqliteSession mSession;
-	
-	@Autowired
-	protected SqliteDbHelper mDbHelper;
 		
 	@Autowired
 	protected SqliteMapper mMapper;
@@ -104,6 +102,7 @@ public class SqliteTemplate implements SqliteOperations {
 	@Autowired
 	protected ClassReflector mClassReflector;
 	
+	protected SqliteDbHelper mDbHelper;
 	protected boolean mIsAutocommit;
 	protected boolean mIsOpen;
 	protected Stack<Boolean> mTransactionStack;
@@ -114,7 +113,7 @@ public class SqliteTemplate implements SqliteOperations {
 	@PostConstruct
 	private void init() {
 		mLogger = Logger.getInstance(mInfinitumContext, getClass().getSimpleName());
-		mPropLoader = new PropertyLoader(mInfinitumContext.getAndroidContext());
+		mPropLoader = new PropertyLoader(ContextFactory.newInstance().getAndroidContext());
 		mTransactionStack = new Stack<Boolean>();
 	}
 
@@ -125,6 +124,7 @@ public class SqliteTemplate implements SqliteOperations {
 
 	@Override
 	public void open() throws SQLException {
+		mDbHelper = new SqliteDbHelper(mInfinitumContext, mMapper, mSqlBuilder);
 		mSqliteDb = mDbHelper.getWritableDatabase();
 		mIsOpen = true;
 	}

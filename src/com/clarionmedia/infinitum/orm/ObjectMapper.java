@@ -22,6 +22,7 @@ package com.clarionmedia.infinitum.orm;
 import java.lang.reflect.Field;
 import java.util.Map;
 
+import com.clarionmedia.infinitum.context.ContextFactory;
 import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
 import com.clarionmedia.infinitum.di.annotation.PostConstruct;
@@ -74,7 +75,7 @@ public abstract class ObjectMapper {
 	@PostConstruct
 	private void init() {
 		mLogger = Logger.getInstance(mContext, getClass().getSimpleName());
-		mPropLoader = new PropertyLoader(mContext.getAndroidContext());
+		mPropLoader = new PropertyLoader(ContextFactory.newInstance().getAndroidContext());
 		
 	}
 
