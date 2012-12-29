@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.clarionmedia.infinitum.di.AopProxy;
+import com.clarionmedia.infinitum.di.AbstractProxy;
 import com.clarionmedia.infinitum.internal.Primitives;
 import com.clarionmedia.infinitum.orm.ObjectMapper;
 import com.clarionmedia.infinitum.orm.exception.InvalidMappingException;
@@ -115,8 +115,8 @@ public class RestfulNameValueMapper extends RestfulMapper {
 	// Map Field value to NameValuePair
 	private void mapField(RestfulNameValueModelMap modelMap, Object model,
 			Field field) {
-		if (AopProxy.isAopProxy(model))
-			model = AopProxy.getTarget(model);
+		if (AbstractProxy.isAopProxy(model))
+			model = AbstractProxy.getTarget(model);
 		Object val = mClassReflector.getFieldValue(model, field);
 		String fieldName = mPersistencePolicy.getEndpointFieldName(field);
 		resolveType(field.getType()).mapObjectToPair(val, fieldName,

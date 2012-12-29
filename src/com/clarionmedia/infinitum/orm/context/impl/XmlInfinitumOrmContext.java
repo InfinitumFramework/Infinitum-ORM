@@ -46,7 +46,7 @@ import com.clarionmedia.infinitum.orm.rest.impl.RestfulJsonSession;
 import com.clarionmedia.infinitum.orm.rest.impl.RestfulNameValueMapper;
 import com.clarionmedia.infinitum.orm.rest.impl.RestfulSession;
 import com.clarionmedia.infinitum.orm.rest.impl.RestfulXmlMapper;
-import com.clarionmedia.infinitum.orm.sqlite.SqliteUtil;
+import com.clarionmedia.infinitum.orm.sqlite.SqliteUtils;
 import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteBuilder;
 import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteMapper;
 import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteModelFactory;
@@ -96,7 +96,7 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 		beans.add(beanDefinitionBuilder.setName("$TypeResolutionPolicy").setType(DefaultTypeResolutionPolicy.class).build());
 		beans.add(beanDefinitionBuilder.setName("$SqliteModelFactory").setType(SqliteModelFactory.class).build());
 		beans.add(beanDefinitionBuilder.setName("$SqliteBuilder").setType(SqliteBuilder.class).build());
-		beans.add(beanDefinitionBuilder.setName("$SqliteUtil").setType(SqliteUtil.class).build());
+		beans.add(beanDefinitionBuilder.setName("$SqliteUtil").setType(SqliteUtils.class).build());
 		beans.add(beanDefinitionBuilder.setName("$RestfulXmlMapper").setType(RestfulXmlMapper.class).build());
 		beans.add(beanDefinitionBuilder.setName("$RestfulJsonMapper").setType(RestfulJsonMapper.class).build());
 		beans.add(beanDefinitionBuilder.setName("$RestfulNameValueMapper").setType(RestfulNameValueMapper.class).build());

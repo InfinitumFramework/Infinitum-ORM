@@ -29,7 +29,7 @@ import java.util.Set;
 
 import com.clarionmedia.infinitum.context.ContextFactory;
 import com.clarionmedia.infinitum.context.InfinitumContext;
-import com.clarionmedia.infinitum.di.AopProxy;
+import com.clarionmedia.infinitum.di.AbstractProxy;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
 import com.clarionmedia.infinitum.di.annotation.PostConstruct;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
@@ -477,8 +477,8 @@ public abstract class PersistencePolicy {
 	 */
 	public Serializable getPrimaryKey(Object model) {
 		Serializable ret = null;
-		if (AopProxy.isAopProxy(model)) {
-			model = AopProxy.getProxy(model).getTarget();
+		if (AbstractProxy.isAopProxy(model)) {
+			model = AbstractProxy.getProxy(model).getTarget();
 		}
 		Field pkField = getPrimaryKeyField(model.getClass());
 		pkField.setAccessible(true);

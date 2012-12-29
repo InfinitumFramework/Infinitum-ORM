@@ -22,7 +22,7 @@ package com.clarionmedia.infinitum.orm.sqlite;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 
-import com.clarionmedia.infinitum.di.AopProxy;
+import com.clarionmedia.infinitum.di.AbstractProxy;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
@@ -42,7 +42,7 @@ import com.clarionmedia.infinitum.reflection.ClassReflector;
  * @version 1.0 02/15/12
  * @since 1.0
  */
-public class SqliteUtil {
+public class SqliteUtils {
 
 	@Autowired
 	private TypeResolutionPolicy mTypePolicy;
@@ -73,8 +73,8 @@ public class SqliteUtil {
 	 */
 	public String getWhereClause(Object model, SqliteMapper mapper)
 			throws InfinitumRuntimeException {
-		if (AopProxy.isAopProxy(model)) {
-			model = AopProxy.getProxy(model).getTarget();
+		if (AbstractProxy.isAopProxy(model)) {
+			model = AbstractProxy.getProxy(model).getTarget();
 		}
 		Field pk = mPersistencePolicy.getPrimaryKeyField(model.getClass());
 		StringBuilder whereClause = new StringBuilder();

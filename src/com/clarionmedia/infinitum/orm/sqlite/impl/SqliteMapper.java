@@ -26,7 +26,7 @@ import java.util.Map;
 
 import android.content.ContentValues;
 
-import com.clarionmedia.infinitum.di.AopProxy;
+import com.clarionmedia.infinitum.di.AbstractProxy;
 import com.clarionmedia.infinitum.internal.Primitives;
 import com.clarionmedia.infinitum.orm.ObjectMapper;
 import com.clarionmedia.infinitum.orm.exception.InvalidMappingException;
@@ -166,8 +166,8 @@ public class SqliteMapper extends ObjectMapper {
 
 	// Map Field value to ContentValues
 	private void mapField(ContentValues values, Object model, Field field) throws InvalidMappingException {
-		if (AopProxy.isAopProxy(model)) {
-			model = AopProxy.getProxy(model).getTarget();
+		if (AbstractProxy.isAopProxy(model)) {
+			model = AbstractProxy.getProxy(model).getTarget();
 		}
 		Object val = mClassReflector.getFieldValue(model, field);
 		String colName = mPersistencePolicy.getFieldColumnName(field);

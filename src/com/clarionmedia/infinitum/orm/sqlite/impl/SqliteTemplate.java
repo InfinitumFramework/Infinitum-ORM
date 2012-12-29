@@ -35,7 +35,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 
 import com.clarionmedia.infinitum.context.ContextFactory;
-import com.clarionmedia.infinitum.di.AopProxy;
+import com.clarionmedia.infinitum.di.AbstractProxy;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
 import com.clarionmedia.infinitum.di.annotation.PostConstruct;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
@@ -58,7 +58,7 @@ import com.clarionmedia.infinitum.orm.relationship.OneToOneRelationship;
 import com.clarionmedia.infinitum.orm.sql.SqlBuilder;
 import com.clarionmedia.infinitum.orm.sqlite.SqliteOperations;
 import com.clarionmedia.infinitum.orm.sqlite.SqliteTypeAdapter;
-import com.clarionmedia.infinitum.orm.sqlite.SqliteUtil;
+import com.clarionmedia.infinitum.orm.sqlite.SqliteUtils;
 import com.clarionmedia.infinitum.reflection.ClassReflector;
 
 /**
@@ -97,7 +97,7 @@ public class SqliteTemplate implements SqliteOperations {
 	protected TypeResolutionPolicy mTypePolicy;
 	
 	@Autowired
-	protected SqliteUtil mSqliteUtil;
+	protected SqliteUtils mSqliteUtil;
 	
 	@Autowired
 	protected ClassReflector mClassReflector;
@@ -213,7 +213,7 @@ public class SqliteTemplate implements SqliteOperations {
 
 	@Override
 	public boolean delete(Object model) throws InfinitumRuntimeException {
-		model = AopProxy.getTarget(model);
+		model = AbstractProxy.getTarget(model);
 		OrmPreconditions.checkForTransaction(mIsAutocommit, isTransactionOpen());
 		OrmPreconditions.checkPersistenceForModify(model, mPersistencePolicy);
 		String tableName = mPersistencePolicy.getModelTableName(model.getClass());
@@ -321,7 +321,7 @@ public class SqliteTemplate implements SqliteOperations {
 	}
 
 	private long saveRec(Object model, Map<Integer, Object> objectMap) {
-		model = AopProxy.getTarget(model);
+		model = AbstractProxy.getTarget(model);
 		// Check if the entity has already been persisted
 		int objHash = mPersistencePolicy.computeModelHash(model);
 		if (objectMap.containsKey(objHash) && !mPersistencePolicy.isPKNullOrZero(model))
@@ -344,7 +344,7 @@ public class SqliteTemplate implements SqliteOperations {
 	}
 
 	private boolean updateRec(Object model, Map<Integer, Object> objectMap) {
-		model = AopProxy.getTarget(model);
+		model = AbstractProxy.getTarget(model);
 		int objHash = mPersistencePolicy.computeModelHash(model);
 		if (objectMap.containsKey(objHash) && !mPersistencePolicy.isPKNullOrZero(model))
 			return true;

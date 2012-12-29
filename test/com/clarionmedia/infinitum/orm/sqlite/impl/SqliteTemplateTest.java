@@ -59,7 +59,7 @@ import com.clarionmedia.infinitum.orm.relationship.ManyToOneRelationship;
 import com.clarionmedia.infinitum.orm.relationship.OneToManyRelationship;
 import com.clarionmedia.infinitum.orm.relationship.OneToOneRelationship;
 import com.clarionmedia.infinitum.orm.sql.SqlBuilder;
-import com.clarionmedia.infinitum.orm.sqlite.SqliteUtil;
+import com.clarionmedia.infinitum.orm.sqlite.SqliteUtils;
 import com.clarionmedia.infinitum.reflection.ClassReflector;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 
@@ -124,7 +124,7 @@ public class SqliteTemplateTest {
 	private ClassReflector mockClassReflector;
 	
 	@Mock
-	private SqliteUtil mockSqliteUtil;
+	private SqliteUtils mockSqliteUtil;
 	
 	@Mock
 	private ModelFactory mockSqliteModelFactory;
