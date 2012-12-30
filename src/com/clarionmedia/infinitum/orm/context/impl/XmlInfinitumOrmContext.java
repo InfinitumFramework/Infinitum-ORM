@@ -108,7 +108,7 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 	}
 
 	@Override
-	public Session getSession(DataSource source) throws InfinitumConfigurationException {
+	public Session getSession(SessionType source) throws InfinitumConfigurationException {
 		switch (source) {
 		case SQLITE:
 			return getBean("$SqliteSession", SqliteSession.class);
@@ -124,7 +124,7 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 			}
 			return session;
 		default:
-			throw new InfinitumConfigurationException("Data source not configured.");
+			throw new InfinitumConfigurationException("Session type not configured.");
 		}
 	}
 
@@ -234,6 +234,11 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 	@Override
 	public InfinitumContext getParentContext() {
 		return mParentContext;
+	}
+	
+	@Override
+	public <T extends InfinitumContext> T getChildContext(Class<T> contextType) {
+		return mParentContext.getChildContext(contextType);
 	}
 
 	@Override

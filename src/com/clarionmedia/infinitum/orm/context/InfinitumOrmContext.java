@@ -41,7 +41,7 @@ import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
  * </p>
  * 
  * <pre>
- * Session session = context.getSession(DataSource.SQLITE);
+ * Session session = context.getSession(SessionType.SQLITE);
  * </pre>
  * 
  * @author Tyler Treat
@@ -69,7 +69,7 @@ public interface InfinitumOrmContext extends InfinitumContext, BeanProvider {
 	/**
 	 * Represents the configured data source for a {@link Session}.
 	 */
-	public static enum DataSource {
+	public static enum SessionType {
 		SQLITE, REST
 	}
 
@@ -77,12 +77,12 @@ public interface InfinitumOrmContext extends InfinitumContext, BeanProvider {
 	 * Retrieves a new {@link Session} instance for the configured data source.
 	 * 
 	 * @param source
-	 *            the {@link DataSource} to target
+	 *            the {@link SessionType} to target
 	 * @return new {@code Session} instance
 	 * @throws InfinitumConfigurationException
-	 *             if the specified {@code DataSource} was not configured
+	 *             if the specified {@code SessionType} was not configured
 	 */
-	Session getSession(DataSource source) throws InfinitumConfigurationException;
+	Session getSession(SessionType source) throws InfinitumConfigurationException;
 
 	/**
 	 * Returns the {@link ConfigurationMode} value of this
