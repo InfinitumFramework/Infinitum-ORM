@@ -35,63 +35,60 @@ import com.clarionmedia.infinitum.orm.rest.RestfulModelMap;
  * instance mapped to a RESTful web service resource for name-value pair message
  * types.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 03/21/12
  * @since 1.0
  */
 public class RestfulNameValueModelMap extends RestfulModelMap {
 
-	private List<NameValuePair> mNameValuePairs;
+    private List<NameValuePair> mNameValuePairs;
 
-	/**
-	 * Creates a new {@code RestfulNameValueModelMap} for the given
-	 * {@link Object}.
-	 * 
-	 * @param model
-	 *            the {@code Object} to map
-	 */
-	public RestfulNameValueModelMap(Object model) {
-		super(model);
-		setNameValuePairs(new ArrayList<NameValuePair>());
-	}
-	
-	@Override
-	public HttpEntity toHttpEntity() {
-		try {
-			return new UrlEncodedFormEntity(mNameValuePairs);
-		} catch (UnsupportedEncodingException e) {
-			return null;
-		}
-	}
+    /**
+     * Creates a new {@code RestfulNameValueModelMap} for the given
+     * {@link Object}.
+     *
+     * @param model the {@code Object} to map
+     */
+    public RestfulNameValueModelMap(Object model) {
+        super(model);
+        setNameValuePairs(new ArrayList<NameValuePair>());
+    }
 
-	/**
-	 * Retrieves the name-value pairs for the model.
-	 * 
-	 * @return {@link List} of {@link NameValuePair} instances
-	 */
-	public List<NameValuePair> getNameValuePairs() {
-		return mNameValuePairs;
-	}
+    @Override
+    public HttpEntity toHttpEntity() {
+        try {
+            return new UrlEncodedFormEntity(mNameValuePairs);
+        } catch (UnsupportedEncodingException e) {
+            return null;
+        }
+    }
 
-	/**
-	 * Sets the name-value pairs for the model.
-	 * 
-	 * @param nameValuePairs
-	 *            the name-value pairs to set
-	 */
-	public void setNameValuePairs(List<NameValuePair> nameValuePairs) {
-		mNameValuePairs = nameValuePairs;
-	}
+    /**
+     * Retrieves the name-value pairs for the model.
+     *
+     * @return {@link List} of {@link NameValuePair} instances
+     */
+    public List<NameValuePair> getNameValuePairs() {
+        return mNameValuePairs;
+    }
 
-	/**
-	 * Adds the given {@link NameValuePair} to the model map.
-	 * 
-	 * @param pair
-	 *            the {@code NameValuePair} to add
-	 */
-	public void addNameValuePair(NameValuePair pair) {
-		mNameValuePairs.add(pair);
-	}
+    /**
+     * Sets the name-value pairs for the model.
+     *
+     * @param nameValuePairs the name-value pairs to set
+     */
+    public void setNameValuePairs(List<NameValuePair> nameValuePairs) {
+        mNameValuePairs = nameValuePairs;
+    }
+
+    /**
+     * Adds the given {@link NameValuePair} to the model map.
+     *
+     * @param pair the {@code NameValuePair} to add
+     */
+    public void addNameValuePair(NameValuePair pair) {
+        mNameValuePairs.add(pair);
+    }
 
 }

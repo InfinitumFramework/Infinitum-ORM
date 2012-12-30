@@ -32,51 +32,49 @@ import com.clarionmedia.infinitum.orm.rest.RestfulModelMap;
  * model instance mapped to a RESTful web service resource for JSON and XML
  * message types.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 03/21/12
  * @since 1.0
  */
 public class RestfulStringModelMap extends RestfulModelMap {
 
-	private String mMessage;
+    private String mMessage;
 
-	/**
-	 * Creates a new {@code RestfulTextModelMap} for the given {@link Object}.
-	 * 
-	 * @param model
-	 *            the {@code Object} to map
-	 */
-	public RestfulStringModelMap(Object model) {
-		super(model);
-	}
+    /**
+     * Creates a new {@code RestfulTextModelMap} for the given {@link Object}.
+     *
+     * @param model the {@code Object} to map
+     */
+    public RestfulStringModelMap(Object model) {
+        super(model);
+    }
 
-	@Override
-	public HttpEntity toHttpEntity() {
-		try {
-			return new StringEntity(mMessage);
-		} catch (UnsupportedEncodingException e) {
-			return null;
-		}
-	}
+    @Override
+    public HttpEntity toHttpEntity() {
+        try {
+            return new StringEntity(mMessage);
+        } catch (UnsupportedEncodingException e) {
+            return null;
+        }
+    }
 
-	/**
-	 * Returns the model map message {@link String}.
-	 * 
-	 * @return model map message
-	 */
-	public String getMessage() {
-		return mMessage;
-	}
+    /**
+     * Returns the model map message {@link String}.
+     *
+     * @return model map message
+     */
+    public String getMessage() {
+        return mMessage;
+    }
 
-	/**
-	 * Sets the model map message {@link String}.
-	 * 
-	 * @param message
-	 *            the model map message to set
-	 */
-	public void setMessage(String message) {
-		mMessage = message;
-	}
+    /**
+     * Sets the model map message {@link String}.
+     *
+     * @param message the model map message to set
+     */
+    public void setMessage(String message) {
+        mMessage = message;
+    }
 
 }

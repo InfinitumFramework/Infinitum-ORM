@@ -20,6 +20,7 @@
 package com.clarionmedia.infinitum.orm.criteria.criterion;
 
 import java.io.Serializable;
+
 import com.clarionmedia.infinitum.context.ContextFactory;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
 import com.clarionmedia.infinitum.orm.exception.InvalidCriteriaException;
@@ -29,48 +30,45 @@ import com.clarionmedia.infinitum.orm.exception.InvalidCriteriaException;
  * This class represents a query criterion to refine the results of a
  * {@link Criteria} query.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 02/17/12
  */
 public abstract class Criterion implements Serializable {
 
-	private static final long serialVersionUID = -7011049036451270500L;
+    private static final long serialVersionUID = -7011049036451270500L;
 
-	protected String mFieldName;
-	protected ContextFactory mContextFactory;
-	
-	/**
-	 * Constructs a new {@code Criterion} with the given {@link Field} name.
-	 * 
-	 * @param fieldName
-	 *            the name of the {@code Field} to apply the condition to
-	 */
-	public Criterion(String fieldName) {
-		mContextFactory = ContextFactory.newInstance();
-		mFieldName = fieldName;
-	}
+    protected String mFieldName;
+    protected ContextFactory mContextFactory;
 
-	/**
-	 * Retrieves the SQL fragment for the {@code Criterion} as a {@link String}.
-	 * 
-	 * @param criteria
-	 *            the {@link Criteria} this {@code Criterion} belongs to
-	 * @return SQL {@code String}
-	 * @throws InvalidCriteriaException
-	 *             if there was a problem creating the {@code Criteria} instance
-	 */
-	public abstract String toSql(Criteria<?> criteria)
-			throws InvalidCriteriaException;
+    /**
+     * Constructs a new {@code Criterion} with the given {@link Field} name.
+     *
+     * @param fieldName the name of the {@code Field} to apply the condition to
+     */
+    public Criterion(String fieldName) {
+        mContextFactory = ContextFactory.newInstance();
+        mFieldName = fieldName;
+    }
 
-	/**
-	 * Returns the name of the {@link Field} this {@code Criterion} is being
-	 * applied to.
-	 * 
-	 * @return name of {@code Field}
-	 */
-	public String getFieldName() {
-		return mFieldName;
-	}
+    /**
+     * Retrieves the SQL fragment for the {@code Criterion} as a {@link String}.
+     *
+     * @param criteria the {@link Criteria} this {@code Criterion} belongs to
+     * @return SQL {@code String}
+     * @throws InvalidCriteriaException if there was a problem creating the {@code Criteria} instance
+     */
+    public abstract String toSql(Criteria<?> criteria)
+            throws InvalidCriteriaException;
+
+    /**
+     * Returns the name of the {@link Field} this {@code Criterion} is being
+     * applied to.
+     *
+     * @return name of {@code Field}
+     */
+    public String getFieldName() {
+        return mFieldName;
+    }
 
 }

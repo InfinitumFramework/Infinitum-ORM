@@ -28,60 +28,62 @@ import com.clarionmedia.infinitum.reflection.impl.DefaultPackageReflector;
  * This abstract class is used to define a relationship between two domain
  * entities.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 02/25/12
  */
 public abstract class ModelRelationship {
 
-	public static enum RelationType {
-		ManyToMany, ManyToOne, OneToMany, OneToOne
-	};
+    public static enum RelationType {
+        ManyToMany, ManyToOne, OneToMany, OneToOne
+    }
 
-	protected Class<?> mFirst;
-	protected Class<?> mSecond;
-	protected RelationType mRelationType;
-	protected String mName;
-	protected PackageReflector mPackageReflector;
-	
-	public ModelRelationship() {
-		mPackageReflector = new DefaultPackageReflector();
-	}
+    ;
 
-	public Class<?> getFirstType() {
-		return mFirst;
-	}
+    protected Class<?> mFirst;
+    protected Class<?> mSecond;
+    protected RelationType mRelationType;
+    protected String mName;
+    protected PackageReflector mPackageReflector;
 
-	public void setFirstType(Class<?> first) {
-		mFirst = first;
-	}
+    public ModelRelationship() {
+        mPackageReflector = new DefaultPackageReflector();
+    }
 
-	public Class<?> getSecondType() {
-		return mSecond;
-	}
+    public Class<?> getFirstType() {
+        return mFirst;
+    }
 
-	public void setSecondType(Class<?> second) {
-		mSecond = second;
-	}
+    public void setFirstType(Class<?> first) {
+        mFirst = first;
+    }
 
-	public boolean contains(Class<?> c) {
-		return mFirst == c || mSecond == c;
-	}
+    public Class<?> getSecondType() {
+        return mSecond;
+    }
 
-	public RelationType getRelationType() {
-		return mRelationType;
-	}
+    public void setSecondType(Class<?> second) {
+        mSecond = second;
+    }
 
-	public void setRelationType(RelationType type) {
-		mRelationType = type;
-	}
-	
-	public String getName() {
-		return mName;
-	}
-	
-	public void setName(String name) {
-		mName = name;
-	}
+    public boolean contains(Class<?> c) {
+        return mFirst == c || mSecond == c;
+    }
+
+    public RelationType getRelationType() {
+        return mRelationType;
+    }
+
+    public void setRelationType(RelationType type) {
+        mRelationType = type;
+    }
+
+    public String getName() {
+        return mName;
+    }
+
+    public void setName(String name) {
+        mName = name;
+    }
 
 }

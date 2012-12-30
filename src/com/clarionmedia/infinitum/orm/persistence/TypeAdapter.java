@@ -20,37 +20,32 @@
 package com.clarionmedia.infinitum.orm.persistence;
 
 import java.lang.reflect.Field;
+
 import com.clarionmedia.infinitum.orm.ResultSet;
 
 /**
  * <p>
  * Facilitates the mapping of datastore values to Java data types.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 03/17/12
  * @since 1.0
  */
 public interface TypeAdapter<T> {
 
-	/**
-	 * Maps a datastore value to a domain model's {@link Field}.
-	 * 
-	 * @param result
-	 *            the {@link ResultSet} where the column is being mapped from
-	 * @param index
-	 *            the index of the column holding the data to be mapped
-	 * @param field
-	 *            the {@code Field} being mapped to
-	 * @param model
-	 *            the model which the {@code Field} is populating
-	 * @throws IllegalArgumentException
-	 *             if the mapped value is not compatible with the declaring
-	 *             class
-	 * @throws IllegalAccessException
-	 *             if the {@code Field} is not accessible
-	 */
-	void mapToObject(ResultSet result, int index, Field field, Object model)
-			throws IllegalArgumentException, IllegalAccessException;
+    /**
+     * Maps a datastore value to a domain model's {@link Field}.
+     *
+     * @param result the {@link ResultSet} where the column is being mapped from
+     * @param index  the index of the column holding the data to be mapped
+     * @param field  the {@code Field} being mapped to
+     * @param model  the model which the {@code Field} is populating
+     * @throws IllegalArgumentException if the mapped value is not compatible with the declaring
+     *                                  class
+     * @throws IllegalAccessException   if the {@code Field} is not accessible
+     */
+    void mapToObject(ResultSet result, int index, Field field, Object model)
+            throws IllegalArgumentException, IllegalAccessException;
 
 }

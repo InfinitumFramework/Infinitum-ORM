@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
  * If the annotation is not provided, the {@code Field} is mapped to a column
  * with the same name as the {@code Field}.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 02/13/12
  */
@@ -39,7 +39,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface Column {
-	
-	String value();
-	
+
+    String value();
+
 }

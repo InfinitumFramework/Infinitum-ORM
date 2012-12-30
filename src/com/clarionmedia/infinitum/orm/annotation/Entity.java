@@ -35,16 +35,16 @@ import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy.Cascade;
  * {@code PersistenceMode} enumeration. Persistent models must include an empty
  * constructor in order for the Infinitum ORM to work. For example:
  * </p>
- * 
+ * <p/>
  * <pre>
  * public class Foobar {
  * 	// ...
  * 	public Foobar() {
- * 	}
+ *     }
  * 	// ...
  * }
  * </pre>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0
  * @since 02/12/12
@@ -54,37 +54,37 @@ import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy.Cascade;
 @Target(ElementType.TYPE)
 public @interface Entity {
 
-	/**
-	 * Returns the {@link PersistenceMode} for this entity. The default mode is
-	 * persistent.
-	 * 
-	 * @return {@code PersistenceMode}
-	 */
-	PersistenceMode mode() default PersistenceMode.Persistent;
+    /**
+     * Returns the {@link PersistenceMode} for this entity. The default mode is
+     * persistent.
+     *
+     * @return {@code PersistenceMode}
+     */
+    PersistenceMode mode() default PersistenceMode.Persistent;
 
-	/**
-	 * Indicates the entity's cascade mode. {@link Cascade#ALL} means that when
-	 * the entity's state is changed in the database, all entities related to it
-	 * will also be updated. {@link Cascade#NONE} means that no related entities
-	 * will be cascaded. {@link Cascade#KEYS} means that only foreign keys will
-	 * be cascaded.
-	 * 
-	 * @return {@code true} if cascading is enabled, {@code false} if not
-	 */
-	Cascade cascade() default Cascade.ALL;
+    /**
+     * Indicates the entity's cascade mode. {@link Cascade#ALL} means that when
+     * the entity's state is changed in the database, all entities related to it
+     * will also be updated. {@link Cascade#NONE} means that no related entities
+     * will be cascaded. {@link Cascade#KEYS} means that only foreign keys will
+     * be cascaded.
+     *
+     * @return {@code true} if cascading is enabled, {@code false} if not
+     */
+    Cascade cascade() default Cascade.ALL;
 
-	/**
-	 * Indicates if the entity has lazy loading enabled. If it is, related
-	 * entities will be dynamically loaded when accessed.
-	 * 
-	 * @return {@code true} if lazy loading is enabled, {@code false} if not
-	 */
-	boolean lazy() default true;
+    /**
+     * Indicates if the entity has lazy loading enabled. If it is, related
+     * entities will be dynamically loaded when accessed.
+     *
+     * @return {@code true} if lazy loading is enabled, {@code false} if not
+     */
+    boolean lazy() default true;
 
-	/**
-	 * Returns the REST endpoint name for this entity.
-	 * 
-	 * @return REST endpoint name
-	 */
-	String endpoint() default "";
+    /**
+     * Returns the REST endpoint name for this entity.
+     *
+     * @return REST endpoint name
+     */
+    String endpoint() default "";
 }

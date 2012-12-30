@@ -24,23 +24,22 @@ package com.clarionmedia.infinitum.orm.exception;
  * <p>
  * Indicates there is an error in an {@code imf} XML map file.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 02/15/12
  */
 public class InvalidMapFileException extends ModelConfigurationException {
 
-	private static final long serialVersionUID = -2477796900040902595L;
+    private static final long serialVersionUID = -2477796900040902595L;
 
-	/**
-	 * Constructs a new {@code InfinitumMappingException} with the given error
-	 * message.
-	 * 
-	 * @param error
-	 *            the error message for the {@link InvalidMapFileException}
-	 */
-	public InvalidMapFileException(String error) {
-		super(error);
-	}
+    /**
+     * Constructs a new {@code InfinitumMappingException} with the given error
+     * message.
+     *
+     * @param error the error message for the {@link InvalidMapFileException}
+     */
+    public InvalidMapFileException(String error) {
+        super(error);
+    }
 
 }

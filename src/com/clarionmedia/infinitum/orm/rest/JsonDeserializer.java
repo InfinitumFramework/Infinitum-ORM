@@ -25,30 +25,28 @@ import java.util.List;
  * <p>
  * Provides an API for deserializing JSON responses into domain model instances.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 03/25/12
  */
 public abstract class JsonDeserializer<T> implements Deserializer<T> {
 
-	/**
-	 * Deserializes the given JSON {@link String} into an Object of the generic
-	 * type.
-	 * 
-	 * @param json
-	 *            the JSON {@code String} to deserialize
-	 * @return {@code Object}
-	 */
-	public abstract T deserializeObject(String json);
+    /**
+     * Deserializes the given JSON {@link String} into an Object of the generic
+     * type.
+     *
+     * @param json the JSON {@code String} to deserialize
+     * @return {@code Object}
+     */
+    public abstract T deserializeObject(String json);
 
-	/**
-	 * Deserializes the given JSON {@link String} consisting of an object array
-	 * into a {@link List} of objects of the generic type.
-	 * 
-	 * @param json
-	 *            the JSON {@code String} to deserialize
-	 * @return {@code List} of {@code Objects}
-	 */
-	public abstract List<T> deserializeObjects(String json);
+    /**
+     * Deserializes the given JSON {@link String} consisting of an object array
+     * into a {@link List} of objects of the generic type.
+     *
+     * @param json the JSON {@code String} to deserialize
+     * @return {@code List} of {@code Objects}
+     */
+    public abstract List<T> deserializeObjects(String json);
 
 }

@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
  * This is typically used for PUT/POST messages where the message body consists
  * of name-value pairs which map the entity.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 03/25/12
  * @since 1.0
@@ -45,11 +45,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface Rest {
 
-	/**
-	 * Declares the field name.
-	 * 
-	 * @return field name
-	 */
-	String value();
+    /**
+     * Declares the field name.
+     *
+     * @return field name
+     */
+    String value();
 
 }

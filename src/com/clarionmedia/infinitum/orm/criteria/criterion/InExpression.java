@@ -32,59 +32,57 @@ import com.clarionmedia.infinitum.orm.sql.SqlConstants;
  * Represents a condition restraining a {@link Field} value to a specified set
  * of values.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 02/18/12
  */
 public class InExpression extends Criterion {
 
-	private static final long serialVersionUID = 1282172886230328002L;
+    private static final long serialVersionUID = 1282172886230328002L;
 
-	private Object[] mValues;
+    private Object[] mValues;
 
-	/**
-	 * Constructs a new {@code InExpression} with the given {@link Field} name
-	 * and array of values.
-	 * 
-	 * @param fieldName
-	 *            the name of the field to check value for
-	 * @param values
-	 *            the set of values to constrain the {@code Field} to
-	 */
-	public InExpression(String fieldName, Object[] values) {
-		super(fieldName);
-		mValues = values;
-	}
+    /**
+     * Constructs a new {@code InExpression} with the given {@link Field} name
+     * and array of values.
+     *
+     * @param fieldName the name of the field to check value for
+     * @param values    the set of values to constrain the {@code Field} to
+     */
+    public InExpression(String fieldName, Object[] values) {
+        super(fieldName);
+        mValues = values;
+    }
 
-	@Override
-	public String toSql(Criteria<?> criteria) throws InvalidCriteriaException {
-		StringBuilder query = new StringBuilder();
-		Class<?> c = criteria.getEntityClass();
-		Field f = null;
-		PersistencePolicy policy = mContextFactory.getContext(InfinitumOrmContext.class).getPersistencePolicy();
-		try {
-			f = policy.findPersistentField(c, mFieldName);
-			if (f == null)
-				throw new InvalidCriteriaException(String.format("Invalid Criteria for type '%s'.",
-						c.getName()));
-			f.setAccessible(true);
-		} catch (SecurityException e) {
-			throw new InvalidCriteriaException(String.format("Invalid Criteria for type '%s'.",
-					c.getName()));
-		}
-		String colName = policy.getFieldColumnName(f);
-		query.append(colName).append(' ').append(SqlConstants.OP_IN).append(" (");
-		String prefix = "";
-		for (Object val : mValues) {
-			query.append(prefix);
-			prefix = ", ";
-			if (criteria.getObjectMapper().isTextColumn(f))
-				query.append("'").append(val.toString()).append("'");
-			else
-				query.append(val.toString());
-		}
-		query.append(')');
-		return query.toString();
-	}
+    @Override
+    public String toSql(Criteria<?> criteria) throws InvalidCriteriaException {
+        StringBuilder query = new StringBuilder();
+        Class<?> c = criteria.getEntityClass();
+        Field f = null;
+        PersistencePolicy policy = mContextFactory.getContext(InfinitumOrmContext.class).getPersistencePolicy();
+        try {
+            f = policy.findPersistentField(c, mFieldName);
+            if (f == null)
+                throw new InvalidCriteriaException(String.format("Invalid Criteria for type '%s'.",
+                        c.getName()));
+            f.setAccessible(true);
+        } catch (SecurityException e) {
+            throw new InvalidCriteriaException(String.format("Invalid Criteria for type '%s'.",
+                    c.getName()));
+        }
+        String colName = policy.getFieldColumnName(f);
+        query.append(colName).append(' ').append(SqlConstants.OP_IN).append(" (");
+        String prefix = "";
+        for (Object val : mValues) {
+            query.append(prefix);
+            prefix = ", ";
+            if (criteria.getObjectMapper().isTextColumn(f))
+                query.append("'").append(val.toString()).append("'");
+            else
+                query.append(val.toString());
+        }
+        query.append(')');
+        return query.toString();
+    }
 
 }

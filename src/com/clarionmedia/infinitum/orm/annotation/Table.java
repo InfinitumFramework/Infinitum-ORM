@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
  * annotation is not provided, the entity is mapped to a table with the same
  * name as the class.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 02/13/12
  */
@@ -39,7 +39,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Table {
-	
-	String value();
-	
+
+    String value();
+
 }

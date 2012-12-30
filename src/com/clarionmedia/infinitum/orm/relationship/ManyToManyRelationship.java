@@ -30,88 +30,88 @@ import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
  * <p>
  * This class encapsulates a many-to-many relationship between two models.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 02/19/12
  */
 public class ManyToManyRelationship extends ModelRelationship {
 
-	private String mTableName;
-	private String mFirstFieldName;
-	private String mSecondFieldName;
-	private PersistencePolicy mPolicy;
-	
-	public ManyToManyRelationship() {
-		mRelationType = RelationType.ManyToMany;
-		mPolicy = ContextFactory.newInstance().getContext(InfinitumOrmContext.class).getPersistencePolicy();
-	}
+    private String mTableName;
+    private String mFirstFieldName;
+    private String mSecondFieldName;
+    private PersistencePolicy mPolicy;
 
-	public ManyToManyRelationship(Field f) {
-		this();
-		ManyToMany mtm = f.getAnnotation(ManyToMany.class);
-		mTableName = mtm.table();
-		mFirst = f.getDeclaringClass();
-		mSecond = mPackageReflector.getClass(mtm.className());
-		mFirstFieldName = mtm.keyField();
-		mSecondFieldName = mtm.foreignField();
-		mName = mtm.name();
-	}
+    public ManyToManyRelationship() {
+        mRelationType = RelationType.ManyToMany;
+        mPolicy = ContextFactory.newInstance().getContext(InfinitumOrmContext.class).getPersistencePolicy();
+    }
 
-	public String getTableName() {
-		return mTableName;
-	}
+    public ManyToManyRelationship(Field f) {
+        this();
+        ManyToMany mtm = f.getAnnotation(ManyToMany.class);
+        mTableName = mtm.table();
+        mFirst = f.getDeclaringClass();
+        mSecond = mPackageReflector.getClass(mtm.className());
+        mFirstFieldName = mtm.keyField();
+        mSecondFieldName = mtm.foreignField();
+        mName = mtm.name();
+    }
 
-	public void setTableName(String tableName) {
-		mTableName = tableName;
-	}
+    public String getTableName() {
+        return mTableName;
+    }
 
-	public String getFirstFieldName() {
-		return mFirstFieldName;
-	}
+    public void setTableName(String tableName) {
+        mTableName = tableName;
+    }
 
-	public Field getFirstField() {
-		return mPolicy.findPersistentField(mFirst, mFirstFieldName);
-	}
+    public String getFirstFieldName() {
+        return mFirstFieldName;
+    }
 
-	public void setFirstFieldName(String firstField) {
-		mFirstFieldName = firstField;
-	}
+    public Field getFirstField() {
+        return mPolicy.findPersistentField(mFirst, mFirstFieldName);
+    }
 
-	public String getSecondFieldName() {
-		return mSecondFieldName;
-	}
+    public void setFirstFieldName(String firstField) {
+        mFirstFieldName = firstField;
+    }
 
-	public Field getSecondField() {
-		return mPolicy.findPersistentField(mSecond, mSecondFieldName);
-	}
+    public String getSecondFieldName() {
+        return mSecondFieldName;
+    }
 
-	public void setSecondFieldName(String secondField) {
-		mSecondFieldName = secondField;
-	}
+    public Field getSecondField() {
+        return mPolicy.findPersistentField(mSecond, mSecondFieldName);
+    }
 
-	@Override
-	public boolean equals(Object other) {
-		if (!(other instanceof ManyToManyRelationship))
-			return false;
-		ManyToManyRelationship o = (ManyToManyRelationship) other;
-		return mTableName.equalsIgnoreCase(o.mTableName)
-				&& ((mFirst == o.mFirst && mSecond == o.mSecond && mFirstFieldName.equalsIgnoreCase(o.mFirstFieldName) && mSecondFieldName
-						.equalsIgnoreCase(o.mSecondFieldName)) || mFirst == o.mSecond && mSecond == o.mFirst
-						&& mFirstFieldName.equalsIgnoreCase(o.mSecondFieldName)
-						&& mSecondFieldName.equalsIgnoreCase(o.mFirstFieldName));
-	}
+    public void setSecondFieldName(String secondField) {
+        mSecondFieldName = secondField;
+    }
 
-	@Override
-	public int hashCode() {
-		int hash = 1;
-		final int PRIME = 31;
-		hash *= PRIME;
-		hash *= PRIME + mTableName.hashCode();
-		hash *= PRIME + mFirst.hashCode();
-		hash *= PRIME + mSecond.hashCode();
-		hash *= PRIME + mFirstFieldName.hashCode();
-		hash *= PRIME + mSecondFieldName.hashCode();
-		return hash;
-	}
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof ManyToManyRelationship))
+            return false;
+        ManyToManyRelationship o = (ManyToManyRelationship) other;
+        return mTableName.equalsIgnoreCase(o.mTableName)
+                && ((mFirst == o.mFirst && mSecond == o.mSecond && mFirstFieldName.equalsIgnoreCase(o.mFirstFieldName) && mSecondFieldName
+                .equalsIgnoreCase(o.mSecondFieldName)) || mFirst == o.mSecond && mSecond == o.mFirst
+                && mFirstFieldName.equalsIgnoreCase(o.mSecondFieldName)
+                && mSecondFieldName.equalsIgnoreCase(o.mFirstFieldName));
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 1;
+        final int PRIME = 31;
+        hash *= PRIME;
+        hash *= PRIME + mTableName.hashCode();
+        hash *= PRIME + mFirst.hashCode();
+        hash *= PRIME + mSecond.hashCode();
+        hash *= PRIME + mFirstFieldName.hashCode();
+        hash *= PRIME + mSecondFieldName.hashCode();
+        return hash;
+    }
 
 }

@@ -26,23 +26,22 @@ import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
  * Indicates there is an issue with the way a SQL query was formatted. This
  * occurs when the query could not be executed.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 02/18/12
  */
 public class SQLGrammarException extends InfinitumRuntimeException {
 
-	private static final long serialVersionUID = 470937993563172405L;
+    private static final long serialVersionUID = 470937993563172405L;
 
-	/**
-	 * Constructs a new {@code SQLGrammarException} with the given error
-	 * message.
-	 * 
-	 * @param error
-	 *            the error message for the {@link InfinitumRuntimeException}
-	 */
-	public SQLGrammarException(String error) {
-		super(error);
-	}
+    /**
+     * Constructs a new {@code SQLGrammarException} with the given error
+     * message.
+     *
+     * @param error the error message for the {@link InfinitumRuntimeException}
+     */
+    public SQLGrammarException(String error) {
+        super(error);
+    }
 
 }

@@ -30,20 +30,20 @@ import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
  * This abstract implementation of {@link ObjectMapper} provides methods to map
  * domain models to RESTful web service resources.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 08/05/12
  * @since 1.0
  */
 public abstract class RestfulMapper extends ObjectMapper {
 
-	@Override
-	public abstract RestfulModelMap mapModel(Object model)
-			throws InvalidMappingException, ModelConfigurationException;
+    @Override
+    public abstract RestfulModelMap mapModel(Object model)
+            throws InvalidMappingException, ModelConfigurationException;
 
-	@Override
-	public boolean isTextColumn(Field f) {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public boolean isTextColumn(Field f) {
+        throw new UnsupportedOperationException();
+    }
 
 }

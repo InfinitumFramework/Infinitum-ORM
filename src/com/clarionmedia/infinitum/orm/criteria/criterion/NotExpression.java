@@ -27,25 +27,25 @@ import com.clarionmedia.infinitum.orm.sql.SqlConstants;
  * <p>
  * Represents a negation of a {@link Criterion} expression.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 02/18/12
  */
 public class NotExpression extends Criterion {
 
-	private static final long serialVersionUID = 2819651961490738355L;
+    private static final long serialVersionUID = 2819651961490738355L;
 
-	private Criterion mExpression;
+    private Criterion mExpression;
 
-	public NotExpression(Criterion expression) {
-		super(null);
-		mExpression = expression;
-	}
+    public NotExpression(Criterion expression) {
+        super(null);
+        mExpression = expression;
+    }
 
-	@Override
-	public String toSql(Criteria<?> criteria) throws InvalidCriteriaException {
-		return new StringBuilder(SqlConstants.NEGATION).append(" (").append(mExpression.toSql(criteria)).append(')')
-				.toString();
-	}
+    @Override
+    public String toSql(Criteria<?> criteria) throws InvalidCriteriaException {
+        return new StringBuilder(SqlConstants.NEGATION).append(" (").append(mExpression.toSql(criteria)).append(')')
+                .toString();
+    }
 
 }

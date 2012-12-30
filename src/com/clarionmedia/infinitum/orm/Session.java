@@ -58,321 +58,287 @@ import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteSession;
  * {@link Session#recycleCache()}. Additionally, the cache size can be modified
  * by calling {@link Session#setCacheSize(int)}.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 03/15/12
  * @since 1.0
  */
 public interface Session {
-	
-	/**
-	 * The default number of cache entries before eviction occurs.
-	 */
-	public static final int DEFAULT_CACHE_SIZE = 100;
 
-	/**
-	 * Opens the {@code Session} for transactions.
-	 * 
-	 * @return {@code Session} to allow chaining
-	 * 
-	 * @throws SQLException
-	 *             if the {@code Session} cannot be opened
-	 */
-	Session open() throws SQLException;
+    /**
+     * The default number of cache entries before eviction occurs.
+     */
+    public static final int DEFAULT_CACHE_SIZE = 100;
 
-	/**
-	 * Closes the {@code Session} and cleans up any resources.
-	 * 
-	 * @return {@code Session} to allow chaining
-	 */
-	Session close();
+    /**
+     * Opens the {@code Session} for transactions.
+     *
+     * @return {@code Session} to allow chaining
+     * @throws SQLException if the {@code Session} cannot be opened
+     */
+    Session open() throws SQLException;
 
-	/**
-	 * Indicates if the {@code Session} is open.
-	 * 
-	 * @return {@code true} if the {@code Session} is open, {@code false} if not
-	 */
-	boolean isOpen();
+    /**
+     * Closes the {@code Session} and cleans up any resources.
+     *
+     * @return {@code Session} to allow chaining
+     */
+    Session close();
 
-	/**
-	 * Starts a new database transaction. If autocommit is enabled, invoking
-	 * this method will have no effect. A transaction must be committed or
-	 * rolled back by calling {@link Session#commit()} or
-	 * {@link Session#rollback()}, respectively.
-	 * 
-	 * @return {@code Session} to allow chaining
-	 */
-	Session beginTransaction();
+    /**
+     * Indicates if the {@code Session} is open.
+     *
+     * @return {@code true} if the {@code Session} is open, {@code false} if not
+     */
+    boolean isOpen();
 
-	/**
-	 * Commits the current transaction. This method is idempotent. If no
-	 * transaction is open or autocommit is enabled, this will have no effect.
-	 * 
-	 * @return {@code Session} to allow chaining
-	 */
-	Session commit();
+    /**
+     * Starts a new database transaction. If autocommit is enabled, invoking
+     * this method will have no effect. A transaction must be committed or
+     * rolled back by calling {@link Session#commit()} or
+     * {@link Session#rollback()}, respectively.
+     *
+     * @return {@code Session} to allow chaining
+     */
+    Session beginTransaction();
 
-	/**
-	 * Rolls back the current transaction. This method is idempotent. If no
-	 * transaction is open or autocommit is enabled, this will have no effect.
-	 * 
-	 * @return {@code Session} to allow chaining
-	 */
-	Session rollback();
+    /**
+     * Commits the current transaction. This method is idempotent. If no
+     * transaction is open or autocommit is enabled, this will have no effect.
+     *
+     * @return {@code Session} to allow chaining
+     */
+    Session commit();
 
-	/**
-	 * Indicates if a transaction is currently open.
-	 * 
-	 * @return {@code true} if a transaction is open, {@code false} if not
-	 */
-	boolean isTransactionOpen();
+    /**
+     * Rolls back the current transaction. This method is idempotent. If no
+     * transaction is open or autocommit is enabled, this will have no effect.
+     *
+     * @return {@code Session} to allow chaining
+     */
+    Session rollback();
 
-	/**
-	 * Sets the autocommit value for this {@code Session}. If autocommit is
-	 * enabled, a {@code Session} transaction must be initiated by invoking
-	 * {@link Session#beginTransaction()}. A transaction must then be committed
-	 * or rolled back by calling {@link Session#commit()} or
-	 * {@link Session#rollback()}, respectively. If autocommit is disabled,
-	 * database operations will be committed when they are executed.
-	 * 
-	 * @param autocommit
-	 *            {@code true} to enable autocommit, {@code false} to disable it
-	 * @return {@code Session} to allow chaining
-	 */
-	Session setAutocommit(boolean autocommit);
+    /**
+     * Indicates if a transaction is currently open.
+     *
+     * @return {@code true} if a transaction is open, {@code false} if not
+     */
+    boolean isTransactionOpen();
 
-	/**
-	 * Indicates if autocommit is enabled or disabled.
-	 * 
-	 * @return {@code true} if autocommit is enabled, {@code false} if not
-	 */
-	boolean isAutocommit();
+    /**
+     * Sets the autocommit value for this {@code Session}. If autocommit is
+     * enabled, a {@code Session} transaction must be initiated by invoking
+     * {@link Session#beginTransaction()}. A transaction must then be committed
+     * or rolled back by calling {@link Session#commit()} or
+     * {@link Session#rollback()}, respectively. If autocommit is disabled,
+     * database operations will be committed when they are executed.
+     *
+     * @param autocommit {@code true} to enable autocommit, {@code false} to disable it
+     * @return {@code Session} to allow chaining
+     */
+    Session setAutocommit(boolean autocommit);
 
-	/**
-	 * Recycles the {@code Session} cache, effectively reclaiming its memory.
-	 * 
-	 * @return {@code Session} to allow chaining
-	 */
-	Session recycleCache();
+    /**
+     * Indicates if autocommit is enabled or disabled.
+     *
+     * @return {@code true} if autocommit is enabled, {@code false} if not
+     */
+    boolean isAutocommit();
 
-	/**
-	 * Sets the {@code Session} cache capacity in terms of how many
-	 * {@code Objects} it can store. The cache size dictates when the cache is
-	 * recycled if it is configured to do so automatically. Once the cache
-	 * reaches this capacity, it will be recycled. The cache can also be
-	 * recycled manually by calling {@link SqliteSession#recycleCache()}, which
-	 * will reclaim it regardless of how Infinitum is configured.
-	 * 
-	 * @param mCacheSize
-	 *            the maximum number of {@code Objects} the cache can store
-	 * @return {@code Session} to allow chaining
-	 */
-	Session setCacheSize(int mCacheSize);
+    /**
+     * Recycles the {@code Session} cache, effectively reclaiming its memory.
+     *
+     * @return {@code Session} to allow chaining
+     */
+    Session recycleCache();
 
-	/**
-	 * Returns the maximum capacity of the {@code Session} cache in terms of how
-	 * many {@code Objects} it can store.
-	 * 
-	 * @return the maximum number of {@code Objects} the cache can store
-	 */
-	int getCacheSize();
-	
-	/**
-	 * Caches the given model identified by the given hash code.
-	 * 
-	 * @param hash
-	 *            the hash code which maps to the model
-	 * @param model
-	 *            the {@link Object} to cache
-	 * @return {@code true} if the model was cached, {@code false} if not
-	 */
-	boolean cache(int hash, Object model);
-	
-	/**
-	 * Indicates if the session cache contains the given hash code.
-	 * 
-	 * @param hash
-	 *            the hash code to check for
-	 * @return {@code true} if the cache contains the hash code, {@code false}
-	 *         if not
-	 */
-	boolean checkCache(int hash);
-	
-	/**
-	 * Returns the model with the given hash code from the session cache.
-	 * 
-	 * @param hash
-	 *            the hash code of the model to retrieve
-	 * @return the model {@link Object} identified by the given hash code or
-	 *         {@code null} if no such entity exists in the cache
-	 */
-	Object searchCache(int hash);
+    /**
+     * Sets the {@code Session} cache capacity in terms of how many
+     * {@code Objects} it can store. The cache size dictates when the cache is
+     * recycled if it is configured to do so automatically. Once the cache
+     * reaches this capacity, it will be recycled. The cache can also be
+     * recycled manually by calling {@link SqliteSession#recycleCache()}, which
+     * will reclaim it regardless of how Infinitum is configured.
+     *
+     * @param mCacheSize the maximum number of {@code Objects} the cache can store
+     * @return {@code Session} to allow chaining
+     */
+    Session setCacheSize(int mCacheSize);
 
-	/**
-	 * Persists the given {@link Object} to the database. This method is
-	 * not idempotent, meaning if the record already exists, a new one will
-	 * attempt to persist.
-	 * 
-	 * @param model
-	 *            {@code Object} to persist to the database
-	 * @return the row ID of the newly inserted record, or -1 if the insert
-	 *         failed
-	 * @throws InfinitumRuntimeException
-	 *             if the model is marked transient
-	 */
-	long save(Object model) throws InfinitumRuntimeException;
+    /**
+     * Returns the maximum capacity of the {@code Session} cache in terms of how
+     * many {@code Objects} it can store.
+     *
+     * @return the maximum number of {@code Objects} the cache can store
+     */
+    int getCacheSize();
 
-	/**
-	 * Updates the given {@link Object} in the database.
-	 * 
-	 * @param model
-	 *            {@code Object} to update in the database
-	 * @return {@code true} if the updated succeeded, {@code false} if it failed
-	 * @throws InfinitumRuntimeException
-	 *             if the model is marked transient
-	 */
-	boolean update(Object model) throws InfinitumRuntimeException;
+    /**
+     * Caches the given model identified by the given hash code.
+     *
+     * @param hash  the hash code which maps to the model
+     * @param model the {@link Object} to cache
+     * @return {@code true} if the model was cached, {@code false} if not
+     */
+    boolean cache(int hash, Object model);
 
-	/**
-	 * Deletes the given {@link Object} from the database if it exists.
-	 * 
-	 * @param model
-	 *            {@code Object} to delete from the database
-	 * @return true if the record was deleted, false otherwise
-	 * @throws InfinitumRuntimeException
-	 *             if the model is marked transient
-	 */
-	boolean delete(Object model) throws InfinitumRuntimeException;
+    /**
+     * Indicates if the session cache contains the given hash code.
+     *
+     * @param hash the hash code to check for
+     * @return {@code true} if the cache contains the hash code, {@code false}
+     *         if not
+     */
+    boolean checkCache(int hash);
 
-	/**
-	 * Persists the given {@link Object} to the database, or, if it already
-	 * exists, updates the record.
-	 * 
-	 * @param model
-	 *            {@code Object} to save or update in the database
-	 * @return the row ID of the newly inserted row, 0 if the row was updated, or -1 if the operation failed.
-	 * @throws InfinitumRuntimeException
-	 *             if the model is marked transient
-	 */
-	long saveOrUpdate(Object model) throws InfinitumRuntimeException;
+    /**
+     * Returns the model with the given hash code from the session cache.
+     *
+     * @param hash the hash code of the model to retrieve
+     * @return the model {@link Object} identified by the given hash code or
+     *         {@code null} if no such entity exists in the cache
+     */
+    Object searchCache(int hash);
 
-	/**
-	 * Persists or updates the entire collection of {@code Objects} in the
-	 * database.
-	 * 
-	 * @param models
-	 *            {@code Objects} to save or update in the database
-	 * @return the number of records saved or updated
-	 * @throws InfinitumRuntimeException
-	 *             if one or more of the models is marked transient
-	 */
-	int saveOrUpdateAll(Collection<? extends Object> models)
-			throws InfinitumRuntimeException;
+    /**
+     * Persists the given {@link Object} to the database. This method is
+     * not idempotent, meaning if the record already exists, a new one will
+     * attempt to persist.
+     *
+     * @param model {@code Object} to persist to the database
+     * @return the row ID of the newly inserted record, or -1 if the insert
+     *         failed
+     * @throws InfinitumRuntimeException if the model is marked transient
+     */
+    long save(Object model) throws InfinitumRuntimeException;
 
-	/**
-	 * Persists the entire collection of {@code Objects} to the database.
-	 * 
-	 * @param models
-	 *            {@code Objects} to persist to the database
-	 * @return the number of records saved
-	 * @throws InfinitumRuntimeException
-	 *             if one or more of the models is marked transient
-	 */
-	int saveAll(Collection<? extends Object> models)
-			throws InfinitumRuntimeException;
+    /**
+     * Updates the given {@link Object} in the database.
+     *
+     * @param model {@code Object} to update in the database
+     * @return {@code true} if the updated succeeded, {@code false} if it failed
+     * @throws InfinitumRuntimeException if the model is marked transient
+     */
+    boolean update(Object model) throws InfinitumRuntimeException;
 
-	/**
-	 * Deletes the entire collection of {@code Objects} from the database if
-	 * they exist.
-	 * 
-	 * @param models
-	 *            {@code Objects} to delete from the database
-	 * @return the number of records deleted
-	 * @throws InfinitumRuntimeException
-	 *             if one or more of the models is marked transient
-	 */
-	int deleteAll(Collection<? extends Object> models)
-			throws InfinitumRuntimeException;
+    /**
+     * Deletes the given {@link Object} from the database if it exists.
+     *
+     * @param model {@code Object} to delete from the database
+     * @return true if the record was deleted, false otherwise
+     * @throws InfinitumRuntimeException if the model is marked transient
+     */
+    boolean delete(Object model) throws InfinitumRuntimeException;
 
-	/**
-	 * Returns an instance of the given persistent model {@link Class} as
-	 * identified by the specified primary key or {@code null} if no such entity
-	 * exists.
-	 * 
-	 * @param c
-	 *            the {@code Class} of the persistent instance to load
-	 * @param id
-	 *            the primary key value of the persistent instance to load
-	 * @return the persistent instance
-	 * @throws InfinitumRuntimeException
-	 *             if the specified {@code Class} is marked transient
-	 * @throws IllegalArgumentException
-	 *             if an invalid primary key is provided
-	 */
-	<T extends Object> T load(Class<T> c, Serializable id)
-			throws InfinitumRuntimeException, IllegalArgumentException;
+    /**
+     * Persists the given {@link Object} to the database, or, if it already
+     * exists, updates the record.
+     *
+     * @param model {@code Object} to save or update in the database
+     * @return the row ID of the newly inserted row, 0 if the row was updated, or -1 if the operation failed.
+     * @throws InfinitumRuntimeException if the model is marked transient
+     */
+    long saveOrUpdate(Object model) throws InfinitumRuntimeException;
 
-	/**
-	 * Executes the given SQL non-query on the database, meaning no result is
-	 * expected.
-	 * 
-	 * @param sql
-	 *            the SQL query to execute
-	 * @return {@code Session} to allow chaining
-	 * 
-	 * @throws SQLGrammarException
-	 *             if the SQL was formatted incorrectly
-	 */
-	Session execute(String sql) throws SQLGrammarException;
+    /**
+     * Persists or updates the entire collection of {@code Objects} in the
+     * database.
+     *
+     * @param models {@code Objects} to save or update in the database
+     * @return the number of records saved or updated
+     * @throws InfinitumRuntimeException if one or more of the models is marked transient
+     */
+    int saveOrUpdateAll(Collection<? extends Object> models)
+            throws InfinitumRuntimeException;
 
-	/**
-	 * Creates a new {@link Criteria} instance for the given persistent entity
-	 * {@link Class}.
-	 * 
-	 * @param entityClass
-	 *            the persistent {@code Class} being queried for
-	 * @return {@code Criteria} for entityClass
-	 */
-	<T> Criteria<T> createCriteria(Class<T> entityClass);
+    /**
+     * Persists the entire collection of {@code Objects} to the database.
+     *
+     * @param models {@code Objects} to persist to the database
+     * @return the number of records saved
+     * @throws InfinitumRuntimeException if one or more of the models is marked transient
+     */
+    int saveAll(Collection<? extends Object> models)
+            throws InfinitumRuntimeException;
 
-	/**
-	 * Registers the given {@link TypeAdapter} for the specified {@link Class}
-	 * with this {@code Session} instance. The {@code TypeAdapter} allows a
-	 * {@link Field} of this type to be mapped to a database column. Registering
-	 * a {@code TypeAdapter} for a {@code Class} which already has a
-	 * {@code TypeAdapter} registered for it will result in the previous
-	 * {@code TypeAdapter} being overridden.
-	 * 
-	 * @param type
-	 *            the {@code Class} this {@code TypeAdapter} is for
-	 * @param adapter
-	 *            the {@code TypeAdapter} to register
-	 * @return {@code Session} to allow chaining
-	 */
-	<T> Session registerTypeAdapter(Class<T> type, TypeAdapter<T> adapter);
+    /**
+     * Deletes the entire collection of {@code Objects} from the database if
+     * they exist.
+     *
+     * @param models {@code Objects} to delete from the database
+     * @return the number of records deleted
+     * @throws InfinitumRuntimeException if one or more of the models is marked transient
+     */
+    int deleteAll(Collection<? extends Object> models)
+            throws InfinitumRuntimeException;
 
-	/**
-	 * Returns a {@link Map} containing all {@link TypeAdapter} instances
-	 * registered with this {@code Session} and the {@link Class} instances in
-	 * which they are registered for.
-	 * 
-	 * @return {@code Map<Class<?>, ? extends TypeAdapter<?>>
-	 */
-	Map<Class<?>, ? extends TypeAdapter<?>> getRegisteredTypeAdapters();
-	
-	/**
-	 * Registers the given {@link Deserializer} for the given {@link Class}
-	 * type. Registering a {@code Deserializer} for a {@code Class} which
-	 * already has a {@code Deserializer} registered for it will result in the
-	 * previous {@code Deserializer} being overridden.
-	 * 
-	 * @param type
-	 *            the {@code Class} to associate this deserializer with
-	 * @param deserializer
-	 *            the {@code Deserializer} to use when deserializing
-	 *            {@code Objects} of the given type
-	 * @return {@code Session} to allow chaining
-	 */
-	<T> Session registerDeserializer(Class<T> type, Deserializer<T> deserializer);
+    /**
+     * Returns an instance of the given persistent model {@link Class} as
+     * identified by the specified primary key or {@code null} if no such entity
+     * exists.
+     *
+     * @param c  the {@code Class} of the persistent instance to load
+     * @param id the primary key value of the persistent instance to load
+     * @return the persistent instance
+     * @throws InfinitumRuntimeException if the specified {@code Class} is marked transient
+     * @throws IllegalArgumentException  if an invalid primary key is provided
+     */
+    <T extends Object> T load(Class<T> c, Serializable id)
+            throws InfinitumRuntimeException, IllegalArgumentException;
+
+    /**
+     * Executes the given SQL non-query on the database, meaning no result is
+     * expected.
+     *
+     * @param sql the SQL query to execute
+     * @return {@code Session} to allow chaining
+     * @throws SQLGrammarException if the SQL was formatted incorrectly
+     */
+    Session execute(String sql) throws SQLGrammarException;
+
+    /**
+     * Creates a new {@link Criteria} instance for the given persistent entity
+     * {@link Class}.
+     *
+     * @param entityClass the persistent {@code Class} being queried for
+     * @return {@code Criteria} for entityClass
+     */
+    <T> Criteria<T> createCriteria(Class<T> entityClass);
+
+    /**
+     * Registers the given {@link TypeAdapter} for the specified {@link Class}
+     * with this {@code Session} instance. The {@code TypeAdapter} allows a
+     * {@link Field} of this type to be mapped to a database column. Registering
+     * a {@code TypeAdapter} for a {@code Class} which already has a
+     * {@code TypeAdapter} registered for it will result in the previous
+     * {@code TypeAdapter} being overridden.
+     *
+     * @param type    the {@code Class} this {@code TypeAdapter} is for
+     * @param adapter the {@code TypeAdapter} to register
+     * @return {@code Session} to allow chaining
+     */
+    <T> Session registerTypeAdapter(Class<T> type, TypeAdapter<T> adapter);
+
+    /**
+     * Returns a {@link Map} containing all {@link TypeAdapter} instances
+     * registered with this {@code Session} and the {@link Class} instances in
+     * which they are registered for.
+     *
+     * @return {@code Map<Class<?>, ? extends TypeAdapter<?>>
+     */
+    Map<Class<?>, ? extends TypeAdapter<?>> getRegisteredTypeAdapters();
+
+    /**
+     * Registers the given {@link Deserializer} for the given {@link Class}
+     * type. Registering a {@code Deserializer} for a {@code Class} which
+     * already has a {@code Deserializer} registered for it will result in the
+     * previous {@code Deserializer} being overridden.
+     *
+     * @param type         the {@code Class} to associate this deserializer with
+     * @param deserializer the {@code Deserializer} to use when deserializing
+     *                     {@code Objects} of the given type
+     * @return {@code Session} to allow chaining
+     */
+    <T> Session registerDeserializer(Class<T> type, Deserializer<T> deserializer);
 
 }

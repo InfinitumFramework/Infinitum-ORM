@@ -26,37 +26,34 @@ import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
  * Indicates there is an issue with the way a persistent domain model is
  * configured, either through annotations or XML mappings.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 02/13/12
  * @since 1.0
  */
 public class ModelConfigurationException extends InfinitumRuntimeException {
 
-	private static final long serialVersionUID = 470937993563172405L;
+    private static final long serialVersionUID = 470937993563172405L;
 
-	/**
-	 * Constructs a new {@code ModelConfigurationException} with the given error
-	 * message.
-	 * 
-	 * @param error
-	 *            the error message for the {@link ModelConfigurationException}
-	 */
-	public ModelConfigurationException(String error) {
-		super(error);
-	}
-	
-	/**
-	 * Constructs a new {@code ModelConfigurationException} with the given error
-	 * message.
-	 * 
-	 * @param error
-	 *            the error message for the {@link ModelConfigurationException}
-	 * @param throwable
-	 *            the cause of this exception
-	 */
-	public ModelConfigurationException(String error, Throwable throwable) {
-		super(error, throwable);
-	}
+    /**
+     * Constructs a new {@code ModelConfigurationException} with the given error
+     * message.
+     *
+     * @param error the error message for the {@link ModelConfigurationException}
+     */
+    public ModelConfigurationException(String error) {
+        super(error);
+    }
+
+    /**
+     * Constructs a new {@code ModelConfigurationException} with the given error
+     * message.
+     *
+     * @param error     the error message for the {@link ModelConfigurationException}
+     * @param throwable the cause of this exception
+     */
+    public ModelConfigurationException(String error, Throwable throwable) {
+        super(error, throwable);
+    }
 
 }

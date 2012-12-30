@@ -24,6 +24,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
 import com.clarionmedia.infinitum.orm.OrmConstants.PersistenceMode;
 
 /**
@@ -31,7 +32,7 @@ import com.clarionmedia.infinitum.orm.OrmConstants.PersistenceMode;
  * This annotation is used to indicate the persistence mode of a class
  * {@link Field}.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 02/12/12
  */
@@ -40,6 +41,6 @@ import com.clarionmedia.infinitum.orm.OrmConstants.PersistenceMode;
 @Target(ElementType.FIELD)
 public @interface Persistence {
 
-	PersistenceMode value() default PersistenceMode.Persistent;
+    PersistenceMode value() default PersistenceMode.Persistent;
 
 }

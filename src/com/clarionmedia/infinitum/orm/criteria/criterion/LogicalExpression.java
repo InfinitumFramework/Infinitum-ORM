@@ -27,29 +27,29 @@ import com.clarionmedia.infinitum.orm.exception.InvalidCriteriaException;
  * Represents a compound Boolean logical expression consisting of two
  * {@link Criterion} expressions and a logical operator.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 02/18/12
  */
 public class LogicalExpression extends Criterion {
 
-	private static final long serialVersionUID = 2819651961490738355L;
+    private static final long serialVersionUID = 2819651961490738355L;
 
-	private Criterion mLhs;
-	private Criterion mRhs;
-	private String mOperator;
+    private Criterion mLhs;
+    private Criterion mRhs;
+    private String mOperator;
 
-	public LogicalExpression(Criterion lhs, Criterion rhs, String operator) {
-		super(null);
-		mLhs = lhs;
-		mRhs = rhs;
-		mOperator = operator;
-	}
+    public LogicalExpression(Criterion lhs, Criterion rhs, String operator) {
+        super(null);
+        mLhs = lhs;
+        mRhs = rhs;
+        mOperator = operator;
+    }
 
-	@Override
-	public String toSql(Criteria<?> criteria) throws InvalidCriteriaException {
-		return new StringBuilder("(").append(mLhs.toSql(criteria)).append(' ').append(mOperator).append(' ')
-				.append(mRhs.toSql(criteria)).append(')').toString();
-	}
+    @Override
+    public String toSql(Criteria<?> criteria) throws InvalidCriteriaException {
+        return new StringBuilder("(").append(mLhs.toSql(criteria)).append(' ').append(mOperator).append(' ')
+                .append(mRhs.toSql(criteria)).append(')').toString();
+    }
 
 }

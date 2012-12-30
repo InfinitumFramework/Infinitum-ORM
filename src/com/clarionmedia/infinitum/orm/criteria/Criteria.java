@@ -20,6 +20,7 @@
 package com.clarionmedia.infinitum.orm.criteria;
 
 import java.util.List;
+
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.orm.ObjectMapper;
 import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
@@ -30,102 +31,98 @@ import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
  * {@code Criteria} queries consist of {@link Criterion}, which act as
  * restrictions on a query.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 02/17/12
  */
 public interface Criteria<T> {
 
-	/**
-	 * Returns the {@code Criteria} query in SQL form.
-	 * 
-	 * @return SQL {@link String} for this {@code Criteria}
-	 */
-	String toSql();
+    /**
+     * Returns the {@code Criteria} query in SQL form.
+     *
+     * @return SQL {@link String} for this {@code Criteria}
+     */
+    String toSql();
 
-	/**
-	 * Returns the {@link Class} associated with this {@code Criteria}.
-	 * 
-	 * @return {@code Criteria } entity {@code Class}
-	 */
-	Class<?> getEntityClass();
+    /**
+     * Returns the {@link Class} associated with this {@code Criteria}.
+     *
+     * @return {@code Criteria } entity {@code Class}
+     */
+    Class<?> getEntityClass();
 
-	/**
-	 * Returns the {@link List} of {@link Criterion} for this {@code Criteria}.
-	 * 
-	 * @return {@code List} of {@code Criterion}
-	 */
-	List<Criterion> getCriterion();
+    /**
+     * Returns the {@link List} of {@link Criterion} for this {@code Criteria}.
+     *
+     * @return {@code List} of {@code Criterion}
+     */
+    List<Criterion> getCriterion();
 
-	/**
-	 * Returns the result set limit for this {@code Criteria}.
-	 * 
-	 * @return result set limit
-	 */
-	int getLimit();
+    /**
+     * Returns the result set limit for this {@code Criteria}.
+     *
+     * @return result set limit
+     */
+    int getLimit();
 
-	/**
-	 * Returns the offset value for this {@code Criteria}.
-	 * 
-	 * @return offset value
-	 */
-	int getOffset();
+    /**
+     * Returns the offset value for this {@code Criteria}.
+     *
+     * @return offset value
+     */
+    int getOffset();
 
-	/**
-	 * Returns the {@link ObjectMapper} associated with this {@code Criteria}.
-	 * 
-	 * @return {@code ObjectMapper}
-	 */
-	ObjectMapper getObjectMapper();
+    /**
+     * Returns the {@link ObjectMapper} associated with this {@code Criteria}.
+     *
+     * @return {@code ObjectMapper}
+     */
+    ObjectMapper getObjectMapper();
 
-	/**
-	 * Adds a {@link Criterion} to filter retrieved query results.
-	 * 
-	 * @param criterion
-	 *            the {@code Criterion} to apply to the {@link Criteria} query
-	 * @return this {@code Criteria} to allow for method chaining
-	 */
-	Criteria<T> add(Criterion criterion);
+    /**
+     * Adds a {@link Criterion} to filter retrieved query results.
+     *
+     * @param criterion the {@code Criterion} to apply to the {@link Criteria} query
+     * @return this {@code Criteria} to allow for method chaining
+     */
+    Criteria<T> add(Criterion criterion);
 
-	/**
-	 * Limits the number of query results.
-	 * 
-	 * @param limit
-	 *            max number of entities to retrieve
-	 * @return this {@code Criteria} to allow for method chaining
-	 */
-	Criteria<T> limit(int limit);
+    /**
+     * Limits the number of query results.
+     *
+     * @param limit max number of entities to retrieve
+     * @return this {@code Criteria} to allow for method chaining
+     */
+    Criteria<T> limit(int limit);
 
-	/**
-	 * Offsets the result set by the given amount.
-	 * 
-	 * @param offset
-	 *            amount to offset results
-	 * @return this {@code Criteria} to allow for method chaining
-	 */
-	Criteria<T> offset(int offset);
+    /**
+     * Offsets the result set by the given amount.
+     *
+     * @param offset amount to offset results
+     * @return this {@code Criteria} to allow for method chaining
+     */
+    Criteria<T> offset(int offset);
 
-	/**
-	 * Retrieves the query results as a {@link List}.
-	 * 
-	 * @return query results in {@code List} form
-	 */
-	List<T> list();
+    /**
+     * Retrieves the query results as a {@link List}.
+     *
+     * @return query results in {@code List} form
+     */
+    List<T> list();
 
-	/**
-	 * Retrieves a unique query result for the {@code Criteria} query.
-	 * 
-	 * @return unique query result or {@code null} if no such result exists
-	 * @throws InfinitumRuntimeException
-	 *             if there was not a unique result for the query
-	 */
-	T unique() throws InfinitumRuntimeException;
+    /**
+     * Retrieves a unique query result for the {@code Criteria} query.
+     *
+     * @return unique query result or {@code null} if no such result exists
+     * @throws InfinitumRuntimeException if there was not a unique result for the query
+     */
+    T unique() throws InfinitumRuntimeException;
 
-	/**
-	 * Retrieves the number of results for the {@code Criteria} query.
-	 * 
-	 * @return number of results for the query
-	 */
-	long count();
+    /**
+     * Retrieves the number of results for the {@code Criteria} query.
+     *
+     * @return number of results for the query
+     */
+    long count();
 
 }

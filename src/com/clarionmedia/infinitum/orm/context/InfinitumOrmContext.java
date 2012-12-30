@@ -39,121 +39,120 @@ import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
  * configured data sources. For example, a SQLite {@code Session} would be
  * retrieved by doing the following:
  * </p>
- * 
+ * <p/>
  * <pre>
  * Session session = context.getSession(DataSource.SQLITE);
  * </pre>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 12/23/12
  * @since 1.0
  */
 public interface InfinitumOrmContext extends InfinitumContext, BeanProvider {
 
-	/**
-	 * Represents the entity persistence configuration mode.
-	 */
-	public static enum ConfigurationMode {
-		XML {
-			public String toString() {
-				return "xml";
-			}
-		},
-		ANNOTATION {
-			public String toString() {
-				return "annotations";
-			}
-		}
-	}
+    /**
+     * Represents the entity persistence configuration mode.
+     */
+    public static enum ConfigurationMode {
+        XML {
+            public String toString() {
+                return "xml";
+            }
+        },
+        ANNOTATION {
+            public String toString() {
+                return "annotations";
+            }
+        }
+    }
 
-	/**
-	 * Represents the configured data source for a {@link Session}.
-	 */
-	public static enum DataSource {
-		SQLITE, REST
-	}
+    /**
+     * Represents the configured data source for a {@link Session}.
+     */
+    public static enum DataSource {
+        SQLITE, REST
+    }
 
-	/**
-	 * Retrieves a new {@link Session} instance for the configured data source.
-	 * 
-	 * @param source
-	 *            the {@link DataSource} to target
-	 * @return new {@code Session} instance
-	 * @throws InfinitumConfigurationException
-	 *             if the specified {@code DataSource} was not configured
-	 */
-	Session getSession(DataSource source) throws InfinitumConfigurationException;
+    /**
+     * Retrieves a new {@link Session} instance for the configured data source.
+     *
+     * @param source the {@link DataSource} to target
+     * @return new {@code Session} instance
+     * @throws InfinitumConfigurationException
+     *          if the specified {@code DataSource} was not configured
+     */
+    Session getSession(DataSource source) throws InfinitumConfigurationException;
 
-	/**
-	 * Returns the {@link ConfigurationMode} value of this
-	 * {@code InfinitumContext}, indicating which style of configuration this
-	 * application is using, XML- or annotation-based. An XML configuration
-	 * means that domain model mappings are provided through XML mapping files,
-	 * while an annotation configuration means that mappings and other
-	 * properties are provided in source code using Java annotations.
-	 * 
-	 * @return {@code ConfigurationMode} for this application
-	 */
-	ConfigurationMode getConfigurationMode();
+    /**
+     * Returns the {@link ConfigurationMode} value of this
+     * {@code InfinitumContext}, indicating which style of configuration this
+     * application is using, XML- or annotation-based. An XML configuration
+     * means that domain model mappings are provided through XML mapping files,
+     * while an annotation configuration means that mappings and other
+     * properties are provided in source code using Java annotations.
+     *
+     * @return {@code ConfigurationMode} for this application
+     */
+    ConfigurationMode getConfigurationMode();
 
-	/**
-	 * Returns true if there is a SQLite database configured or false if not. If
-	 * {@code infinitum.cfg.xml} is missing the {@code sqlite} element, this
-	 * will be false.
-	 * 
-	 * @return {@code true} if a SQLite database is configured or {@code false}
-	 *         if not
-	 */
-	boolean hasSqliteDb();
+    /**
+     * Returns true if there is a SQLite database configured or false if not. If
+     * {@code infinitum.cfg.xml} is missing the {@code sqlite} element, this
+     * will be false.
+     *
+     * @return {@code true} if a SQLite database is configured or {@code false}
+     *         if not
+     */
+    boolean hasSqliteDb();
 
-	/**
-	 * Returns the name of the SQLite database for this {@code InfinitumContext}
-	 * . This is the name used to construct the database and subsequently open
-	 * it.
-	 * 
-	 * @return the name of the SQLite database for this {@code InfinitumContext}
-	 */
-	String getSqliteDbName();
+    /**
+     * Returns the name of the SQLite database for this {@code InfinitumContext}
+     * . This is the name used to construct the database and subsequently open
+     * it.
+     *
+     * @return the name of the SQLite database for this {@code InfinitumContext}
+     */
+    String getSqliteDbName();
 
-	/**
-	 * Returns the version number of the SQLite database for this
-	 * {@code InfinitumContext}.
-	 * 
-	 * @return the SQLite database version number
-	 */
-	int getSqliteDbVersion();
+    /**
+     * Returns the version number of the SQLite database for this
+     * {@code InfinitumContext}.
+     *
+     * @return the SQLite database version number
+     */
+    int getSqliteDbVersion();
 
-	/**
-	 * Returns a {@link List} of all fully-qualified domain model classes
-	 * registered with this {@code InfinitumContext}. Domain types are defined
-	 * as being persistent entities.
-	 * 
-	 * @return a {@code List} of all registered domain model classes
-	 */
-	List<String> getDomainTypes();
+    /**
+     * Returns a {@link List} of all fully-qualified domain model classes
+     * registered with this {@code InfinitumContext}. Domain types are defined
+     * as being persistent entities.
+     *
+     * @return a {@code List} of all registered domain model classes
+     */
+    List<String> getDomainTypes();
 
-	/**
-	 * Indicates if the database schema is configured to be automatically
-	 * generated by the framework.
-	 * 
-	 * @return {@code true} if the schema is set to automatically generate,
-	 *         {@code false} if not
-	 */
-	boolean isSchemaGenerated();
+    /**
+     * Indicates if the database schema is configured to be automatically
+     * generated by the framework.
+     *
+     * @return {@code true} if the schema is set to automatically generate,
+     *         {@code false} if not
+     */
+    boolean isSchemaGenerated();
 
-	/**
-	 * Indicates if autocommit is enabled or disabled.
-	 * 
-	 * @return {@code true} if autocommit is enabled, {@code false} if not
-	 */
-	boolean isAutocommit();
+    /**
+     * Indicates if autocommit is enabled or disabled.
+     *
+     * @return {@code true} if autocommit is enabled, {@code false} if not
+     */
+    boolean isAutocommit();
 
-	/**
-	 * Retrieves the application {@link PersistencePolicy}, which is configured
-	 * in {@code infinitum.cfg.xml}.
-	 * 
-	 * @return {@code PersistencePolicy} for this application
-	 */
-	PersistencePolicy getPersistencePolicy();
+    /**
+     * Retrieves the application {@link PersistencePolicy}, which is configured
+     * in {@code infinitum.cfg.xml}.
+     *
+     * @return {@code PersistencePolicy} for this application
+     */
+    PersistencePolicy getPersistencePolicy();
 
 }

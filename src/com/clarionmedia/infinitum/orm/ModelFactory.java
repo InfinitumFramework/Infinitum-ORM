@@ -20,6 +20,7 @@
 package com.clarionmedia.infinitum.orm;
 
 import java.lang.Object;
+
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
 
@@ -32,36 +33,31 @@ import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
  * constructor is present, a {@link ModelConfigurationException} will be thrown
  * at runtime.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 02/20/12
  * @since 1.0
  */
 public interface ModelFactory {
 
-	/**
-	 * Constructs a domain model instance and populates its fields from the
-	 * given {@link ResultSet}. The precondition for this method is that the
-	 * {@code ResultSet} is currently at the row to convert to an {@link Object}
-	 * from the correct table.
-	 * 
-	 * @param result
-	 *            the {@code ResultSet} containing the row to convert to an
-	 *            {@code Object}
-	 * @param modelClass
-	 *            the {@code Class} of the {@code Object} being instantiated
-	 * @return a populated instance of the specified {@code Class}
-	 * @throws ModelConfigurationException
-	 *             if the specified model {@code Class} does not contain an
-	 *             empty constructor
-	 * @throws InfinitumRuntimeException
-	 *             if the model could not be instantiated
-	 * @throws IllegalArgumentException
-	 *             if the {@code ModelFactory} implementation cannot process the
-	 *             {@code ResultSet} type
-	 */
-	<T> T createFromResult(ResultSet result, Class<T> modelClass)
-			throws ModelConfigurationException, InfinitumRuntimeException,
-			IllegalArgumentException;
+    /**
+     * Constructs a domain model instance and populates its fields from the
+     * given {@link ResultSet}. The precondition for this method is that the
+     * {@code ResultSet} is currently at the row to convert to an {@link Object}
+     * from the correct table.
+     *
+     * @param result     the {@code ResultSet} containing the row to convert to an
+     *                   {@code Object}
+     * @param modelClass the {@code Class} of the {@code Object} being instantiated
+     * @return a populated instance of the specified {@code Class}
+     * @throws ModelConfigurationException if the specified model {@code Class} does not contain an
+     *                                     empty constructor
+     * @throws InfinitumRuntimeException   if the model could not be instantiated
+     * @throws IllegalArgumentException    if the {@code ModelFactory} implementation cannot process the
+     *                                     {@code ResultSet} type
+     */
+    <T> T createFromResult(ResultSet result, Class<T> modelClass)
+            throws ModelConfigurationException, InfinitumRuntimeException,
+            IllegalArgumentException;
 
 }
