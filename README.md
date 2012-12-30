@@ -5,7 +5,7 @@
 Infinitum ORM
 -------------
 
-Infinitum includes an [object-relational mapper](https://github.com/InfinitumFramework/Infinitum-ORM) that allows developers to spend more time focusing on their problem domain and core business logic and less time on innate data-access and boilerplate code. It embraces object-oriented principles such as polymorphism, inheritance, and association while maintaining a great deal of flexibility. The ORM allows developers to specify what is transient or persistent at a class- and field-level, and it is configurable using either XML mappings or Java annotations. The Infinitum ORM also provides a criteria API for constructing database queries, allowing developers to query on objects rather than tables -- no SQL necessary.
+Infinitum ORM allows developers to spend more time focusing on their problem domain and core business logic and less time on innate data-access and boilerplate code. It embraces object-oriented principles such as polymorphism, inheritance, and association while maintaining a great deal of flexibility. The ORM allows developers to specify what is transient or persistent at a class- and field-level, and it is configurable using either XML mappings or Java annotations. The Infinitum ORM also provides a criteria API for constructing database queries, allowing developers to query on objects rather than tables -- no SQL necessary.
 
 The framework also offers an extensible REST ORM implementation, granting developers an effortless way to communicate with their own RESTful web services using domain objects.
 
