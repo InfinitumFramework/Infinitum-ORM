@@ -39,88 +39,88 @@ import com.clarionmedia.infinitum.orm.rest.RestfulPairsTypeAdapter;
  * This implementation of {@link ObjectMapper} provides methods to map domain
  * models to RESTful web service resources for name-value pair message types.
  * </p>
- *
+ * 
  * @author Tyler Treat
  * @version 1.0 03/21/12
  * @since 1.0
  */
 public class RestfulNameValueMapper extends RestfulMapper {
 
-    private Map<Class<?>, RestfulPairsTypeAdapter<?>> mTypeAdapters;
+	private Map<Class<?>, RestfulPairsTypeAdapter<?>> mTypeAdapters;
 
-    /**
-     * Constructs a new {@code RestfulNameValueMapper}.
-     */
-    public RestfulNameValueMapper() {
-        mTypeAdapters = new HashMap<Class<?>, RestfulPairsTypeAdapter<?>>();
-        mTypeAdapters.put(boolean.class, RestfulPairsTypeAdapters.BOOLEAN);
-        mTypeAdapters.put(byte.class, RestfulPairsTypeAdapters.BYTE);
-        mTypeAdapters.put(byte[].class, RestfulPairsTypeAdapters.BYTE_ARRAY);
-        mTypeAdapters.put(char.class, RestfulPairsTypeAdapters.CHARACTER);
-        mTypeAdapters.put(Date.class, RestfulPairsTypeAdapters.DATE);
-        mTypeAdapters.put(double.class, RestfulPairsTypeAdapters.DOUBLE);
-        mTypeAdapters.put(float.class, RestfulPairsTypeAdapters.FLOAT);
-        mTypeAdapters.put(int.class, RestfulPairsTypeAdapters.INTEGER);
-        mTypeAdapters.put(long.class, RestfulPairsTypeAdapters.LONG);
-        mTypeAdapters.put(short.class, RestfulPairsTypeAdapters.SHORT);
-        mTypeAdapters.put(String.class, RestfulPairsTypeAdapters.STRING);
-    }
+	/**
+	 * Constructs a new {@code RestfulNameValueMapper}.
+	 */
+	public RestfulNameValueMapper() {
+		mTypeAdapters = new HashMap<Class<?>, RestfulPairsTypeAdapter<?>>();
+		mTypeAdapters.put(boolean.class, RestfulPairsTypeAdapters.BOOLEAN);
+		mTypeAdapters.put(byte.class, RestfulPairsTypeAdapters.BYTE);
+		mTypeAdapters.put(byte[].class, RestfulPairsTypeAdapters.BYTE_ARRAY);
+		mTypeAdapters.put(char.class, RestfulPairsTypeAdapters.CHARACTER);
+		mTypeAdapters.put(Date.class, RestfulPairsTypeAdapters.DATE);
+		mTypeAdapters.put(double.class, RestfulPairsTypeAdapters.DOUBLE);
+		mTypeAdapters.put(float.class, RestfulPairsTypeAdapters.FLOAT);
+		mTypeAdapters.put(int.class, RestfulPairsTypeAdapters.INTEGER);
+		mTypeAdapters.put(long.class, RestfulPairsTypeAdapters.LONG);
+		mTypeAdapters.put(short.class, RestfulPairsTypeAdapters.SHORT);
+		mTypeAdapters.put(String.class, RestfulPairsTypeAdapters.STRING);
+	}
 
-    @Override
-    public RestfulNameValueModelMap mapModel(Object model)
-            throws InvalidMappingException, ModelConfigurationException {
-        // We do not map transient classes!
-        if (!mPersistencePolicy.isPersistent(model.getClass()))
-            return null;
-        RestfulNameValueModelMap modelMap = new RestfulNameValueModelMap(model);
-        for (Field field : mPersistencePolicy.getPersistentFields(model.getClass())) {
-            // Don't map primary keys if they are autoincrementing
-            if (mPersistencePolicy.isFieldPrimaryKey(field)
-                    && mPersistencePolicy.isPrimaryKeyAutoIncrement(field))
-                continue;
-            // Map relationships
-            if (mPersistencePolicy.isRelationship(field)) {
-                mapRelationship(modelMap, model, field);
-                continue;
-            }
-            // Map Field values
-            mapField(modelMap, model, field);
-        }
-        return modelMap;
-    }
+	@Override
+	public RestfulNameValueModelMap mapModel(Object model)
+			throws InvalidMappingException, ModelConfigurationException {
+		// We do not map transient classes!
+		if (!mPersistencePolicy.isPersistent(model.getClass()))
+			return null;
+		RestfulNameValueModelMap modelMap = new RestfulNameValueModelMap(model);
+		for (Field field : mPersistencePolicy.getPersistentFields(model.getClass())) {
+			// Don't map primary keys if they are autoincrementing
+			if (mPersistencePolicy.isFieldPrimaryKey(field)
+					&& mPersistencePolicy.isPrimaryKeyAutoIncrement(field))
+				continue;
+			// Map relationships
+			if (mPersistencePolicy.isRelationship(field)) {
+				mapRelationship(modelMap, model, field);
+				continue;
+			}
+			// Map Field values
+			mapField(modelMap, model, field);
+		}
+		return modelMap;
+	}
 
-    @Override
-    public <T> void registerTypeAdapter(Class<T> type, TypeAdapter<T> adapter) {
-        if (RestfulPairsTypeAdapter.class.isAssignableFrom(adapter.getClass()))
-            mTypeAdapters.put(type, (RestfulPairsTypeAdapter<?>) adapter);
-    }
+	@Override
+	public <T> void registerTypeAdapter(Class<T> type, TypeAdapter<T> adapter) {
+		if (RestfulPairsTypeAdapter.class.isAssignableFrom(adapter.getClass()))
+			mTypeAdapters.put(type, (RestfulPairsTypeAdapter<?>) adapter);
+	}
 
-    @Override
-    public Map<Class<?>, ? extends TypeAdapter<?>> getRegisteredTypeAdapters() {
-        return mTypeAdapters;
-    }
+	@Override
+	public Map<Class<?>, ? extends TypeAdapter<?>> getRegisteredTypeAdapters() {
+		return mTypeAdapters;
+	}
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> RestfulPairsTypeAdapter<T> resolveType(Class<T> type)
-            throws InvalidMappingException {
-        type = Primitives.unwrap(type);
-        if (mTypeAdapters.containsKey(type))
-            return (RestfulPairsTypeAdapter<T>) mTypeAdapters.get(type);
-        throw new InvalidMappingException(String.format(
-                mPropLoader.getErrorMessage("CANNOT_MAP_TYPE"),
-                type.getSimpleName()));
-    }
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> RestfulPairsTypeAdapter<T> resolveType(Class<T> type)
+			throws InvalidMappingException {
+		type = Primitives.unwrap(type);
+		if (mTypeAdapters.containsKey(type))
+			return (RestfulPairsTypeAdapter<T>) mTypeAdapters.get(type);
+		throw new InvalidMappingException(String.format(
+				mPropLoader.getErrorMessage("CANNOT_MAP_TYPE"),
+				type.getSimpleName()));
+	}
 
-    // Map Field value to NameValuePair
-    private void mapField(RestfulNameValueModelMap modelMap, Object model,
-                          Field field) {
-        if (AbstractProxy.isAopProxy(model))
-            model = AbstractProxy.getTarget(model);
-        Object val = mClassReflector.getFieldValue(model, field);
-        String fieldName = mPersistencePolicy.getEndpointFieldName(field);
-        resolveType(field.getType()).mapObjectToPair(val, fieldName,
-                modelMap.getNameValuePairs());
-    }
+	// Map Field value to NameValuePair
+	private void mapField(RestfulNameValueModelMap modelMap, Object model,
+			Field field) {
+		if (AbstractProxy.isAopProxy(model))
+			model = AbstractProxy.getTarget(model);
+		Object val = mClassReflector.getFieldValue(model, field);
+		String fieldName = mPersistencePolicy.getEndpointFieldName(field);
+		resolveType(field.getType()).mapObjectToPair(val, fieldName,
+				modelMap.getNameValuePairs());
+	}
 
 }

@@ -35,53 +35,53 @@ import com.google.gson.Gson;
  * This implementation of {@link RestfulMapper} provides methods to map domain
  * models to RESTful web service resources for JSON message types.
  * </p>
- *
+ * 
  * @author Tyler Treat
  * @version 1.0 08/05/12
  * @since 1.0
  */
 public class RestfulJsonMapper extends RestfulMapper {
 
-    private Map<Class<?>, RestfulJsonTypeAdapter<?>> mTypeAdapters;
-    private Gson mGson;
+	private Map<Class<?>, RestfulJsonTypeAdapter<?>> mTypeAdapters;
+	private Gson mGson;
 
-    /**
-     * Constructs a new {@code RestfulJsonMapper}.
-     */
-    public RestfulJsonMapper() {
-        mTypeAdapters = new HashMap<Class<?>, RestfulJsonTypeAdapter<?>>();
-        mGson = new Gson();
-    }
+	/**
+	 * Constructs a new {@code RestfulJsonMapper}.
+	 */
+	public RestfulJsonMapper() {
+		mTypeAdapters = new HashMap<Class<?>, RestfulJsonTypeAdapter<?>>();
+		mGson = new Gson();
+	}
 
-    @Override
-    public RestfulStringModelMap mapModel(Object model) throws InvalidMappingException, ModelConfigurationException {
-        // We do not map transient classes!
-        if (!mPersistencePolicy.isPersistent(model.getClass()))
-            return null;
-        RestfulStringModelMap modelMap = new RestfulStringModelMap(model);
-        String json;
-        if (mTypeAdapters.containsKey(model.getClass()))
-            json = mTypeAdapters.get(model.getClass()).serializeObjectToJson(model);
-        else
-            json = mGson.toJson(model);
-        modelMap.setMessage(json);
-        return modelMap;
-    }
+	@Override
+	public RestfulStringModelMap mapModel(Object model) throws InvalidMappingException, ModelConfigurationException {
+		// We do not map transient classes!
+		if (!mPersistencePolicy.isPersistent(model.getClass()))
+			return null;
+		RestfulStringModelMap modelMap = new RestfulStringModelMap(model);
+		String json;
+		if (mTypeAdapters.containsKey(model.getClass()))
+			json = mTypeAdapters.get(model.getClass()).serializeObjectToJson(model);
+		else
+			json = mGson.toJson(model);
+		modelMap.setMessage(json);
+		return modelMap;
+	}
 
-    @Override
-    public <T> void registerTypeAdapter(Class<T> type, TypeAdapter<T> adapter) {
-        if (RestfulJsonTypeAdapter.class.isAssignableFrom(adapter.getClass()))
-            mTypeAdapters.put(type, (RestfulJsonTypeAdapter<?>) adapter);
-    }
+	@Override
+	public <T> void registerTypeAdapter(Class<T> type, TypeAdapter<T> adapter) {
+		if (RestfulJsonTypeAdapter.class.isAssignableFrom(adapter.getClass()))
+		    mTypeAdapters.put(type, (RestfulJsonTypeAdapter<?>) adapter);
+	}
 
-    @Override
-    public Map<Class<?>, ? extends TypeAdapter<?>> getRegisteredTypeAdapters() {
-        return mTypeAdapters;
-    }
+	@Override
+	public Map<Class<?>, ? extends TypeAdapter<?>> getRegisteredTypeAdapters() {
+		return mTypeAdapters;
+	}
 
-    @Override
-    public <T> RestfulPairsTypeAdapter<T> resolveType(Class<T> type) {
-        throw new UnsupportedOperationException();
-    }
+	@Override
+	public <T> RestfulPairsTypeAdapter<T> resolveType(Class<T> type) {
+		throw new UnsupportedOperationException();
+	}
 
 }

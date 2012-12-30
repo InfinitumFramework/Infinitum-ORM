@@ -31,43 +31,44 @@ import com.clarionmedia.infinitum.orm.sql.SqlConstants;
  * <p>
  * Represents a condition restraining a {@link Field} value to not {@code null}.
  * </p>
- *
+ * 
  * @author Tyler Treat
  * @version 1.0 02/18/12
  */
 public class NotNullExpression extends Criterion {
 
-    private static final long serialVersionUID = 1282172886230328002L;
+	private static final long serialVersionUID = 1282172886230328002L;
 
-    /**
-     * Constructs a new {@code NotNullExpression} with the given {@link Field}
-     * name.
-     *
-     * @param fieldName the name of the field to check not {@code null} for
-     */
-    public NotNullExpression(String fieldName) {
-        super(fieldName);
-    }
+	/**
+	 * Constructs a new {@code NotNullExpression} with the given {@link Field}
+	 * name.
+	 * 
+	 * @param fieldName
+	 *            the name of the field to check not {@code null} for
+	 */
+	public NotNullExpression(String fieldName) {
+		super(fieldName);
+	}
 
-    @Override
-    public String toSql(Criteria<?> criteria) throws InvalidCriteriaException {
-        StringBuilder query = new StringBuilder();
-        Class<?> c = criteria.getEntityClass();
-        Field f = null;
-        PersistencePolicy policy = mContextFactory.getContext(InfinitumOrmContext.class).getPersistencePolicy();
-        try {
-            f = policy.findPersistentField(c, mFieldName);
-            if (f == null)
-                throw new InvalidCriteriaException(String.format("Invalid Criteria for type '%s'.",
-                        c.getName()));
-            f.setAccessible(true);
-        } catch (SecurityException e) {
-            throw new InvalidCriteriaException(String.format("Invalid Criteria for type '%s'.",
-                    c.getName()));
-        }
-        String colName = policy.getFieldColumnName(f);
-        query.append(colName).append(' ').append(SqlConstants.IS_NOT_NULL);
-        return query.toString();
-    }
+	@Override
+	public String toSql(Criteria<?> criteria) throws InvalidCriteriaException {
+		StringBuilder query = new StringBuilder();
+		Class<?> c = criteria.getEntityClass();
+		Field f = null;
+		PersistencePolicy policy = mContextFactory.getContext(InfinitumOrmContext.class).getPersistencePolicy();
+		try {
+			f = policy.findPersistentField(c, mFieldName);
+			if (f == null)
+				throw new InvalidCriteriaException(String.format("Invalid Criteria for type '%s'.",
+						c.getName()));
+			f.setAccessible(true);
+		} catch (SecurityException e) {
+			throw new InvalidCriteriaException(String.format("Invalid Criteria for type '%s'.",
+					c.getName()));
+		}
+		String colName = policy.getFieldColumnName(f);
+		query.append(colName).append(' ').append(SqlConstants.IS_NOT_NULL);
+		return query.toString();
+	}
 
 }

@@ -38,60 +38,60 @@ import com.clarionmedia.infinitum.web.rest.impl.RestResponse;
  * Concrete implementation of {@link RestfulSession} for web services which send
  * responses back as XML.
  * </p>
- *
+ * 
  * @author Tyler Treat
  * @version 1.0 05/21/12
  * @since 1.0
  */
 public class RestfulXmlSession extends RestfulSession {
 
-    protected Map<Class<?>, XmlDeserializer<?>> mXmlDeserializers;
+	protected Map<Class<?>, XmlDeserializer<?>> mXmlDeserializers;
 
-    /**
-     * Creates a new {@code RestfulXmlSession}.
-     */
-    public RestfulXmlSession() {
-        mXmlDeserializers = new HashMap<Class<?>, XmlDeserializer<?>>();
-    }
+	/**
+	 * Creates a new {@code RestfulXmlSession}.
+	 */
+	public RestfulXmlSession() {
+		mXmlDeserializers = new HashMap<Class<?>, XmlDeserializer<?>>();
+	}
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> T loadEntity(Class<T> type, Serializable id) throws InfinitumRuntimeException, IllegalArgumentException {
-        OrmPreconditions.checkForOpenSession(mIsOpen);
-        OrmPreconditions.checkPersistenceForLoading(type, mPersistencePolicy);
-        mLogger.debug("Sending GET request to retrieve entity");
-        String uri = mHost + mPersistencePolicy.getRestEndpoint(type) + "/" + id;
-        Map<String, String> headers = new HashMap<String, String>();
-        headers.put("Accept", "application/xml");
-        try {
-            RestResponse response = mRestClient.executeGet(uri, headers);
-            if (response.getStatusCode() == HttpStatus.SC_OK) {
-                String xmlResponse = response.getResponseDataAsString();
-                T ret = null;
-                // Attempt to use a registered deserializer
-                if (mXmlDeserializers.containsKey(type))
-                    ret = (T) mXmlDeserializers.get(type).deserializeObject(xmlResponse);
-                    // Otherwise fallback to Simple
-                else
-                    ret = new Persister().read(type, xmlResponse);
-                if (ret != null) {
-                    int objHash = mPersistencePolicy.computeModelHash(ret);
-                    cache(objHash, ret);
-                }
-                return ret;
-            }
-        } catch (Exception e) {
-            mLogger.error("Unable to read web service response", e);
-            return null;
-        }
-        return null;
-    }
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T loadEntity(Class<T> type, Serializable id) throws InfinitumRuntimeException, IllegalArgumentException {
+		OrmPreconditions.checkForOpenSession(mIsOpen);
+		OrmPreconditions.checkPersistenceForLoading(type, mPersistencePolicy);
+		mLogger.debug("Sending GET request to retrieve entity");
+		String uri = mHost + mPersistencePolicy.getRestEndpoint(type) + "/" + id;
+		Map<String, String> headers = new HashMap<String, String>();
+		headers.put("Accept", "application/xml");
+		try {
+			RestResponse response = mRestClient.executeGet(uri, headers);
+			if (response.getStatusCode() == HttpStatus.SC_OK) {
+				String xmlResponse = response.getResponseDataAsString();
+				T ret = null;
+				// Attempt to use a registered deserializer
+				if (mXmlDeserializers.containsKey(type))
+					ret = (T) mXmlDeserializers.get(type).deserializeObject(xmlResponse);
+				// Otherwise fallback to Simple
+				else
+					ret = new Persister().read(type, xmlResponse);
+				if (ret != null) {
+				    int objHash = mPersistencePolicy.computeModelHash(ret);
+				    cache(objHash, ret);
+				}
+				return ret;
+			}
+		} catch (Exception e) {
+			mLogger.error("Unable to read web service response", e);
+			return null;
+		}
+		return null;
+	}
 
-    @Override
-    public <T> Session registerDeserializer(Class<T> type, Deserializer<T> deserializer) {
-        if (XmlDeserializer.class.isAssignableFrom(deserializer.getClass()))
-            mXmlDeserializers.put(type, (XmlDeserializer<T>) deserializer);
-        return this;
-    }
+	@Override
+	public <T> Session registerDeserializer(Class<T> type, Deserializer<T> deserializer) {
+		if (XmlDeserializer.class.isAssignableFrom(deserializer.getClass()))
+			mXmlDeserializers.put(type, (XmlDeserializer<T>) deserializer);
+		return this;
+	}
 
 }

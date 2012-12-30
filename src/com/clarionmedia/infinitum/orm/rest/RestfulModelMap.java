@@ -27,27 +27,28 @@ import com.clarionmedia.infinitum.orm.ModelMap;
  * Abstract implementation of {@link ModelMap} representing a domain model
  * instance mapped to a RESTful web service resource.
  * </p>
- *
+ * 
  * @author Tyler Treat
  * @version 1.0 08/05/12
  * @since 1.0
  */
 public abstract class RestfulModelMap extends ModelMap {
 
-    /**
-     * Creates a new {@code RestfulModelMap} for the given {@link Object}.
-     *
-     * @param model the {@code Object} to map
-     */
-    public RestfulModelMap(Object model) {
-        super(model);
-    }
+	/**
+	 * Creates a new {@code RestfulModelMap} for the given {@link Object}.
+	 * 
+	 * @param model
+	 *            the {@code Object} to map
+	 */
+	public RestfulModelMap(Object model) {
+		super(model);
+	}
 
-    /**
-     * Retrieves an {@link HttpEntity} representation of the model.
-     *
-     * @return {@code HttpEntity}
-     */
-    public abstract HttpEntity toHttpEntity();
+	/**
+	 * Retrieves an {@link HttpEntity} representation of the model.
+	 * 
+	 * @return {@code HttpEntity}
+	 */
+	public abstract HttpEntity toHttpEntity();
 
 }

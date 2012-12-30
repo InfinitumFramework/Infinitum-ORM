@@ -28,28 +28,30 @@ import java.util.List;
  * the former, see the implementation {@link JsonDeserializer}, and the latter,
  * {@link XmlDeserializer}.
  * </p>
- *
+ * 
  * @author Tyler Treat
  * @version 1.0 05/21/12
  */
 public interface Deserializer<T> {
 
-    /**
-     * Deserializes the given response {@link String} into an Object of the
-     * generic type.
-     *
-     * @param response the response {@code String} to deserialize
-     * @return {@code Object}
-     */
-    T deserializeObject(String response);
+	/**
+	 * Deserializes the given response {@link String} into an Object of the
+	 * generic type.
+	 * 
+	 * @param response
+	 *            the response {@code String} to deserialize
+	 * @return {@code Object}
+	 */
+	T deserializeObject(String response);
 
-    /**
-     * Deserializes the given response {@link String} consisting of an object
-     * collection into a {@link List} of objects of the generic type.
-     *
-     * @param response the response {@code String} to deserialize
-     * @return {@code List} of {@code Objects}
-     */
-    List<T> deserializeObjects(String response);
+	/**
+	 * Deserializes the given response {@link String} consisting of an object
+	 * collection into a {@link List} of objects of the generic type.
+	 * 
+	 * @param response
+	 *            the response {@code String} to deserialize
+	 * @return {@code List} of {@code Objects}
+	 */
+	List<T> deserializeObjects(String response);
 
 }

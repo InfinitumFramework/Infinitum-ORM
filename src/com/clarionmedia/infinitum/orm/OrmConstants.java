@@ -23,18 +23,18 @@ package com.clarionmedia.infinitum.orm;
  * <p>
  * Contains constants related to the Infinitum ORM.
  * </p>
- *
+ * 
  * @author Tyler Treat
  * @version 1.0 02/12/12
  * @since 1.0
  */
 public class OrmConstants {
 
-    /**
-     * Indicates the persistence state of a class or field.
-     */
-    public static enum PersistenceMode {
-        Transient, Persistent
-    }
+	/**
+	 * Indicates the persistence state of a class or field.
+	 */
+	public static enum PersistenceMode {
+		Transient, Persistent
+	}
 
 }

@@ -27,39 +27,41 @@ import com.clarionmedia.infinitum.orm.ModelMap;
  * Concrete implementation of {@link ModelMap} representing a domain model
  * instance mapped to a SQLite table.
  * </p>
- *
+ * 
  * @author Tyler Treat
  * @version 1.0 02/23/12
  */
 public class SqliteModelMap extends ModelMap {
 
-    private ContentValues mContentValues;
+	private ContentValues mContentValues;
 
-    /**
-     * Constructs a new {@code SqliteModelMap} for the given model.
-     *
-     * @param model the model to map
-     */
-    public SqliteModelMap(Object model) {
-        super(model);
-    }
+	/**
+	 * Constructs a new {@code SqliteModelMap} for the given model.
+	 * 
+	 * @param model
+	 *            the model to map
+	 */
+	public SqliteModelMap(Object model) {
+		super(model);
+	}
 
-    /**
-     * Retrieves the {@link ContentValues} for this {@code SqliteModelMap}.
-     *
-     * @return {@code ContentValues} containing mapped values
-     */
-    public ContentValues getContentValues() {
-        return mContentValues;
-    }
+	/**
+	 * Retrieves the {@link ContentValues} for this {@code SqliteModelMap}.
+	 * 
+	 * @return {@code ContentValues} containing mapped values
+	 */
+	public ContentValues getContentValues() {
+		return mContentValues;
+	}
 
-    /**
-     * Sets the {@link ContentValues} for this {@code SqliteModelMap}.
-     *
-     * @param contentValues the {@code ContentValues} to set
-     */
-    public void setContentValues(ContentValues contentValues) {
-        mContentValues = contentValues;
-    }
+	/**
+	 * Sets the {@link ContentValues} for this {@code SqliteModelMap}.
+	 * 
+	 * @param contentValues
+	 *            the {@code ContentValues} to set
+	 */
+	public void setContentValues(ContentValues contentValues) {
+		mContentValues = contentValues;
+	}
 
 }

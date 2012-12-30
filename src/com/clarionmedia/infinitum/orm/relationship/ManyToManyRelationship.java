@@ -30,88 +30,88 @@ import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
  * <p>
  * This class encapsulates a many-to-many relationship between two models.
  * </p>
- *
+ * 
  * @author Tyler Treat
  * @version 1.0 02/19/12
  */
 public class ManyToManyRelationship extends ModelRelationship {
 
-    private String mTableName;
-    private String mFirstFieldName;
-    private String mSecondFieldName;
-    private PersistencePolicy mPolicy;
+	private String mTableName;
+	private String mFirstFieldName;
+	private String mSecondFieldName;
+	private PersistencePolicy mPolicy;
+	
+	public ManyToManyRelationship() {
+		mRelationType = RelationType.ManyToMany;
+		mPolicy = ContextFactory.newInstance().getContext(InfinitumOrmContext.class).getPersistencePolicy();
+	}
 
-    public ManyToManyRelationship() {
-        mRelationType = RelationType.ManyToMany;
-        mPolicy = ContextFactory.newInstance().getContext(InfinitumOrmContext.class).getPersistencePolicy();
-    }
+	public ManyToManyRelationship(Field f) {
+		this();
+		ManyToMany mtm = f.getAnnotation(ManyToMany.class);
+		mTableName = mtm.table();
+		mFirst = f.getDeclaringClass();
+		mSecond = mPackageReflector.getClass(mtm.className());
+		mFirstFieldName = mtm.keyField();
+		mSecondFieldName = mtm.foreignField();
+		mName = mtm.name();
+	}
 
-    public ManyToManyRelationship(Field f) {
-        this();
-        ManyToMany mtm = f.getAnnotation(ManyToMany.class);
-        mTableName = mtm.table();
-        mFirst = f.getDeclaringClass();
-        mSecond = mPackageReflector.getClass(mtm.className());
-        mFirstFieldName = mtm.keyField();
-        mSecondFieldName = mtm.foreignField();
-        mName = mtm.name();
-    }
+	public String getTableName() {
+		return mTableName;
+	}
 
-    public String getTableName() {
-        return mTableName;
-    }
+	public void setTableName(String tableName) {
+		mTableName = tableName;
+	}
 
-    public void setTableName(String tableName) {
-        mTableName = tableName;
-    }
+	public String getFirstFieldName() {
+		return mFirstFieldName;
+	}
 
-    public String getFirstFieldName() {
-        return mFirstFieldName;
-    }
+	public Field getFirstField() {
+		return mPolicy.findPersistentField(mFirst, mFirstFieldName);
+	}
 
-    public Field getFirstField() {
-        return mPolicy.findPersistentField(mFirst, mFirstFieldName);
-    }
+	public void setFirstFieldName(String firstField) {
+		mFirstFieldName = firstField;
+	}
 
-    public void setFirstFieldName(String firstField) {
-        mFirstFieldName = firstField;
-    }
+	public String getSecondFieldName() {
+		return mSecondFieldName;
+	}
 
-    public String getSecondFieldName() {
-        return mSecondFieldName;
-    }
+	public Field getSecondField() {
+		return mPolicy.findPersistentField(mSecond, mSecondFieldName);
+	}
 
-    public Field getSecondField() {
-        return mPolicy.findPersistentField(mSecond, mSecondFieldName);
-    }
+	public void setSecondFieldName(String secondField) {
+		mSecondFieldName = secondField;
+	}
 
-    public void setSecondFieldName(String secondField) {
-        mSecondFieldName = secondField;
-    }
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof ManyToManyRelationship))
+			return false;
+		ManyToManyRelationship o = (ManyToManyRelationship) other;
+		return mTableName.equalsIgnoreCase(o.mTableName)
+				&& ((mFirst == o.mFirst && mSecond == o.mSecond && mFirstFieldName.equalsIgnoreCase(o.mFirstFieldName) && mSecondFieldName
+						.equalsIgnoreCase(o.mSecondFieldName)) || mFirst == o.mSecond && mSecond == o.mFirst
+						&& mFirstFieldName.equalsIgnoreCase(o.mSecondFieldName)
+						&& mSecondFieldName.equalsIgnoreCase(o.mFirstFieldName));
+	}
 
-    @Override
-    public boolean equals(Object other) {
-        if (!(other instanceof ManyToManyRelationship))
-            return false;
-        ManyToManyRelationship o = (ManyToManyRelationship) other;
-        return mTableName.equalsIgnoreCase(o.mTableName)
-                && ((mFirst == o.mFirst && mSecond == o.mSecond && mFirstFieldName.equalsIgnoreCase(o.mFirstFieldName) && mSecondFieldName
-                .equalsIgnoreCase(o.mSecondFieldName)) || mFirst == o.mSecond && mSecond == o.mFirst
-                && mFirstFieldName.equalsIgnoreCase(o.mSecondFieldName)
-                && mSecondFieldName.equalsIgnoreCase(o.mFirstFieldName));
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 1;
-        final int PRIME = 31;
-        hash *= PRIME;
-        hash *= PRIME + mTableName.hashCode();
-        hash *= PRIME + mFirst.hashCode();
-        hash *= PRIME + mSecond.hashCode();
-        hash *= PRIME + mFirstFieldName.hashCode();
-        hash *= PRIME + mSecondFieldName.hashCode();
-        return hash;
-    }
+	@Override
+	public int hashCode() {
+		int hash = 1;
+		final int PRIME = 31;
+		hash *= PRIME;
+		hash *= PRIME + mTableName.hashCode();
+		hash *= PRIME + mFirst.hashCode();
+		hash *= PRIME + mSecond.hashCode();
+		hash *= PRIME + mFirstFieldName.hashCode();
+		hash *= PRIME + mSecondFieldName.hashCode();
+		return hash;
+	}
 
 }

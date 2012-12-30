@@ -44,64 +44,66 @@ import com.google.dexmaker.stock.ProxyBuilder;
  * {@code Object} for invocation. Any subsequent method invocation made on the
  * proxy will simply be intercepted and propagated to the {@code Object}.
  * </p>
- *
+ * 
  * @author Tyler Treat
  * @version 1.0 03/12/12
  * @since 1.0
  */
 public abstract class LazyLoadDexMakerProxy extends DexMakerProxy {
 
-    protected Class<?> mType;
+	protected Class<?> mType;
 
-    /**
-     * Creates a new {@code LazyLoadDexMakerProxy}.
-     *
-     * @param context the {@link Context} used to retrieve the DEX bytecode cache
-     * @param type    the {@link Class} to proxy
-     */
-    public LazyLoadDexMakerProxy(Context context, Class<?> type) {
-        super(context, null);
-        Preconditions.checkNotNull(type);
-        mType = type;
-    }
+	/**
+	 * Creates a new {@code LazyLoadDexMakerProxy}.
+	 * 
+	 * @param context
+	 *            the {@link Context} used to retrieve the DEX bytecode cache
+	 * @param type
+	 *            the {@link Class} to proxy
+	 */
+	public LazyLoadDexMakerProxy(Context context, Class<?> type) {
+		super(context, null);
+		Preconditions.checkNotNull(type);
+		mType = type;
+	}
 
-    @Override
-    public Object invoke(Object proxy, Method method, Object[] args)
-            throws Throwable {
-        if (mTarget == null) {
-            mTarget = loadObject();
-        }
-        return method.invoke(mTarget, args);
-    }
+	@Override
+	public Object invoke(Object proxy, Method method, Object[] args)
+			throws Throwable {
+		if (mTarget == null) {
+			mTarget = loadObject();
+		}
+		return method.invoke(mTarget, args);
+	}
 
-    @Override
-    public Object getProxy() {
-        try {
-            return ProxyBuilder.forClass(mType).handler(this)
-                    .dexCache(DexCaching.getDexCache(mContext)).build();
-        } catch (IOException e) {
-            throw new InfinitumRuntimeException("DEX cache was not writeable.");
-        }
-    }
+	@Override
+	public Object getProxy() {
+		try {
+			return ProxyBuilder.forClass(mType).handler(this)
+					.dexCache(DexCaching.getDexCache(mContext)).build();
+		} catch (IOException e) {
+			throw new InfinitumRuntimeException("DEX cache was not writeable.");
+		}
+	}
+	
+	@Override
+	public Object getTarget() {
+		if (mTarget == null) {
+		    mTarget = loadObject();
+		}
+		return mTarget;
+	}
+	
+	@Override
+	public LazyLoadDexMakerProxy clone() {
+		throw new UnsupportedOperationException("Clone is not supported for LazyLoadDexMakerProxy!");
+	}
 
-    @Override
-    public Object getTarget() {
-        if (mTarget == null) {
-            mTarget = loadObject();
-        }
-        return mTarget;
-    }
-
-    @Override
-    public LazyLoadDexMakerProxy clone() {
-        throw new UnsupportedOperationException("Clone is not supported for LazyLoadDexMakerProxy!");
-    }
-
-    /**
-     * Loads the proxied {@link Object}.
-     *
-     * @return {@code Object}
-     */
-    protected abstract Object loadObject();
+	/**
+	 * Loads the proxied {@link Object}.
+	 * 
+	 * @return {@code Object}
+	 */
+	protected abstract Object loadObject();
 
 }

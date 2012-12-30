@@ -39,60 +39,60 @@ import com.clarionmedia.infinitum.orm.rest.RestfulXmlTypeAdapter;
  * This implementation of {@link ObjectMapper} provides methods to map domain
  * models to RESTful web service resources for XML message types.
  * </p>
- *
+ * 
  * @author Tyler Treat
  * @version 1.0 08/05/12
  * @since 1.0
  */
 public class RestfulXmlMapper extends RestfulMapper {
 
-    private Map<Class<?>, RestfulXmlTypeAdapter<?>> mTypeAdapters;
-    private Serializer mSerializer;
+	private Map<Class<?>, RestfulXmlTypeAdapter<?>> mTypeAdapters;
+	private Serializer mSerializer;
 
-    /**
-     * Constructs a new {@code RestfulJsonMapper}.
-     */
-    public RestfulXmlMapper() {
-        mTypeAdapters = new HashMap<Class<?>, RestfulXmlTypeAdapter<?>>();
-        mSerializer = new Persister();
-    }
+	/**
+	 * Constructs a new {@code RestfulJsonMapper}.
+	 */
+	public RestfulXmlMapper() {
+		mTypeAdapters = new HashMap<Class<?>, RestfulXmlTypeAdapter<?>>();
+		mSerializer = new Persister();
+	}
 
-    @Override
-    public RestfulStringModelMap mapModel(Object model) throws InvalidMappingException, ModelConfigurationException {
-        // We do not map transient classes!
-        if (!mPersistencePolicy.isPersistent(model.getClass()))
-            return null;
-        RestfulStringModelMap modelMap = new RestfulStringModelMap(model);
-        String xml;
-        if (mTypeAdapters.containsKey(model.getClass()))
-            xml = mTypeAdapters.get(model.getClass()).serializeObjectToXml(model);
-        else {
-            StringWriter writer = new StringWriter();
-            try {
-                mSerializer.write(model, writer);
-                xml = writer.toString();
-            } catch (Exception e) {
-                return null;
-            }
-        }
-        modelMap.setMessage(xml);
-        return modelMap;
-    }
+	@Override
+	public RestfulStringModelMap mapModel(Object model) throws InvalidMappingException, ModelConfigurationException {
+		// We do not map transient classes!
+		if (!mPersistencePolicy.isPersistent(model.getClass()))
+			return null;
+		RestfulStringModelMap modelMap = new RestfulStringModelMap(model);
+		String xml;
+		if (mTypeAdapters.containsKey(model.getClass()))
+			xml = mTypeAdapters.get(model.getClass()).serializeObjectToXml(model);
+		else {
+			StringWriter writer = new StringWriter();
+			try {
+				mSerializer.write(model, writer);
+				xml = writer.toString();
+			} catch (Exception e) {
+				return null;
+			}
+		}
+		modelMap.setMessage(xml);
+		return modelMap;
+	}
 
-    @Override
-    public <T> void registerTypeAdapter(Class<T> type, TypeAdapter<T> adapter) {
-        if (RestfulXmlTypeAdapter.class.isAssignableFrom(adapter.getClass()))
-            mTypeAdapters.put(type, (RestfulXmlTypeAdapter<?>) adapter);
-    }
+	@Override
+	public <T> void registerTypeAdapter(Class<T> type, TypeAdapter<T> adapter) {
+		if (RestfulXmlTypeAdapter.class.isAssignableFrom(adapter.getClass()))
+		    mTypeAdapters.put(type, (RestfulXmlTypeAdapter<?>) adapter);
+	}
 
-    @Override
-    public Map<Class<?>, ? extends TypeAdapter<?>> getRegisteredTypeAdapters() {
-        return mTypeAdapters;
-    }
+	@Override
+	public Map<Class<?>, ? extends TypeAdapter<?>> getRegisteredTypeAdapters() {
+		return mTypeAdapters;
+	}
 
-    @Override
-    public <T> RestfulPairsTypeAdapter<T> resolveType(Class<T> type) {
-        throw new UnsupportedOperationException();
-    }
+	@Override
+	public <T> RestfulPairsTypeAdapter<T> resolveType(Class<T> type) {
+		throw new UnsupportedOperationException();
+	}
 
 }

@@ -20,31 +20,30 @@
 package com.clarionmedia.infinitum.orm.relationship;
 
 import java.lang.reflect.Field;
-
 import com.clarionmedia.infinitum.orm.annotation.ManyToOne;
 
 /**
  * <p>
  * This class encapsulates a many-to-one relationship between two models.
  * </p>
- *
+ * 
  * @author Tyler Treat
  * @version 1.0 03/03/12
  */
 public class ManyToOneRelationship extends ForeignKeyRelationship {
+	
+	public ManyToOneRelationship() {
+		mRelationType = RelationType.ManyToOne;
+	}
 
-    public ManyToOneRelationship() {
-        mRelationType = RelationType.ManyToOne;
-    }
-
-    public ManyToOneRelationship(Field f) {
-        this();
-        ManyToOne mto = f.getAnnotation(ManyToOne.class);
-        mFirst = f.getDeclaringClass();
-        mSecond = mPackageReflector.getClass(mto.className());
-        mName = mto.name();
-        setOwner(f.getDeclaringClass());
-        setColumn(mto.column());
-    }
+	public ManyToOneRelationship(Field f) {
+		this();
+		ManyToOne mto = f.getAnnotation(ManyToOne.class);
+		mFirst = f.getDeclaringClass();
+		mSecond = mPackageReflector.getClass(mto.className());
+		mName = mto.name();
+		setOwner(f.getDeclaringClass());
+		setColumn(mto.column());
+	}
 
 }

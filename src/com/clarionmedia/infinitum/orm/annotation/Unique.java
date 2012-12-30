@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  * the table when being persisted to the database. More concisely, this
  * annotation is used to define a unique constraint on a column. This has no
  * effect on a {@code Field} that is marked transient.
- *
+ * 
  * @author Tyler Treat
  * @version 1.0 02/14/12
  */

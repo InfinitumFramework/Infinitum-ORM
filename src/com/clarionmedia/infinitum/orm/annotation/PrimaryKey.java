@@ -24,7 +24,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
 import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
 
 /**
@@ -41,12 +40,12 @@ import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
  * persistent, regardless of any {@link Persistence} annotation that might be
  * associated with it.
  * </p>
- * <p/>
+ * 
  * <p>
  * The Infinitum ORM currently only supports a single primary key per model,
  * meaning composite keys will throw a {@code ModelConfigurationException}.
  * </p>
- *
+ * 
  * @author Tyler Treat
  * @version 1.0 02/13/12
  */
@@ -55,12 +54,12 @@ import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
 @Target(ElementType.FIELD)
 public @interface PrimaryKey {
 
-    /**
-     * Indicates if the primary key is set to autoincrement. This is only valid
-     * for primary keys which are of type {@code int} or {@code long}.
-     *
-     * @return {@code true} if autoincrement is enabled, {@code false} if not
-     */
-    boolean autoincrement() default true;
+	/**
+	 * Indicates if the primary key is set to autoincrement. This is only valid
+	 * for primary keys which are of type {@code int} or {@code long}.
+	 * 
+	 * @return {@code true} if autoincrement is enabled, {@code false} if not
+	 */
+	boolean autoincrement() default true;
 
 }

@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  * This annotation indicates that the annotated {@link Field} represents a
  * one-to-one relationship with another persistent class.
  * </p>
- *
+ * 
  * @author Tyler Treat
  * @version 1.0 02/19/12
  */
@@ -39,35 +39,35 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface OneToOne {
 
-    /**
-     * Returns the name of the persistent {@link Class} this relationship links
-     * to.
-     *
-     * @return name of persistent {@code Class}
-     */
-    String className();
+	/**
+	 * Returns the name of the persistent {@link Class} this relationship links
+	 * to.
+	 * 
+	 * @return name of persistent {@code Class}
+	 */
+	String className();
 
-    /**
-     * Returns the name of the column representing the foreign key in this
-     * relationship. This column needs to be unique to maintain
-     * one-to-one integrity.
-     *
-     * @return name of foreign key column
-     */
-    String column();
-
-    /**
-     * Returns the owner of the relationship. This is the class which contains the foreign key.
-     *
-     * @return owner of the relationship
-     */
-    Class<?> owner();
-
-    /**
-     * Returns the name of this relationship.
-     *
-     * @return name of one-to-one relationship.
-     */
-    String name();
+	/**
+	 * Returns the name of the column representing the foreign key in this
+	 * relationship. This column needs to be unique to maintain
+	 * one-to-one integrity.
+	 * 
+	 * @return name of foreign key column
+	 */
+	String column();
+	
+	/**
+	 * Returns the owner of the relationship. This is the class which contains the foreign key.
+	 * 
+	 * @return owner of the relationship
+	 */
+	Class<?> owner();
+	
+	/**
+	 * Returns the name of this relationship.
+	 * 
+	 * @return name of one-to-one relationship.
+	 */
+	String name();
 
 }

@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
  * "not null". The {@link PrimaryKey} annotation implicitly defines a column as
  * unique. {@code NotNull} has no effect on a {@code Field} that is
  * marked transient.
- *
+ * 
  * @author Tyler Treat
  * @version 1.0 02/14/12
  */

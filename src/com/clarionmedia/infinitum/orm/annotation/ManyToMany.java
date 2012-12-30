@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  * This annotation indicates that the annotated {@link Field} represents a
  * many-to-many relationship with another persistent class.
  * </p>
- *
+ * 
  * @author Tyler Treat
  * @version 1.0 02/19/12
  */
@@ -39,43 +39,43 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface ManyToMany {
 
-    /**
-     * Returns the name of the persistent {@link Class} this relationship links
-     * to.
-     *
-     * @return name of persistent {@code Class}
-     */
-    String className();
+	/**
+	 * Returns the name of the persistent {@link Class} this relationship links
+	 * to.
+	 * 
+	 * @return name of persistent {@code Class}
+	 */
+	String className();
 
-    /**
-     * Returns the name of the many-to-many table.
-     *
-     * @return table name where relationships are stored
-     */
-    String table();
+	/**
+	 * Returns the name of the many-to-many table.
+	 * 
+	 * @return table name where relationships are stored
+	 */
+	String table();
 
-    /**
-     * Returns the name of the {@link Field} identifying this {@code Class's}
-     * side of the relationship, typically the primary key.
-     *
-     * @return name of key {@code Field}
-     */
-    String keyField();
+	/**
+	 * Returns the name of the {@link Field} identifying this {@code Class's}
+	 * side of the relationship, typically the primary key.
+	 * 
+	 * @return name of key {@code Field}
+	 */
+	String keyField();
 
-    /**
-     * Returns the name of the {@link Field} identifying the associated
-     * {@code Class's} side of the relationship, typically the primary key of
-     * the associated {@code Class}.
-     *
-     * @return name of foreign key {@code Field}
-     */
-    String foreignField();
+	/**
+	 * Returns the name of the {@link Field} identifying the associated
+	 * {@code Class's} side of the relationship, typically the primary key of
+	 * the associated {@code Class}.
+	 * 
+	 * @return name of foreign key {@code Field}
+	 */
+	String foreignField();
 
-    /**
-     * Returns the name of this relationship.
-     *
-     * @return name of many-to-many relationship.
-     */
-    String name();
+	/**
+	 * Returns the name of this relationship.
+	 * 
+	 * @return name of many-to-many relationship.
+	 */
+	String name();
 
 }

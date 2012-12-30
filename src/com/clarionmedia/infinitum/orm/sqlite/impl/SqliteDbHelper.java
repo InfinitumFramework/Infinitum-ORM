@@ -35,65 +35,67 @@ import com.clarionmedia.infinitum.orm.sql.SqlBuilder;
  * extension of {@link SQLiteOpenHelper} that will take care of opening a
  * database, creating it if it does not exist, and upgrading it if necessary.
  * </p>
- *
+ * 
  * @author Tyler Treat
  * @version 1.0 02/12/12
  * @since 1.0
  */
 public class SqliteDbHelper extends SQLiteOpenHelper {
 
-    private SqlBuilder mSqlBuilder;
-    private SQLiteDatabase mSqliteDb;
-    private InfinitumOrmContext mInfinitumContext;
-    private Logger mLogger;
-    private PropertyLoader mPropLoader;
+	private SqlBuilder mSqlBuilder;
+	private SQLiteDatabase mSqliteDb;
+	private InfinitumOrmContext mInfinitumContext;
+	private Logger mLogger;
+	private PropertyLoader mPropLoader;
 
-    /**
-     * Constructs a new {@code SqliteDbHelper} with the given {@link Context}
-     * and {@link SqliteMapper}.
-     *
-     * @param context the {link InfinitumContext} of the {@code SqliteDbHelper}
-     * @param mapper  the {@code SqliteMapper} to use for {@link Object} mapping
-     */
-    public SqliteDbHelper(InfinitumOrmContext context, SqliteMapper mapper, SqlBuilder sqlBuilder) {
-        super(context.getAndroidContext(), context.getSqliteDbName(), null, context.getSqliteDbVersion());
-        mLogger = Logger.getInstance(context, getClass().getSimpleName());
-        mInfinitumContext = context;
-        mPropLoader = new PropertyLoader(mInfinitumContext.getAndroidContext());
-        mSqlBuilder = sqlBuilder;
-    }
+	/**
+	 * Constructs a new {@code SqliteDbHelper} with the given {@link Context}
+	 * and {@link SqliteMapper}.
+	 * 
+	 * @param context
+	 *            the {link InfinitumContext} of the {@code SqliteDbHelper}
+	 * @param mapper
+	 *            the {@code SqliteMapper} to use for {@link Object} mapping
+	 */
+	public SqliteDbHelper(InfinitumOrmContext context, SqliteMapper mapper, SqlBuilder sqlBuilder) {
+		super(context.getAndroidContext(), context.getSqliteDbName(), null, context.getSqliteDbVersion());
+		mLogger = Logger.getInstance(context, getClass().getSimpleName());
+		mInfinitumContext = context;
+		mPropLoader = new PropertyLoader(mInfinitumContext.getAndroidContext());
+		mSqlBuilder = sqlBuilder;
+	}
 
-    /**
-     * Returns an instance of the {@link SQLiteDatabase}.
-     *
-     * @return the {@code SQLiteDatabase} for this application
-     */
-    public SQLiteDatabase getDatabase() {
-        return mSqliteDb;
-    }
+	/**
+	 * Returns an instance of the {@link SQLiteDatabase}.
+	 * 
+	 * @return the {@code SQLiteDatabase} for this application
+	 */
+	public SQLiteDatabase getDatabase() {
+		return mSqliteDb;
+	}
 
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        mSqliteDb = db;
-        if (!mInfinitumContext.isSchemaGenerated())
-            return;
-        mLogger.debug("Creating database tables");
-        try {
-            mSqlBuilder.createTables(this);
-        } catch (ModelConfigurationException e) {
-            mLogger.error(mPropLoader.getErrorMessage("CREATE_TABLES_ERROR"), e);
-        }
-        mLogger.debug("Database tables created successfully");
-    }
+	@Override
+	public void onCreate(SQLiteDatabase db) {
+		mSqliteDb = db;
+		if (!mInfinitumContext.isSchemaGenerated())
+			return;
+		mLogger.debug("Creating database tables");
+		try {
+			mSqlBuilder.createTables(this);
+		} catch (ModelConfigurationException e) {
+			mLogger.error(mPropLoader.getErrorMessage("CREATE_TABLES_ERROR"), e);
+		}
+		mLogger.debug("Database tables created successfully");
+	}
 
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        mLogger.debug("Upgrading database from version " + oldVersion + " to " + newVersion
-                + ", which will destroy all old data");
-        mSqliteDb = db;
-        mSqlBuilder.dropTables(this);
-        mLogger.debug("Database tables dropped successfully");
-        onCreate(db);
-    }
+	@Override
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		mLogger.debug("Upgrading database from version " + oldVersion + " to " + newVersion
+				+ ", which will destroy all old data");
+		mSqliteDb = db;
+		mSqlBuilder.dropTables(this);
+		mLogger.debug("Database tables dropped successfully");
+		onCreate(db);
+	}
 
 }

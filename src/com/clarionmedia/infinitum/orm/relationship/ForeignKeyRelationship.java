@@ -25,30 +25,30 @@ package com.clarionmedia.infinitum.orm.relationship;
  * to make the entity association, such as many-to-one, one-to-many, and
  * one-to-one relationships.
  * </p>
- *
+ * 
  * @author Tyler Treat
  * @version 1.0 03/11/12
  * @since 1.0
  */
 public abstract class ForeignKeyRelationship extends ModelRelationship {
 
-    protected String mColumn;
-    protected Class<?> mOwner;
+	protected String mColumn;
+	protected Class<?> mOwner;
 
-    public String getColumn() {
-        return mColumn;
-    }
+	public String getColumn() {
+		return mColumn;
+	}
 
-    public void setColumn(String column) {
-        mColumn = column;
-    }
-
-    public Class<?> getOwner() {
-        return mOwner;
-    }
-
-    public void setOwner(Class<?> owner) {
-        mOwner = owner;
-    }
+	public void setColumn(String column) {
+		mColumn = column;
+	}
+	
+	public Class<?> getOwner() {
+		return mOwner;
+	}
+	
+	public void setOwner(Class<?> owner) {
+		mOwner = owner;
+	}
 
 }
