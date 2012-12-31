@@ -21,9 +21,9 @@ package com.clarionmedia.infinitum.orm.context;
 
 import java.util.List;
 
-import com.clarionmedia.infinitum.context.BeanProvider;
 import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.context.exception.InfinitumConfigurationException;
+import com.clarionmedia.infinitum.di.BeanProvider;
 import com.clarionmedia.infinitum.orm.Session;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
 
