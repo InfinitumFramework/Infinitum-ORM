@@ -37,6 +37,7 @@ import com.clarionmedia.infinitum.orm.sql.SqlBuilder;
  * 
  * @author Tyler Treat
  * @version 1.0 02/17/12
+ * @since 1.0
  */
 public class SqliteCriteria<T> implements Criteria<T> {
 
@@ -121,7 +122,7 @@ public class SqliteCriteria<T> implements Criteria<T> {
 	@Override
 	public List<T> list() {
 		List<T> ret = new LinkedList<T>();
-		Cursor result = mSession.executeForResult(toSql(), true);
+		Cursor result = mSession.executeForResult(toSql());
 		if (result.getCount() == 0) {
 			result.close();
 			return ret;
@@ -141,7 +142,7 @@ public class SqliteCriteria<T> implements Criteria<T> {
 
 	@Override
 	public T unique() throws InfinitumRuntimeException {
-		Cursor result = mSession.executeForResult(toSql(), true);
+		Cursor result = mSession.executeForResult(toSql());
 		if (result.getCount() > 1) {
 			throw new InfinitumRuntimeException(String.format("Criteria query for '%s' specified unique result but there were %d results.",
 					mEntityClass.getName(), result.getCount()));
@@ -167,11 +168,16 @@ public class SqliteCriteria<T> implements Criteria<T> {
 
 	@Override
 	public long count() {
-		Cursor result = mSession.executeForResult(mSqlBuilder.createCountQuery(this), true);
+		Cursor result = mSession.executeForResult(mSqlBuilder.createCountQuery(this));
 		result.moveToFirst();
 		long ret = result.getLong(0);
 		result.close();
 		return ret;
+	}
+
+	@Override
+	public Cursor cursor() {
+		return mSession.executeForResult(toSql());
 	}
 
 }

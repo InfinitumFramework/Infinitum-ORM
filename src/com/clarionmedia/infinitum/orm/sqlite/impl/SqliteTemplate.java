@@ -279,9 +279,7 @@ public class SqliteTemplate implements SqliteOperations {
 	}
 
 	@Override
-	public Cursor executeForResult(String sql, boolean force) throws SQLGrammarException {
-		if (!force)
-			OrmPreconditions.checkForTransaction(mIsAutocommit, isTransactionOpen());
+	public Cursor executeForResult(String sql) throws SQLGrammarException {
 		mLogger.debug("Executing SQL: " + sql);
 		Cursor ret = null;
 		try {

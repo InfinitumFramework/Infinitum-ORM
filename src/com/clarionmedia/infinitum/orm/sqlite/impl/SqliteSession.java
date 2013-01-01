@@ -51,13 +51,13 @@ public class SqliteSession implements Session {
 
 	@Autowired
 	private SqliteTemplate mSqlite;
-	
+
 	@Autowired
 	private InfinitumContext mInfinitumContext;
-	
+
 	@Autowired
 	private PersistencePolicy mPolicy;
-	
+
 	private Map<Integer, Object> mSessionCache;
 	private Logger mLogger;
 	private int mCacheSize;
@@ -79,7 +79,7 @@ public class SqliteSession implements Session {
 	public SqliteSession(int cacheSize) {
 		mCacheSize = cacheSize;
 	}
-	
+
 	@PostConstruct
 	private void init() {
 		mLogger = Logger.getInstance(mInfinitumContext, getClass().getSimpleName());
@@ -178,8 +178,7 @@ public class SqliteSession implements Session {
 	}
 
 	@Override
-	public int saveOrUpdateAll(Collection<? extends Object> models)
-			throws InfinitumRuntimeException {
+	public int saveOrUpdateAll(Collection<? extends Object> models) throws InfinitumRuntimeException {
 		int count = 0;
 		for (Object model : models) {
 			if (mSqlite.saveOrUpdate(model) >= 0) {
@@ -193,8 +192,7 @@ public class SqliteSession implements Session {
 	}
 
 	@Override
-	public int saveAll(Collection<? extends Object> models)
-			throws InfinitumRuntimeException {
+	public int saveAll(Collection<? extends Object> models) throws InfinitumRuntimeException {
 		int count = 0;
 		for (Object model : models) {
 			if (mSqlite.save(model) > 0) {
@@ -208,8 +206,7 @@ public class SqliteSession implements Session {
 	}
 
 	@Override
-	public int deleteAll(Collection<? extends Object> models)
-			throws InfinitumRuntimeException {
+	public int deleteAll(Collection<? extends Object> models) throws InfinitumRuntimeException {
 		int count = 0;
 		for (Object model : models) {
 			if (mSqlite.delete(model)) {
@@ -224,8 +221,7 @@ public class SqliteSession implements Session {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T load(Class<T> c, Serializable id)
-			throws InfinitumRuntimeException, IllegalArgumentException {
+	public <T> T load(Class<T> c, Serializable id) throws InfinitumRuntimeException, IllegalArgumentException {
 		int hash = mPolicy.computeModelHash(c, id);
 		if (checkCache(hash))
 			return (T) mSessionCache.get(hash);
@@ -285,12 +281,11 @@ public class SqliteSession implements Session {
 	}
 
 	@Override
-	public <T> Session registerDeserializer(Class<T> type,
-			Deserializer<T> deserializer) {
+	public <T> Session registerDeserializer(Class<T> type, Deserializer<T> deserializer) {
 		// TODO SqliteSession does not currently utilize Deserializers
 		return this;
 	}
-	
+
 	@Override
 	public boolean cache(int hash, Object model) {
 		if (mSessionCache.size() >= mCacheSize)
@@ -314,16 +309,12 @@ public class SqliteSession implements Session {
 	 * 
 	 * @param sql
 	 *            the SQL query to execute
-	 * @param force
-	 *            indicates if the query should be executed regardless of
-	 *            transaction state, i.e. there is no open transaction
 	 * @return {@link Cursor} containing the results of the query
 	 * @throws SQLGrammarException
 	 *             if the SQL was formatted incorrectly
 	 */
-	public Cursor executeForResult(String sql, boolean force)
-			throws SQLGrammarException {
-		return mSqlite.executeForResult(sql, force);
+	public Cursor executeForResult(String sql) throws SQLGrammarException {
+		return mSqlite.executeForResult(sql);
 	}
 
 	/**
@@ -339,7 +330,7 @@ public class SqliteSession implements Session {
 	public int count(String sql) throws SQLGrammarException {
 		Cursor result = null;
 		try {
-			result = mSqlite.executeForResult(sql, true);
+			result = mSqlite.executeForResult(sql);
 			if (result.moveToFirst())
 				return result.getInt(0);
 			else

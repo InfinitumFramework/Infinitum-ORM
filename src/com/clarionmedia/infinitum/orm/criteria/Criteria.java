@@ -17,6 +17,9 @@
 package com.clarionmedia.infinitum.orm.criteria;
 
 import java.util.List;
+
+import android.database.Cursor;
+
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.orm.ObjectMapper;
 import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
@@ -30,6 +33,7 @@ import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
  * 
  * @author Tyler Treat
  * @version 1.0 02/17/12
+ * @since 1.0
  */
 public interface Criteria<T> {
 
@@ -124,5 +128,12 @@ public interface Criteria<T> {
 	 * @return number of results for the query
 	 */
 	long count();
+
+	/**
+	 * Retrieves the database {@link Cursor} for the {@code Criteria} query.
+	 * 
+	 * @return query {@code Cursor}
+	 */
+	Cursor cursor();
 
 }

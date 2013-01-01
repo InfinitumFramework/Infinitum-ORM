@@ -23,8 +23,8 @@ import java.util.Map;
 
 import android.database.SQLException;
 
-import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
+import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
 import com.clarionmedia.infinitum.orm.exception.SQLGrammarException;
 import com.clarionmedia.infinitum.orm.persistence.TypeAdapter;
@@ -37,8 +37,8 @@ import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteSession;
  * interface to a configured application datastore. All database interaction
  * goes through the {@code Session}, which also provides an API for creating
  * {@link Criteria} and {@link Criteria} instances. {@code Session} instances
- * should be acquired from an {@link InfinitumContext} by calling
- * {@link InfinitumContext#getSession(com.clarionmedia.infinitum.context.InfinitumContext.DataSource)}
+ * should be acquired from an {@link InfinitumOrmContext} by calling
+ * {@link InfinitumOrmContext#getSession(com.clarionmedia.infinitum.orm.context.InfinitumOrmContext.SessionType)}
  * .
  * </p>
  * <p>
@@ -46,6 +46,15 @@ import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteSession;
  * {@link Session#open()} before any {@code Session} operations can be
  * performed. Subsequently, {@link Session#close()} should be called to close
  * the persistence service and clean up any resources.
+ * </p>
+ * <p>
+ * {@code Session} can be configured to be transactional. If autocommit is
+ * disabled in {@code infinitum.cfg.xml}, a transaction must be opened by
+ * calling {@link Session#beginTransaction()} and subsequently committed by
+ * calling {@link Session#commit()}. Transactions, which can be nested, can also
+ * be rolled back using {@link Session#rollback()}. Transactions are
+ * particularly useful for atomic database operations. They are not supported by
+ * {@link RestfulSession}.
  * </p>
  * <p>
  * In order to keep track of transient and persistent entities, {@code Session}
@@ -61,7 +70,7 @@ import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteSession;
  * @since 1.0
  */
 public interface Session {
-	
+
 	/**
 	 * The default number of cache entries before eviction occurs.
 	 */
@@ -173,7 +182,7 @@ public interface Session {
 	 * @return the maximum number of {@code Objects} the cache can store
 	 */
 	int getCacheSize();
-	
+
 	/**
 	 * Caches the given model identified by the given hash code.
 	 * 
@@ -184,7 +193,7 @@ public interface Session {
 	 * @return {@code true} if the model was cached, {@code false} if not
 	 */
 	boolean cache(int hash, Object model);
-	
+
 	/**
 	 * Indicates if the session cache contains the given hash code.
 	 * 
@@ -194,7 +203,7 @@ public interface Session {
 	 *         if not
 	 */
 	boolean checkCache(int hash);
-	
+
 	/**
 	 * Returns the model with the given hash code from the session cache.
 	 * 
@@ -206,9 +215,9 @@ public interface Session {
 	Object searchCache(int hash);
 
 	/**
-	 * Persists the given {@link Object} to the database. This method is
-	 * not idempotent, meaning if the record already exists, a new one will
-	 * attempt to persist.
+	 * Persists the given {@link Object} to the database. This method is not
+	 * idempotent, meaning if the record already exists, a new one will attempt
+	 * to persist.
 	 * 
 	 * @param model
 	 *            {@code Object} to persist to the database
@@ -247,7 +256,8 @@ public interface Session {
 	 * 
 	 * @param model
 	 *            {@code Object} to save or update in the database
-	 * @return the row ID of the newly inserted row, 0 if the row was updated, or -1 if the operation failed.
+	 * @return the row ID of the newly inserted row, 0 if the row was updated,
+	 *         or -1 if the operation failed.
 	 * @throws InfinitumRuntimeException
 	 *             if the model is marked transient
 	 */
@@ -263,8 +273,7 @@ public interface Session {
 	 * @throws InfinitumRuntimeException
 	 *             if one or more of the models is marked transient
 	 */
-	int saveOrUpdateAll(Collection<? extends Object> models)
-			throws InfinitumRuntimeException;
+	int saveOrUpdateAll(Collection<? extends Object> models) throws InfinitumRuntimeException;
 
 	/**
 	 * Persists the entire collection of {@code Objects} to the database.
@@ -275,8 +284,7 @@ public interface Session {
 	 * @throws InfinitumRuntimeException
 	 *             if one or more of the models is marked transient
 	 */
-	int saveAll(Collection<? extends Object> models)
-			throws InfinitumRuntimeException;
+	int saveAll(Collection<? extends Object> models) throws InfinitumRuntimeException;
 
 	/**
 	 * Deletes the entire collection of {@code Objects} from the database if
@@ -288,8 +296,7 @@ public interface Session {
 	 * @throws InfinitumRuntimeException
 	 *             if one or more of the models is marked transient
 	 */
-	int deleteAll(Collection<? extends Object> models)
-			throws InfinitumRuntimeException;
+	int deleteAll(Collection<? extends Object> models) throws InfinitumRuntimeException;
 
 	/**
 	 * Returns an instance of the given persistent model {@link Class} as
@@ -306,8 +313,7 @@ public interface Session {
 	 * @throws IllegalArgumentException
 	 *             if an invalid primary key is provided
 	 */
-	<T extends Object> T load(Class<T> c, Serializable id)
-			throws InfinitumRuntimeException, IllegalArgumentException;
+	<T extends Object> T load(Class<T> c, Serializable id) throws InfinitumRuntimeException, IllegalArgumentException;
 
 	/**
 	 * Executes the given SQL non-query on the database, meaning no result is
@@ -356,7 +362,7 @@ public interface Session {
 	 * @return {@code Map<Class<?>, ? extends TypeAdapter<?>>
 	 */
 	Map<Class<?>, ? extends TypeAdapter<?>> getRegisteredTypeAdapters();
-	
+
 	/**
 	 * Registers the given {@link Deserializer} for the given {@link Class}
 	 * type. Registering a {@code Deserializer} for a {@code Class} which
