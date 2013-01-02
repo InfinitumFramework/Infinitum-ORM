@@ -28,6 +28,7 @@ import org.apache.http.params.HttpParams;
 
 import android.database.SQLException;
 
+import com.clarionmedia.infinitum.context.ContextFactory;
 import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.context.RestfulContext;
 import com.clarionmedia.infinitum.context.RestfulContext.MessageType;
@@ -99,7 +100,7 @@ public abstract class RestfulSession implements Session {
 		mCacheSize = DEFAULT_CACHE_SIZE;
 		mSessionCache = new LruCache<Integer, Object>(mCacheSize);
 		mLogger = Logger.getInstance(getClass().getSimpleName());
-		mRestClient = new CachingEnabledRestfulClient();
+		mRestClient = new CachingEnabledRestfulClient(ContextFactory.newInstance().getAndroidContext());
 	}
 
 	/**
