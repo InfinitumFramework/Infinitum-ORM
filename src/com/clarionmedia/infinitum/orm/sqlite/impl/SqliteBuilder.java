@@ -22,12 +22,9 @@ import java.util.List;
 
 import android.database.sqlite.SQLiteDatabase;
 
-import com.clarionmedia.infinitum.context.ContextFactory;
 import com.clarionmedia.infinitum.context.exception.InfinitumConfigurationException;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
-import com.clarionmedia.infinitum.di.annotation.PostConstruct;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
-import com.clarionmedia.infinitum.internal.PropertyLoader;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
 import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
@@ -66,13 +63,6 @@ public class SqliteBuilder implements SqlBuilder {
 
 	@Autowired
 	private InfinitumOrmContext mContext;
-
-	private PropertyLoader mPropLoader;
-
-	@PostConstruct
-	private void init() {
-		mPropLoader = new PropertyLoader(ContextFactory.newInstance().getAndroidContext());
-	}
 
 	@Override
 	public int createTables(SqliteDbHelper dbHelper) throws ModelConfigurationException, InfinitumConfigurationException {
@@ -370,12 +360,14 @@ public class SqliteBuilder implements SqlBuilder {
 		StringBuilder sb = new StringBuilder(SqlConstants.CREATE_TABLE).append(' ').append(rel.getTableName()).append(" (");
 		Field first = rel.getFirstField();
 		if (first == null)
-			throw new ModelConfigurationException(String.format(mPropLoader.getErrorMessage("MM_RELATIONSHIP_ERROR"), rel.getFirstType()
-					.getName(), rel.getSecondType().getName()));
+			throw new ModelConfigurationException(String.format(
+					"Could not create many-to-many relationship between '%s' and '%s'. Are the specified columns correct?", rel
+							.getFirstType().getName(), rel.getSecondType().getName()));
 		Field second = rel.getSecondField();
 		if (second == null)
-			throw new ModelConfigurationException(String.format(mPropLoader.getErrorMessage("MM_RELATIONSHIP_ERROR"), rel.getFirstType()
-					.getName(), rel.getSecondType().getName()));
+			throw new ModelConfigurationException(String.format(
+					"Could not create many-to-many relationship between '%s' and '%s'. Are the specified columns correct?", rel
+							.getFirstType().getName(), rel.getSecondType().getName()));
 		String firstCol = mPersistencePolicy.getModelTableName(rel.getFirstType()) + '_' + mPersistencePolicy.getFieldColumnName(first);
 		String secondCol = mPersistencePolicy.getModelTableName(rel.getSecondType()) + '_' + mPersistencePolicy.getFieldColumnName(second);
 		sb.append(firstCol).append(' ').append(mMapper.getSqliteDataType(first).toString()).append(' ').append(", ").append(secondCol)
@@ -406,7 +398,7 @@ public class SqliteBuilder implements SqlBuilder {
 
 		// Throw a runtime exception if there are no persistent fields
 		if (fields.size() == 0)
-			throw new ModelConfigurationException(String.format(mPropLoader.getErrorMessage("NO_PERSISTENT_FIELDS"), c.getName()));
+			throw new ModelConfigurationException(String.format("No persistent fields declared in '%s'.", c.getName()));
 
 		String prefix = "";
 		for (Field f : fields) {

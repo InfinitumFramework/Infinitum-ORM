@@ -66,8 +66,7 @@ public class SqliteMapper extends ObjectMapper {
 	}
 
 	@Override
-	public SqliteModelMap mapModel(Object model)
-			throws InvalidMappingException, ModelConfigurationException {
+	public SqliteModelMap mapModel(Object model) throws InvalidMappingException, ModelConfigurationException {
 		// We do not map transient classes!
 		if (!mPersistencePolicy.isPersistent(model.getClass()))
 			return null;
@@ -101,14 +100,11 @@ public class SqliteMapper extends ObjectMapper {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> SqliteTypeAdapter<T> resolveType(Class<T> type)
-			throws InvalidMappingException {
+	public <T> SqliteTypeAdapter<T> resolveType(Class<T> type) throws InvalidMappingException {
 		type = Primitives.unwrap(type);
 		if (mTypeAdapters.containsKey(type))
 			return (SqliteTypeAdapter<T>) mTypeAdapters.get(type);
-		throw new InvalidMappingException(String.format(
-				mPropLoader.getErrorMessage("CANNOT_MAP_TYPE"),
-				type.getSimpleName()));
+		throw new InvalidMappingException(String.format("Cannot map '%s' to a database column.", type.getSimpleName()));
 	}
 
 	@Override

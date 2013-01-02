@@ -27,6 +27,7 @@ import android.content.Context;
 
 import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.context.RestfulContext;
+import com.clarionmedia.infinitum.context.RestfulContext.MessageType;
 import com.clarionmedia.infinitum.context.exception.InfinitumConfigurationException;
 import com.clarionmedia.infinitum.context.impl.XmlApplicationContext;
 import com.clarionmedia.infinitum.di.AbstractBeanDefinition;
@@ -43,6 +44,7 @@ import com.clarionmedia.infinitum.orm.rest.impl.RestfulJsonSession;
 import com.clarionmedia.infinitum.orm.rest.impl.RestfulNameValueMapper;
 import com.clarionmedia.infinitum.orm.rest.impl.RestfulSession;
 import com.clarionmedia.infinitum.orm.rest.impl.RestfulXmlMapper;
+import com.clarionmedia.infinitum.orm.rest.impl.RestfulXmlSession;
 import com.clarionmedia.infinitum.orm.sqlite.SqliteUtils;
 import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteBuilder;
 import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteMapper;
@@ -98,6 +100,7 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 		beans.add(beanDefinitionBuilder.setName("$RestfulJsonMapper").setType(RestfulJsonMapper.class).build());
 		beans.add(beanDefinitionBuilder.setName("$RestfulNameValueMapper").setType(RestfulNameValueMapper.class).build());
 		beans.add(beanDefinitionBuilder.setName("$RestfulJsonSession").setType(RestfulJsonSession.class).build());
+		beans.add(beanDefinitionBuilder.setName("$RestfulXmlSession").setType(RestfulXmlSession.class).build());
 		Class<?> type = getConfigurationMode() == ConfigurationMode.ANNOTATION ? AnnotationsPersistencePolicy.class
 				: XmlPersistencePolicy.class;
 		beans.add(beanDefinitionBuilder.setName("$PersistencePolicy").setType(type).build());
@@ -113,8 +116,18 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 			String client = mParentContext.getRestContext().getClientBean();
 			RestfulSession session;
 			if (client == null) {
-				// Use RestfulJsonSession if no client is defined
-				session = getBean("$RestfulJsonSession", RestfulJsonSession.class);
+				MessageType messageType = mParentContext.getRestContext().getMessageType();
+				// Resolve Session implementation if no client is defined
+				switch (messageType) {
+				case JSON:
+					session = getBean("$RestfulJsonSession", RestfulJsonSession.class);
+					break;
+				case XML:
+					session = getBean("$RestfulXmlSession", RestfulXmlSession.class);
+					break;
+				default:
+					throw new InfinitumConfigurationException("No qualifying Session implementation found.");
+				}
 			} else {
 				// Otherwise use the preferred client
 				session = getBean(client, RestfulSession.class);
@@ -232,7 +245,7 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 	public InfinitumContext getParentContext() {
 		return mParentContext;
 	}
-	
+
 	@Override
 	public <T extends InfinitumContext> T getChildContext(Class<T> contextType) {
 		return mParentContext.getChildContext(contextType);

@@ -64,16 +64,14 @@ public class RestfulNameValueMapper extends RestfulMapper {
 	}
 
 	@Override
-	public RestfulNameValueModelMap mapModel(Object model)
-			throws InvalidMappingException, ModelConfigurationException {
+	public RestfulNameValueModelMap mapModel(Object model) throws InvalidMappingException, ModelConfigurationException {
 		// We do not map transient classes!
 		if (!mPersistencePolicy.isPersistent(model.getClass()))
 			return null;
 		RestfulNameValueModelMap modelMap = new RestfulNameValueModelMap(model);
 		for (Field field : mPersistencePolicy.getPersistentFields(model.getClass())) {
 			// Don't map primary keys if they are autoincrementing
-			if (mPersistencePolicy.isFieldPrimaryKey(field)
-					&& mPersistencePolicy.isPrimaryKeyAutoIncrement(field))
+			if (mPersistencePolicy.isFieldPrimaryKey(field) && mPersistencePolicy.isPrimaryKeyAutoIncrement(field))
 				continue;
 			// Map relationships
 			if (mPersistencePolicy.isRelationship(field)) {
@@ -99,25 +97,20 @@ public class RestfulNameValueMapper extends RestfulMapper {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> RestfulPairsTypeAdapter<T> resolveType(Class<T> type)
-			throws InvalidMappingException {
+	public <T> RestfulPairsTypeAdapter<T> resolveType(Class<T> type) throws InvalidMappingException {
 		type = Primitives.unwrap(type);
 		if (mTypeAdapters.containsKey(type))
 			return (RestfulPairsTypeAdapter<T>) mTypeAdapters.get(type);
-		throw new InvalidMappingException(String.format(
-				mPropLoader.getErrorMessage("CANNOT_MAP_TYPE"),
-				type.getSimpleName()));
+		throw new InvalidMappingException(String.format("Cannot map '%s' to a database column.", type.getSimpleName()));
 	}
 
 	// Map Field value to NameValuePair
-	private void mapField(RestfulNameValueModelMap modelMap, Object model,
-			Field field) {
+	private void mapField(RestfulNameValueModelMap modelMap, Object model, Field field) {
 		if (AbstractProxy.isAopProxy(model))
 			model = AbstractProxy.getTarget(model);
 		Object val = mClassReflector.getFieldValue(model, field);
 		String fieldName = mPersistencePolicy.getEndpointFieldName(field);
-		resolveType(field.getType()).mapObjectToPair(val, fieldName,
-				modelMap.getNameValuePairs());
+		resolveType(field.getType()).mapObjectToPair(val, fieldName, modelMap.getNameValuePairs());
 	}
 
 }

@@ -21,6 +21,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
@@ -73,16 +74,15 @@ public class AnnotationsPersistencePolicy extends PersistencePolicy {
 	@Override
 	public String getModelTableName(Class<?> c) {
 		if (!isPersistent(c) || !mTypePolicy.isDomainModel(c))
-			throw new IllegalArgumentException("Class '" + c.getName()
-					+ "' is transient.");
+			throw new IllegalArgumentException("Class '" + c.getName() + "' is transient.");
 		String ret;
 		Table table = c.getAnnotation(Table.class);
 		if (table == null) {
 			if (mTypePolicy.isDomainProxy(c)) {
 				ret = c.getName();
-				ret = ret.substring(0, ret.lastIndexOf("_Proxy")).toLowerCase();
+				ret = ret.substring(0, ret.lastIndexOf("_Proxy")).toLowerCase(Locale.getDefault());
 			} else {
-				ret = c.getSimpleName().toLowerCase();
+				ret = c.getSimpleName().toLowerCase(Locale.getDefault());
 			}
 		} else {
 			ret = table.value();
@@ -97,13 +97,11 @@ public class AnnotationsPersistencePolicy extends PersistencePolicy {
 		List<Field> ret = new ArrayList<Field>();
 		List<Field> fields = mClassReflector.getAllFields(c);
 		for (Field f : fields) {
-			if (Modifier.isStatic(f.getModifiers())
-					|| mTypePolicy.isDomainProxy(f.getDeclaringClass()))
+			if (Modifier.isStatic(f.getModifiers()) || mTypePolicy.isDomainProxy(f.getDeclaringClass()))
 				continue;
 			Persistence persistence = f.getAnnotation(Persistence.class);
 			PrimaryKey pk = f.getAnnotation(PrimaryKey.class);
-			if ((persistence == null || persistence.value() == PersistenceMode.Persistent)
-					|| pk != null)
+			if ((persistence == null || persistence.value() == PersistenceMode.Persistent) || pk != null)
 				ret.add(f);
 		}
 		mPersistenceCache.put(c, ret);
@@ -111,8 +109,7 @@ public class AnnotationsPersistencePolicy extends PersistencePolicy {
 	}
 
 	@Override
-	public Field getPrimaryKeyField(Class<?> c)
-			throws ModelConfigurationException {
+	public Field getPrimaryKeyField(Class<?> c) throws ModelConfigurationException {
 		if (mPrimaryKeyCache.containsKey(c))
 			return mPrimaryKeyCache.get(c);
 		Field ret = null;
@@ -124,9 +121,7 @@ public class AnnotationsPersistencePolicy extends PersistencePolicy {
 				ret = f;
 				found = true;
 			} else if (pk != null && found) {
-				throw new ModelConfigurationException(String.format(
-						mPropLoader.getErrorMessage("MULTIPLE_PK_ERROR"),
-						c.getName()));
+				throw new ModelConfigurationException(String.format("Multiple primary keys declared in '%s'.", c.getName()));
 			}
 		}
 		// Look for id fields if the annotation is missing
@@ -167,12 +162,10 @@ public class AnnotationsPersistencePolicy extends PersistencePolicy {
 	}
 
 	@Override
-	public boolean isPrimaryKeyAutoIncrement(Field f)
-			throws InfinitumRuntimeException {
+	public boolean isPrimaryKeyAutoIncrement(Field f) throws InfinitumRuntimeException {
 		PrimaryKey pk = f.getAnnotation(PrimaryKey.class);
 		if (pk == null) {
-			if (f.getType() == int.class || f.getType() == Integer.class
-					|| f.getType() == long.class || f.getType() == Long.class)
+			if (f.getType() == int.class || f.getType() == Integer.class || f.getType() == long.class || f.getType() == Long.class)
 				return true;
 			else
 				return false;
@@ -181,13 +174,11 @@ public class AnnotationsPersistencePolicy extends PersistencePolicy {
 		if (!ret)
 			return false;
 		// throw runtime exception if explicit PK is not an int or long
-		if (f.getType() == int.class || f.getType() == Integer.class
-				|| f.getType() == long.class || f.getType() == Long.class)
+		if (f.getType() == int.class || f.getType() == Integer.class || f.getType() == long.class || f.getType() == Long.class)
 			return true;
 		else
-			throw new InfinitumRuntimeException(String.format(
-					mPropLoader.getErrorMessage("EXPLICIT_PK_TYPE_ERROR"),
-					f.getName(), f.getDeclaringClass().getName()));
+			throw new InfinitumRuntimeException(String.format("Explicit primary key '%s' is not of type int or long in '%s'.", f.getName(),
+					f.getDeclaringClass().getName()));
 	}
 
 	@Override
@@ -217,11 +208,9 @@ public class AnnotationsPersistencePolicy extends PersistencePolicy {
 	}
 
 	@Override
-	public Set<ManyToManyRelationship> getManyToManyRelationships(
-			Class<?> c) {
+	public Set<ManyToManyRelationship> getManyToManyRelationships(Class<?> c) {
 		if (!isPersistent(c))
-			throw new IllegalArgumentException("Class '" + c.getName()
-					+ "' is transient.");
+			throw new IllegalArgumentException("Class '" + c.getName() + "' is transient.");
 		Set<ManyToManyRelationship> ret = new HashSet<ManyToManyRelationship>();
 		for (ManyToManyRelationship r : mManyToManyCache.values()) {
 			if (r.contains(c))
@@ -250,9 +239,7 @@ public class AnnotationsPersistencePolicy extends PersistencePolicy {
 
 	@Override
 	public boolean isRelationship(Field f) {
-		return f.isAnnotationPresent(ManyToMany.class)
-				|| f.isAnnotationPresent(ManyToOne.class)
-				|| f.isAnnotationPresent(OneToMany.class)
+		return f.isAnnotationPresent(ManyToMany.class) || f.isAnnotationPresent(ManyToOne.class) || f.isAnnotationPresent(OneToMany.class)
 				|| f.isAnnotationPresent(OneToOne.class);
 	}
 
@@ -260,7 +247,7 @@ public class AnnotationsPersistencePolicy extends PersistencePolicy {
 	public boolean isManyToManyRelationship(Field f) {
 		return f.isAnnotationPresent(ManyToMany.class);
 	}
-	
+
 	@Override
 	public boolean isOneToOneRelationship(Field f) {
 		return f.isAnnotationPresent(OneToOne.class);
@@ -268,8 +255,7 @@ public class AnnotationsPersistencePolicy extends PersistencePolicy {
 
 	@Override
 	public boolean isToOneRelationship(Field f) {
-		return f.isAnnotationPresent(ManyToOne.class)
-				|| f.isAnnotationPresent(OneToOne.class);
+		return f.isAnnotationPresent(ManyToOne.class) || f.isAnnotationPresent(OneToOne.class);
 	}
 
 	@Override
@@ -292,25 +278,25 @@ public class AnnotationsPersistencePolicy extends PersistencePolicy {
 			if (!isRelationship(f))
 				continue;
 			switch (rel.getRelationType()) {
-				case ManyToMany :
-					ManyToMany mtm = f.getAnnotation(ManyToMany.class);
-					if (rel.getName().equalsIgnoreCase(mtm.name()))
-						return f;
-					break;
-				case ManyToOne :
-					ManyToOne mto = f.getAnnotation(ManyToOne.class);
-					if (rel.getName().equalsIgnoreCase(mto.name()))
-						return f;
-					break;
-				case OneToMany :
-					OneToMany otm = f.getAnnotation(OneToMany.class);
-					if (rel.getName().equalsIgnoreCase(otm.name()))
-						return f;
-					break;
-				case OneToOne :
-					OneToOne oto = f.getAnnotation(OneToOne.class);
-					if (rel.getName().equalsIgnoreCase(oto.name()))
-						return f;
+			case ManyToMany:
+				ManyToMany mtm = f.getAnnotation(ManyToMany.class);
+				if (rel.getName().equalsIgnoreCase(mtm.name()))
+					return f;
+				break;
+			case ManyToOne:
+				ManyToOne mto = f.getAnnotation(ManyToOne.class);
+				if (rel.getName().equalsIgnoreCase(mto.name()))
+					return f;
+				break;
+			case OneToMany:
+				OneToMany otm = f.getAnnotation(OneToMany.class);
+				if (rel.getName().equalsIgnoreCase(otm.name()))
+					return f;
+				break;
+			case OneToOne:
+				OneToOne oto = f.getAnnotation(OneToOne.class);
+				if (rel.getName().equalsIgnoreCase(oto.name()))
+					return f;
 			}
 		}
 		return null;
@@ -332,30 +318,27 @@ public class AnnotationsPersistencePolicy extends PersistencePolicy {
 	}
 
 	@Override
-	public String getRestEndpoint(Class<?> c)
-			throws IllegalArgumentException {
+	public String getRestEndpoint(Class<?> c) throws IllegalArgumentException {
 		if (!isPersistent(c) || !mTypePolicy.isDomainModel(c))
 			throw new IllegalArgumentException();
 		if (mRestEndpointCache.containsKey(c))
 			return mRestEndpointCache.get(c);
 		String ret;
 		if (!c.isAnnotationPresent(Entity.class)) {
-			ret = c.getSimpleName().toLowerCase();
+			ret = c.getSimpleName().toLowerCase(Locale.getDefault());
 		} else {
 			Entity entity = c.getAnnotation(Entity.class);
 			ret = entity.endpoint();
 			if (ret.equals(""))
-				ret = c.getSimpleName().toLowerCase();
+				ret = c.getSimpleName().toLowerCase(Locale.getDefault());
 		}
 		mRestEndpointCache.put(c, ret);
 		return ret;
 	}
 
 	@Override
-	public String getEndpointFieldName(Field f)
-			throws IllegalArgumentException {
-		if (!isPersistent(f.getDeclaringClass())
-				|| !mTypePolicy.isDomainModel(f.getDeclaringClass()))
+	public String getEndpointFieldName(Field f) throws IllegalArgumentException {
+		if (!isPersistent(f.getDeclaringClass()) || !mTypePolicy.isDomainModel(f.getDeclaringClass()))
 			throw new IllegalArgumentException();
 		if (f.isAnnotationPresent(Persistence.class)) {
 			Persistence p = f.getAnnotation(Persistence.class);

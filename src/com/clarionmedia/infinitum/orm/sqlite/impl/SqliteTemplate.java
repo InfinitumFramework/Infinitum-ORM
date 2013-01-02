@@ -31,14 +31,12 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 
-import com.clarionmedia.infinitum.context.ContextFactory;
 import com.clarionmedia.infinitum.di.AbstractProxy;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
 import com.clarionmedia.infinitum.di.annotation.PostConstruct;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.internal.Pair;
 import com.clarionmedia.infinitum.internal.Primitives;
-import com.clarionmedia.infinitum.internal.PropertyLoader;
 import com.clarionmedia.infinitum.logging.Logger;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
@@ -74,43 +72,41 @@ public class SqliteTemplate implements SqliteOperations {
 
 	@Autowired
 	protected InfinitumOrmContext mInfinitumContext;
-	
+
 	@Autowired
 	protected SqliteSession mSession;
-		
+
 	@Autowired
 	protected SqliteMapper mMapper;
-	
+
 	@Autowired
 	protected SqliteModelFactory mModelFactory;
-	
+
 	@Autowired
 	protected SqlBuilder mSqlBuilder;
-	
+
 	@Autowired
 	protected PersistencePolicy mPersistencePolicy;
-	
+
 	@Autowired
 	protected TypeResolutionPolicy mTypePolicy;
-	
+
 	@Autowired
 	protected SqliteUtils mSqliteUtil;
-	
+
 	@Autowired
 	protected ClassReflector mClassReflector;
-	
+
 	protected SqliteDbHelper mDbHelper;
 	protected boolean mIsAutocommit;
 	protected boolean mIsOpen;
 	protected Stack<Boolean> mTransactionStack;
 	protected SQLiteDatabase mSqliteDb;
 	protected Logger mLogger;
-	protected PropertyLoader mPropLoader;
-	
+
 	@PostConstruct
 	private void init() {
 		mLogger = Logger.getInstance(getClass().getSimpleName());
-		mPropLoader = new PropertyLoader(ContextFactory.newInstance().getAndroidContext());
 		mTransactionStack = new Stack<Boolean>();
 		mDbHelper = new SqliteDbHelper(mInfinitumContext, mMapper, mSqlBuilder);
 	}
@@ -245,10 +241,10 @@ public class SqliteTemplate implements SqliteOperations {
 	public <T> T load(Class<T> clazz, Serializable id) throws InfinitumRuntimeException, IllegalArgumentException {
 		OrmPreconditions.checkPersistenceForLoading(clazz, mPersistencePolicy);
 		if (!mTypePolicy.isValidPrimaryKey(mPersistencePolicy.getPrimaryKeyField(clazz), id))
-			throw new IllegalArgumentException(String.format(mPropLoader.getErrorMessage("INVALID_PK"), id.getClass()
+			throw new IllegalArgumentException(String.format("Invalid primary key value of type '%s' for '%s'.", id.getClass()
 					.getSimpleName(), clazz.getName()));
-		Cursor cursor = mSqliteDb.query(mPersistencePolicy.getModelTableName(clazz), null,
-				mSqliteUtil.getWhereClause(clazz, id, mMapper), null, null, null, null, "1");
+		Cursor cursor = mSqliteDb.query(mPersistencePolicy.getModelTableName(clazz), null, mSqliteUtil.getWhereClause(clazz, id, mMapper),
+				null, null, null, null, "1");
 		if (cursor.getCount() == 0) {
 			cursor.close();
 			return null;
@@ -274,7 +270,7 @@ public class SqliteTemplate implements SqliteOperations {
 		try {
 			mSqliteDb.execSQL(sql);
 		} catch (SQLiteException e) {
-			throw new SQLGrammarException(String.format(mPropLoader.getErrorMessage("BAD_SQL"), sql));
+			throw new SQLGrammarException(String.format("There was a problem with the SQL formatting. Could not execute query: %s", sql));
 		}
 	}
 
@@ -285,7 +281,7 @@ public class SqliteTemplate implements SqliteOperations {
 		try {
 			ret = mSqliteDb.rawQuery(sql, null);
 		} catch (SQLiteException e) {
-			throw new SQLGrammarException(String.format(mPropLoader.getErrorMessage("BAD_SQL"), sql));
+			throw new SQLGrammarException(String.format("There was a problem with the SQL formatting. Could not execute query: %s", sql));
 		}
 		return ret;
 	}
@@ -383,17 +379,17 @@ public class SqliteTemplate implements SqliteOperations {
 				}
 				// Cascade.All means we persist/update related entities
 				if (cascade == Cascade.ALL) {
-				    // Save or update the related entity
-				    if (saveOrUpdateRec(relatedEntity, objectMap) >= 0) {
-					    // Persist relationship to many-to-many table
-					    insertManyToManyRelationship(model, relatedEntity, relationship);
-					    staleKeys.add(mPersistencePolicy.getPrimaryKey(relatedEntity));
-				    }
-				// Cascade.Keys means we persist/update foreign keys
+					// Save or update the related entity
+					if (saveOrUpdateRec(relatedEntity, objectMap) >= 0) {
+						// Persist relationship to many-to-many table
+						insertManyToManyRelationship(model, relatedEntity, relationship);
+						staleKeys.add(mPersistencePolicy.getPrimaryKey(relatedEntity));
+					}
+					// Cascade.Keys means we persist/update foreign keys
 				} else if (cascade == Cascade.KEYS && !mPersistencePolicy.isPKNullOrZero(relatedEntity)) {
 					// Persist relationship to many-to-many table
-				    insertManyToManyRelationship(model, relatedEntity, relationship);
-				    staleKeys.add(mPersistencePolicy.getPrimaryKey(relatedEntity));
+					insertManyToManyRelationship(model, relatedEntity, relationship);
+					staleKeys.add(mPersistencePolicy.getPrimaryKey(relatedEntity));
 				}
 			}
 			// Delete stale relationships
@@ -414,17 +410,17 @@ public class SqliteTemplate implements SqliteOperations {
 			}
 			// Cascade.All means we persist/update related entities
 			if (cascade == Cascade.ALL) {
-			    // Save or update the related entity
-			    if (saveOrUpdateRec(relatedEntity, objectMap) >= 0 && relationship.getOwner() == model.getClass()) {
-				    // Update the relationship owner's foreign key
-				    String sql = mSqlBuilder.createUpdateOneToOneForeignKeyQuery(relationship, model, relatedEntity);
-				    mSqliteDb.execSQL(sql);
-			    }
-			// Cascade.Keys means we persist/update foreign keys
+				// Save or update the related entity
+				if (saveOrUpdateRec(relatedEntity, objectMap) >= 0 && relationship.getOwner() == model.getClass()) {
+					// Update the relationship owner's foreign key
+					String sql = mSqlBuilder.createUpdateOneToOneForeignKeyQuery(relationship, model, relatedEntity);
+					mSqliteDb.execSQL(sql);
+				}
+				// Cascade.Keys means we persist/update foreign keys
 			} else if (cascade == Cascade.KEYS && !mPersistencePolicy.isPKNullOrZero(relatedEntity)) {
 				// Update the relationship owner's foreign key
-			    String sql = mSqlBuilder.createUpdateOneToOneForeignKeyQuery(relationship, model, relatedEntity);
-			    mSqliteDb.execSQL(sql);
+				String sql = mSqlBuilder.createUpdateOneToOneForeignKeyQuery(relationship, model, relatedEntity);
+				mSqliteDb.execSQL(sql);
 			}
 		}
 	}
@@ -442,15 +438,15 @@ public class SqliteTemplate implements SqliteOperations {
 					continue;
 				// Cascade.All means we persist/update related entities
 				if (cascade == Cascade.ALL) {
-				    // Save or update the related entity
-				    if (saveOrUpdateRec(relatedEntity, objectMap) >= 0) {
-					    // Include its foreign key to be updated
-				        relatedKeys.add(mPersistencePolicy.getPrimaryKey(relatedEntity));
-				    }
-			    // Cascade.Keys means we persist/update foreign keys
+					// Save or update the related entity
+					if (saveOrUpdateRec(relatedEntity, objectMap) >= 0) {
+						// Include its foreign key to be updated
+						relatedKeys.add(mPersistencePolicy.getPrimaryKey(relatedEntity));
+					}
+					// Cascade.Keys means we persist/update foreign keys
 				} else if (cascade == Cascade.KEYS && !mPersistencePolicy.isPKNullOrZero(relatedEntity)) {
 					// Include its foreign key to be updated
-			        relatedKeys.add(mPersistencePolicy.getPrimaryKey(relatedEntity));
+					relatedKeys.add(mPersistencePolicy.getPrimaryKey(relatedEntity));
 				}
 			}
 			// Update the foreign keys
@@ -468,17 +464,17 @@ public class SqliteTemplate implements SqliteOperations {
 			}
 			// Cascade.All means we persist/update related entities
 			if (cascade == Cascade.ALL) {
-			    // Save or update the related entity
-			    if (saveOrUpdateRec(relatedEntity, objectMap) >= 0) {
-				    // Update the foreign key
-			        String update = mSqlBuilder.createUpdateQuery(model, relatedEntity, relationshipPair.getFirst().getColumn());
-			        mSqliteDb.execSQL(update);
-			    }
-			// Cascade.Keys means we persist/update foreign keys
+				// Save or update the related entity
+				if (saveOrUpdateRec(relatedEntity, objectMap) >= 0) {
+					// Update the foreign key
+					String update = mSqlBuilder.createUpdateQuery(model, relatedEntity, relationshipPair.getFirst().getColumn());
+					mSqliteDb.execSQL(update);
+				}
+				// Cascade.Keys means we persist/update foreign keys
 			} else if (cascade == Cascade.KEYS && !mPersistencePolicy.isPKNullOrZero(relatedEntity)) {
 				// Update the foreign key
-		        String update = mSqlBuilder.createUpdateQuery(model, relatedEntity, relationshipPair.getFirst().getColumn());
-		        mSqliteDb.execSQL(update);
+				String update = mSqlBuilder.createUpdateQuery(model, relatedEntity, relationshipPair.getFirst().getColumn());
+				mSqliteDb.execSQL(update);
 			}
 		}
 	}
@@ -542,30 +538,30 @@ public class SqliteTemplate implements SqliteOperations {
 			return;
 		mClassReflector.setFieldValue(model, pkField, rowId);
 	}
-	
+
 	private void putRelationalKey(ContentValues relationshipData, String column, Field field, Serializable value) {
 		switch (mMapper.getSqliteDataType(field)) {
-			case INTEGER:
-				if (Primitives.unwrap(field.getType()) == int.class)
-					relationshipData.put(column, (Integer) value);
-				else
-					relationshipData.put(column, (Long) value);
-				break;
-			case TEXT:
-				relationshipData.put(column, (String) value);
-				break;
-			case REAL:
-				if (Primitives.unwrap(field.getType()) == float.class)
-					relationshipData.put(column, (Float) value);
-				else
-					relationshipData.put(column, (Double) value);
-				break;
-			case BLOB:
-				relationshipData.put(column, (byte[]) value);
-				break;
-			default:
-				throw new InfinitumRuntimeException("Invalid relational key type");
-	    }
+		case INTEGER:
+			if (Primitives.unwrap(field.getType()) == int.class)
+				relationshipData.put(column, (Integer) value);
+			else
+				relationshipData.put(column, (Long) value);
+			break;
+		case TEXT:
+			relationshipData.put(column, (String) value);
+			break;
+		case REAL:
+			if (Primitives.unwrap(field.getType()) == float.class)
+				relationshipData.put(column, (Float) value);
+			else
+				relationshipData.put(column, (Double) value);
+			break;
+		case BLOB:
+			relationshipData.put(column, (byte[]) value);
+			break;
+		default:
+			throw new InfinitumRuntimeException("Invalid relational key type");
+		}
 	}
 
 }

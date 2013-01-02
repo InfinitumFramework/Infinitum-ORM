@@ -19,12 +19,9 @@ package com.clarionmedia.infinitum.orm;
 import java.lang.reflect.Field;
 import java.util.Map;
 
-import com.clarionmedia.infinitum.context.ContextFactory;
 import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
-import com.clarionmedia.infinitum.di.annotation.PostConstruct;
 import com.clarionmedia.infinitum.internal.Pair;
-import com.clarionmedia.infinitum.internal.PropertyLoader;
 import com.clarionmedia.infinitum.logging.Logger;
 import com.clarionmedia.infinitum.orm.exception.InvalidMappingException;
 import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
@@ -56,23 +53,23 @@ public abstract class ObjectMapper {
 
 	@Autowired
 	protected PersistencePolicy mPersistencePolicy;
-	
+
 	@Autowired
 	protected TypeResolutionPolicy mTypePolicy;
-	
+
 	@Autowired
 	protected ClassReflector mClassReflector;
-	
+
 	@Autowired
 	protected InfinitumContext mContext;
-	
+
 	protected Logger mLogger;
-	protected PropertyLoader mPropLoader;
-	
-	@PostConstruct
-	private void init() {
+
+	/**
+	 * Creates a new {@code ObjectMapper} instance.
+	 */
+	public ObjectMapper() {
 		mLogger = Logger.getInstance(getClass().getSimpleName());
-		mPropLoader = new PropertyLoader(ContextFactory.newInstance().getAndroidContext());
 	}
 
 	/**
@@ -88,8 +85,7 @@ public abstract class ObjectMapper {
 	 * @throws ModelConfigurationException
 	 *             if the model is configured incorrectly
 	 */
-	public abstract ModelMap mapModel(Object model)
-			throws InvalidMappingException, ModelConfigurationException;
+	public abstract ModelMap mapModel(Object model) throws InvalidMappingException, ModelConfigurationException;
 
 	/**
 	 * Registers the given {@link TypeAdapter} for the specified {@link Class}
@@ -104,8 +100,7 @@ public abstract class ObjectMapper {
 	 * @param adapter
 	 *            the {@code TypeAdapter} to register
 	 */
-	public abstract <T> void registerTypeAdapter(Class<T> type,
-			TypeAdapter<T> adapter);
+	public abstract <T> void registerTypeAdapter(Class<T> type, TypeAdapter<T> adapter);
 
 	/**
 	 * Returns a {@link Map} containing all {@link TypeAdapter} instances
@@ -126,8 +121,7 @@ public abstract class ObjectMapper {
 	 *             if there is no registered {@code TypeAdapter} for the given
 	 *             {@code Class}
 	 */
-	public abstract <T> TypeAdapter<T> resolveType(Class<T> type)
-			throws InvalidMappingException;
+	public abstract <T> TypeAdapter<T> resolveType(Class<T> type) throws InvalidMappingException;
 
 	/**
 	 * Indicates if the given {@link Field} is a "text" data type as represented
@@ -155,62 +149,42 @@ public abstract class ObjectMapper {
 			ModelRelationship rel = mPersistencePolicy.getRelationship(field);
 			Object related;
 			switch (rel.getRelationType()) {
-				case ManyToMany :
-					ManyToManyRelationship mtm = (ManyToManyRelationship) rel;
-					related = mClassReflector.getFieldValue(model, field);
-					if (!(related instanceof Iterable))
-						throw new ModelConfigurationException(
-								String.format(
-										mPropLoader
-												.getErrorMessage("INVALID_MM_RELATIONSHIP"),
-										field.getName(), field.getDeclaringClass()
-												.getName()));
-					map.addManyToManyRelationship(new Pair<ManyToManyRelationship, Iterable<Object>>(
-							mtm, (Iterable<Object>) related));
-					break;
-				case ManyToOne :
-					ManyToOneRelationship mto = (ManyToOneRelationship) rel;
-					related = mClassReflector.getFieldValue(model, field);
-					if (related != null
-							&& !mTypePolicy.isDomainModel(related
-									.getClass()))
-						throw new ModelConfigurationException(
-								String.format(
-										mPropLoader
-												.getErrorMessage("INVALID_MO_RELATIONSHIP"),
-										field.getName(), field.getDeclaringClass()
-												.getName()));
-					map.addManyToOneRelationship(new Pair<ManyToOneRelationship, Object>(
-							mto, related));
-					break;
-				case OneToMany :
-					OneToManyRelationship otm = (OneToManyRelationship) rel;
-					related = mClassReflector.getFieldValue(model, field);
-					if (!(related instanceof Iterable))
-						throw new ModelConfigurationException(
-								String.format(
-										mPropLoader
-												.getErrorMessage("INVALID_OM_RELATIONSHIP"),
-										field.getName(), field.getDeclaringClass()
-												.getName()));
-					map.addOneToManyRelationship(new Pair<OneToManyRelationship, Iterable<Object>>(
-							otm, (Iterable<Object>) related));
-					break;
-				case OneToOne :
-					OneToOneRelationship oto = (OneToOneRelationship) rel;
-					related = mClassReflector.getFieldValue(model, field);
-					if (related != null
-							&& !mTypePolicy.isDomainModel(related
-									.getClass()))
-						throw new ModelConfigurationException(
-								String.format(
-										mPropLoader
-												.getErrorMessage("INVALID_OO_RELATIONSHIP"),
-										field.getName(), field.getDeclaringClass()
-												.getName()));
-					map.addOneToOneRelationship(new Pair<OneToOneRelationship, Object>(
-							oto, related));
-					break;
+			case ManyToMany:
+				ManyToManyRelationship mtm = (ManyToManyRelationship) rel;
+				related = mClassReflector.getFieldValue(model, field);
+				if (!(related instanceof Iterable))
+					throw new ModelConfigurationException(String.format(
+							"Field '%s' is marked as a many-to-many relationship in '%s', but it is not a collection.", field.getName(),
+							field.getDeclaringClass().getName()));
+				map.addManyToManyRelationship(new Pair<ManyToManyRelationship, Iterable<Object>>(mtm, (Iterable<Object>) related));
+				break;
+			case ManyToOne:
+				ManyToOneRelationship mto = (ManyToOneRelationship) rel;
+				related = mClassReflector.getFieldValue(model, field);
+				if (related != null && !mTypePolicy.isDomainModel(related.getClass()))
+					throw new ModelConfigurationException(String.format(
+							"Field '%s' is marked as a many-to-one relationship in '%s', but it is not a domain entity.", field.getName(),
+							field.getDeclaringClass().getName()));
+				map.addManyToOneRelationship(new Pair<ManyToOneRelationship, Object>(mto, related));
+				break;
+			case OneToMany:
+				OneToManyRelationship otm = (OneToManyRelationship) rel;
+				related = mClassReflector.getFieldValue(model, field);
+				if (!(related instanceof Iterable))
+					throw new ModelConfigurationException(String.format(
+							"Field '%s' is marked as a one-to-many relationship in '%s', but it is not a collection.", field.getName(),
+							field.getDeclaringClass().getName()));
+				map.addOneToManyRelationship(new Pair<OneToManyRelationship, Iterable<Object>>(otm, (Iterable<Object>) related));
+				break;
+			case OneToOne:
+				OneToOneRelationship oto = (OneToOneRelationship) rel;
+				related = mClassReflector.getFieldValue(model, field);
+				if (related != null && !mTypePolicy.isDomainModel(related.getClass()))
+					throw new ModelConfigurationException(String.format(
+							"Field '%s' is marked as a one-to-one relationship in '%s', but it is not a domain entity.", field.getName(),
+							field.getDeclaringClass().getName()));
+				map.addOneToOneRelationship(new Pair<OneToOneRelationship, Object>(oto, related));
+				break;
 			}
 		}
 	}

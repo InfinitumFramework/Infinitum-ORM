@@ -24,13 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.clarionmedia.infinitum.context.ContextFactory;
 import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.di.AbstractProxy;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
-import com.clarionmedia.infinitum.di.annotation.PostConstruct;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
-import com.clarionmedia.infinitum.internal.PropertyLoader;
 import com.clarionmedia.infinitum.logging.Logger;
 import com.clarionmedia.infinitum.orm.exception.InvalidMapFileException;
 import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
@@ -118,7 +115,6 @@ public abstract class PersistencePolicy {
 	protected InfinitumContext mContext;
 	
 	protected Logger mLogger;
-	protected PropertyLoader mPropLoader;
 
 	/**
 	 * Constructs a new {@code PersistencePolicy}.
@@ -136,12 +132,7 @@ public abstract class PersistencePolicy {
 		mLazyLoadingCache = new HashMap<Class<?>, Boolean>();
 		mRestEndpointCache = new HashMap<Class<?>, String>();
 		mRestFieldCache = new HashMap<Field, String>();
-	}
-	
-	@PostConstruct
-	private void init() {
 		mLogger = Logger.getInstance(getClass().getSimpleName());
-		mPropLoader = new PropertyLoader(ContextFactory.newInstance().getAndroidContext());
 	}
 
 	/**

@@ -20,7 +20,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.clarionmedia.infinitum.internal.PropertyLoader;
 import com.clarionmedia.infinitum.logging.Logger;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
@@ -43,7 +42,6 @@ public class SqliteDbHelper extends SQLiteOpenHelper {
 	private SQLiteDatabase mSqliteDb;
 	private InfinitumOrmContext mInfinitumContext;
 	private Logger mLogger;
-	private PropertyLoader mPropLoader;
 
 	/**
 	 * Constructs a new {@code SqliteDbHelper} with the given {@link Context}
@@ -58,7 +56,6 @@ public class SqliteDbHelper extends SQLiteOpenHelper {
 		super(context.getAndroidContext(), context.getSqliteDbName(), null, context.getSqliteDbVersion());
 		mLogger = Logger.getInstance(getClass().getSimpleName());
 		mInfinitumContext = context;
-		mPropLoader = new PropertyLoader(mInfinitumContext.getAndroidContext());
 		mSqlBuilder = sqlBuilder;
 	}
 
@@ -80,7 +77,7 @@ public class SqliteDbHelper extends SQLiteOpenHelper {
 		try {
 			mSqlBuilder.createTables(this);
 		} catch (ModelConfigurationException e) {
-			mLogger.error(mPropLoader.getErrorMessage("CREATE_TABLES_ERROR"), e);
+			mLogger.error("Error creating database tables.", e);
 		}
 		mLogger.debug("Database tables created successfully");
 	}
