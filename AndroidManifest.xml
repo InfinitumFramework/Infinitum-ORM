@@ -6,6 +6,6 @@
     <!-- Infinitum is never compiled as an APK but rather used as a library. -->
     <uses-sdk
         android:minSdkVersion="4"
-        android:targetSdkVersion="17" />
+        android:targetSdkVersion="15" />
 
 </manifest>

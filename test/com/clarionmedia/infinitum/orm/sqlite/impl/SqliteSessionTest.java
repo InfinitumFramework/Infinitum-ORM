@@ -613,13 +613,13 @@ public class SqliteSessionTest {
 	public void testExecuteForResult() {
 		// Setup
 		String sql = "select * from foo";
-		when(mockSqliteTemplate.executeForResult(sql, false)).thenReturn(mockCursor);
+		when(mockSqliteTemplate.executeForResult(sql)).thenReturn(mockCursor);
 		
 		// Run
-		Cursor actual = sqliteSession.executeForResult(sql, false);
+		Cursor actual = sqliteSession.executeForResult(sql);
 		
 		// Verify
-		verify(mockSqliteTemplate).executeForResult(sql, false);
+		verify(mockSqliteTemplate).executeForResult(sql);
 		assertEquals("Cursor returned from executeForResult should be equal to the expected Cursor", mockCursor, actual);
 	}
 	

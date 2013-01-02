@@ -26,7 +26,6 @@ import android.database.SQLException;
 
 import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
-import com.clarionmedia.infinitum.di.annotation.PostConstruct;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.internal.caching.LruCache;
 import com.clarionmedia.infinitum.logging.Logger;
@@ -78,11 +77,7 @@ public class SqliteSession implements Session {
 	 */
 	public SqliteSession(int cacheSize) {
 		mCacheSize = cacheSize;
-	}
-
-	@PostConstruct
-	private void init() {
-		mLogger = Logger.getInstance(mInfinitumContext, getClass().getSimpleName());
+		mLogger = Logger.getInstance(getClass().getSimpleName());
 		mSessionCache = new LruCache<Integer, Object>(mCacheSize);
 	}
 

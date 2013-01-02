@@ -211,7 +211,7 @@ public class SqliteBuilderTest {
 		// Verify
 		verify(mockCriteria).getEntityClass();
 		verify(mockCriteria).getCriterion();
-		verify(mockCriteria, times(2)).getLimit();
+		verify(mockCriteria).getLimit();
 		verify(mockCriteria, times(2)).getOffset();
 		verify(mockCriterionA).toSql(mockCriteria);
 		assertEquals("Returned SQL query should match expected value", expected, actual);
@@ -262,7 +262,7 @@ public class SqliteBuilderTest {
 		// Verify
 		verify(mockCriteria).getEntityClass();
 		verify(mockCriteria).getCriterion();
-		verify(mockCriteria, times(2)).getLimit();
+		verify(mockCriteria).getLimit();
 		verify(mockCriteria, times(2)).getOffset();
 		verify(mockCriterionA).toSql(mockCriteria);
 		verify(mockCriterionB).toSql(mockCriteria);
@@ -310,7 +310,7 @@ public class SqliteBuilderTest {
 		// Verify
 		verify(mockCriteria).getEntityClass();
 		verify(mockCriteria).getCriterion();
-		verify(mockCriteria, times(2)).getLimit();
+		verify(mockCriteria).getLimit();
 		verify(mockCriteria, times(2)).getOffset();
 		verify(mockCriterionA).toSql(mockCriteria);
 		assertEquals("Returned SQL query should match expected value", expected, actual);
@@ -361,7 +361,7 @@ public class SqliteBuilderTest {
 		// Verify
 		verify(mockCriteria).getEntityClass();
 		verify(mockCriteria).getCriterion();
-		verify(mockCriteria, times(2)).getLimit();
+		verify(mockCriteria).getLimit();
 		verify(mockCriteria, times(2)).getOffset();
 		verify(mockCriterionA).toSql(mockCriteria);
 		verify(mockCriterionB).toSql(mockCriteria);

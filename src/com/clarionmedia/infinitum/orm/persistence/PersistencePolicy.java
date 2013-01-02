@@ -140,7 +140,7 @@ public abstract class PersistencePolicy {
 	
 	@PostConstruct
 	private void init() {
-		mLogger = Logger.getInstance(mContext, getClass().getSimpleName());
+		mLogger = Logger.getInstance(getClass().getSimpleName());
 		mPropLoader = new PropertyLoader(ContextFactory.newInstance().getAndroidContext());
 	}
 

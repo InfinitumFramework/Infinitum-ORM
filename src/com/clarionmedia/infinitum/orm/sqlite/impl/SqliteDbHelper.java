@@ -56,7 +56,7 @@ public class SqliteDbHelper extends SQLiteOpenHelper {
 	 */
 	public SqliteDbHelper(InfinitumOrmContext context, SqliteMapper mapper, SqlBuilder sqlBuilder) {
 		super(context.getAndroidContext(), context.getSqliteDbName(), null, context.getSqliteDbVersion());
-		mLogger = Logger.getInstance(context, getClass().getSimpleName());
+		mLogger = Logger.getInstance(getClass().getSimpleName());
 		mInfinitumContext = context;
 		mPropLoader = new PropertyLoader(mInfinitumContext.getAndroidContext());
 		mSqlBuilder = sqlBuilder;

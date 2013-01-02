@@ -46,11 +46,9 @@ public class SqliteCriteriaTest {
 		mockSqliteModelFactory = mock(SqliteModelFactory.class);
 		mockSqliteMapper = mock(SqliteMapper.class);
 		mockPersistencePolicy = mock(PersistencePolicy.class);
-		when(mockInfinitumContext.getPersistencePolicy()).thenReturn(
-				mockPersistencePolicy);
+		when(mockInfinitumContext.getPersistencePolicy()).thenReturn(mockPersistencePolicy);
 		when(mockPersistencePolicy.isPersistent(entityClass)).thenReturn(true);
-		sqliteCriteria = new SqliteCriteria<Object>(mockInfinitumContext,
-				entityClass, mockSqliteSession, mockSqliteModelFactory,
+		sqliteCriteria = new SqliteCriteria<Object>(mockInfinitumContext, entityClass, mockSqliteSession, mockSqliteModelFactory,
 				mockSqlBuilder, mockSqliteMapper);
 		mockCursor = mock(Cursor.class);
 	}
@@ -66,8 +64,7 @@ public class SqliteCriteriaTest {
 
 		// Verify
 		verify(mockSqlBuilder).createQuery(sqliteCriteria);
-		assertEquals("Returned query should match expected value", expected,
-				actual);
+		assertEquals("Returned query should match expected value", expected, actual);
 	}
 
 	@Test
@@ -75,15 +72,14 @@ public class SqliteCriteriaTest {
 		// Setup
 		String query = "SQL criteria query";
 		when(mockSqlBuilder.createQuery(sqliteCriteria)).thenReturn(query);
-		when(mockSqliteSession.executeForResult(query, true)).thenReturn(
-				mockCursor);
+		when(mockSqliteSession.executeForResult(query)).thenReturn(mockCursor);
 		when(mockCursor.getCount()).thenReturn(0);
 
 		// Run
 		List<Object> actual = sqliteCriteria.list();
 
 		// Verify
-		verify(mockSqliteSession).executeForResult(query, true);
+		verify(mockSqliteSession).executeForResult(query);
 		verify(mockCursor).getCount();
 		verify(mockCursor).close();
 		assertEquals("Returned list should be empty", 0, actual.size());
@@ -94,29 +90,23 @@ public class SqliteCriteriaTest {
 		// Setup
 		String query = "SQL criteria query";
 		when(mockSqlBuilder.createQuery(sqliteCriteria)).thenReturn(query);
-		when(mockSqliteSession.executeForResult(query, true)).thenReturn(
-				mockCursor);
+		when(mockSqliteSession.executeForResult(query)).thenReturn(mockCursor);
 		final int RESULT_COUNT = 3;
 		when(mockCursor.getCount()).thenReturn(RESULT_COUNT);
-		when(mockCursor.moveToNext()).thenReturn(true).thenReturn(true)
-				.thenReturn(true).thenReturn(false);
-		when(mockSqliteModelFactory.createFromCursor(mockCursor, entityClass))
-				.thenReturn(new Object());
+		when(mockCursor.moveToNext()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
+		when(mockSqliteModelFactory.createFromCursor(mockCursor, entityClass)).thenReturn(new Object());
 
 		// Run
 		List<Object> actual = sqliteCriteria.list();
 
 		// Verify
-		verify(mockSqliteSession).executeForResult(query, true);
+		verify(mockSqliteSession).executeForResult(query);
 		verify(mockCursor).getCount();
 		verify(mockCursor).close();
 		verify(mockCursor, times(4)).moveToNext();
-		verify(mockSqliteModelFactory, times(3)).createFromCursor(mockCursor,
-				entityClass);
-		verify(mockSqliteSession, times(3)).cache(any(Integer.class),
-				any(Object.class));
-		assertEquals("Returned list should be empty", RESULT_COUNT,
-				actual.size());
+		verify(mockSqliteModelFactory, times(3)).createFromCursor(mockCursor, entityClass);
+		verify(mockSqliteSession, times(3)).cache(any(Integer.class), any(Object.class));
+		assertEquals("Returned list should be empty", RESULT_COUNT, actual.size());
 	}
 
 	@Test
@@ -124,15 +114,14 @@ public class SqliteCriteriaTest {
 		// Setup
 		String query = "SQL criteria query";
 		when(mockSqlBuilder.createQuery(sqliteCriteria)).thenReturn(query);
-		when(mockSqliteSession.executeForResult(query, true)).thenReturn(
-				mockCursor);
+		when(mockSqliteSession.executeForResult(query)).thenReturn(mockCursor);
 		when(mockCursor.getCount()).thenReturn(0);
 
 		// Run
 		Object actual = sqliteCriteria.unique();
 
 		// Verify
-		verify(mockSqliteSession).executeForResult(query, true);
+		verify(mockSqliteSession).executeForResult(query);
 		verify(mockCursor, times(2)).getCount();
 		verify(mockCursor).close();
 		assertNull("Returned result should be null", actual);
@@ -143,17 +132,15 @@ public class SqliteCriteriaTest {
 		// Setup
 		String query = "SQL criteria query";
 		when(mockSqlBuilder.createQuery(sqliteCriteria)).thenReturn(query);
-		when(mockSqliteSession.executeForResult(query, true)).thenReturn(
-				mockCursor);
+		when(mockSqliteSession.executeForResult(query)).thenReturn(mockCursor);
 		when(mockCursor.getCount()).thenReturn(1);
-		when(mockSqliteModelFactory.createFromCursor(mockCursor, entityClass))
-				.thenReturn(new Object());
+		when(mockSqliteModelFactory.createFromCursor(mockCursor, entityClass)).thenReturn(new Object());
 
 		// Run
 		Object actual = sqliteCriteria.unique();
 
 		// Verify
-		verify(mockSqliteSession).executeForResult(query, true);
+		verify(mockSqliteSession).executeForResult(query);
 		verify(mockCursor, times(2)).getCount();
 		verify(mockCursor).close();
 		assertNotNull("Returned result should not be null", actual);
@@ -164,11 +151,9 @@ public class SqliteCriteriaTest {
 		// Setup
 		String query = "SQL criteria query";
 		when(mockSqlBuilder.createQuery(sqliteCriteria)).thenReturn(query);
-		when(mockSqliteSession.executeForResult(query, true)).thenReturn(
-				mockCursor);
+		when(mockSqliteSession.executeForResult(query)).thenReturn(mockCursor);
 		when(mockCursor.getCount()).thenReturn(3);
-		when(mockSqliteModelFactory.createFromCursor(mockCursor, entityClass))
-				.thenReturn(new Object());
+		when(mockSqliteModelFactory.createFromCursor(mockCursor, entityClass)).thenReturn(new Object());
 
 		// Run
 		sqliteCriteria.unique();
@@ -187,8 +172,7 @@ public class SqliteCriteriaTest {
 
 		// Verify
 		verify(mockSqliteSession).getSqliteMapper();
-		assertEquals("Returned result should match expected value",
-				mockSqliteMapper, actual);
+		assertEquals("Returned result should match expected value", mockSqliteMapper, actual);
 	}
 
 	@Test
@@ -196,17 +180,16 @@ public class SqliteCriteriaTest {
 		// Setup
 		String query = "SQL criteria query";
 		when(mockSqlBuilder.createCountQuery(sqliteCriteria)).thenReturn(query);
-		when(mockSqliteSession.executeForResult(query, true)).thenReturn(
-				mockCursor);
+		when(mockSqliteSession.executeForResult(query)).thenReturn(mockCursor);
 		when(mockCursor.moveToFirst()).thenReturn(true);
 		final long EXPECTED = 5;
 		when(mockCursor.getLong(0)).thenReturn(EXPECTED);
-		
+
 		// Run
 		long actual = sqliteCriteria.count();
-		
+
 		// Verify
-		verify(mockSqliteSession).executeForResult(query, true);
+		verify(mockSqliteSession).executeForResult(query);
 		verify(mockSqlBuilder).createCountQuery(sqliteCriteria);
 		verify(mockCursor).moveToFirst();
 		verify(mockCursor).getLong(0);

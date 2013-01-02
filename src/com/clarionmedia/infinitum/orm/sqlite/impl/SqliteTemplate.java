@@ -109,9 +109,10 @@ public class SqliteTemplate implements SqliteOperations {
 	
 	@PostConstruct
 	private void init() {
-		mLogger = Logger.getInstance(mInfinitumContext, getClass().getSimpleName());
+		mLogger = Logger.getInstance(getClass().getSimpleName());
 		mPropLoader = new PropertyLoader(ContextFactory.newInstance().getAndroidContext());
 		mTransactionStack = new Stack<Boolean>();
+		mDbHelper = new SqliteDbHelper(mInfinitumContext, mMapper, mSqlBuilder);
 	}
 
 	@Override
@@ -121,7 +122,6 @@ public class SqliteTemplate implements SqliteOperations {
 
 	@Override
 	public void open() throws SQLException {
-		mDbHelper = new SqliteDbHelper(mInfinitumContext, mMapper, mSqlBuilder);
 		mSqliteDb = mDbHelper.getWritableDatabase();
 		mIsOpen = true;
 	}
