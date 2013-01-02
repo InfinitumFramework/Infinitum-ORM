@@ -1,0 +1,33 @@
+############
+# Binaries #
+############
+*.class
+*.apk
+*.ap_
+*.dex
+
+###############
+# Directories #
+###############
+bin/
+doc/
+obj/
+tmp/
+gen/
+
+###########
+# Project #
+###########
+local.properties
+.project
+.metadata
+*.tmp
+*.bak
+*.swp
+*~.nib
+.classpath
+.settings/
+.loadpath
+proguard.cfg
+lint.xml
+build.xml
