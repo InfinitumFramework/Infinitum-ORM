@@ -43,8 +43,8 @@ import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy.Cascade;
  * </pre>
  * 
  * @author Tyler Treat
- * @version 1.0
- * @since 02/12/12
+ * @version 1.0 02/12/12
+ * @since 1.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

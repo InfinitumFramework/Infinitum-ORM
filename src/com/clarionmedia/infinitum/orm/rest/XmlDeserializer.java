@@ -24,8 +24,8 @@ import java.util.List;
  * </p>
  * 
  * @author Tyler Treat
- * @version 1.0
- * @since 05/21/12
+ * @version 1.0 05/21/12
+ * @since 1.0
  */
 public abstract class XmlDeserializer<T> implements Deserializer<T> {
 
