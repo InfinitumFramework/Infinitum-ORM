@@ -48,7 +48,7 @@ public class SqliteDbHelper extends SQLiteOpenHelper {
 	 * and {@link SqliteMapper}.
 	 * 
 	 * @param context
-	 *            the {link InfinitumContext} of the {@code SqliteDbHelper}
+	 *            the {@link InfinitumContext} of the {@code SqliteDbHelper}
 	 * @param mapper
 	 *            the {@code SqliteMapper} to use for {@link Object} mapping
 	 */
