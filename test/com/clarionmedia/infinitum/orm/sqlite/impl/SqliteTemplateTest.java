@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Clarion Media, LLC
+ * Copyright (c) 2012 Tyler Treat
  * 
  * This file is part of Infinitum Framework.
  *
