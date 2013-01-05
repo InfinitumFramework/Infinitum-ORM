@@ -37,7 +37,7 @@ public class ManyToOneRelationship extends ForeignKeyRelationship {
 		this();
 		ManyToOne mto = f.getAnnotation(ManyToOne.class);
 		mFirst = f.getDeclaringClass();
-		mSecond = mPackageReflector.getClass(mto.className());
+		mSecond = mClassReflector.getClass(mto.className());
 		mName = mto.name();
 		setOwner(f.getDeclaringClass());
 		setColumn(mto.column());

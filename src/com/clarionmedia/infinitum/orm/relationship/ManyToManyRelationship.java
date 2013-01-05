@@ -48,7 +48,7 @@ public class ManyToManyRelationship extends ModelRelationship {
 		ManyToMany mtm = f.getAnnotation(ManyToMany.class);
 		mTableName = mtm.table();
 		mFirst = f.getDeclaringClass();
-		mSecond = mPackageReflector.getClass(mtm.className());
+		mSecond = mClassReflector.getClass(mtm.className());
 		mFirstFieldName = mtm.keyField();
 		mSecondFieldName = mtm.foreignField();
 		mName = mtm.name();

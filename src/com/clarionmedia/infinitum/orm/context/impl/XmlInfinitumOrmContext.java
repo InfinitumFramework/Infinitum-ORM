@@ -89,21 +89,24 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 		beans.add(beanDefinitionBuilder.setName("$OrmContext").setType(XmlInfinitumOrmContext.class).build());
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put("mIsAutocommit", isAutocommit());
-		beans.add(beanDefinitionBuilder.setName("$SqliteTemplate").setType(SqliteTemplate.class).setProperties(properties).build());
-		beans.add(beanDefinitionBuilder.setName("$SqliteSession").setType(SqliteSession.class).build());
-		beans.add(beanDefinitionBuilder.setName("$SqliteMapper").setType(SqliteMapper.class).build());
-		beans.add(beanDefinitionBuilder.setName("$TypeResolutionPolicy").setType(DefaultTypeResolutionPolicy.class).build());
-		beans.add(beanDefinitionBuilder.setName("$SqliteModelFactory").setType(SqliteModelFactory.class).build());
-		beans.add(beanDefinitionBuilder.setName("$SqliteBuilder").setType(SqliteBuilder.class).build());
-		beans.add(beanDefinitionBuilder.setName("$SqliteUtil").setType(SqliteUtils.class).build());
-		beans.add(beanDefinitionBuilder.setName("$RestfulXmlMapper").setType(RestfulXmlMapper.class).build());
-		beans.add(beanDefinitionBuilder.setName("$RestfulJsonMapper").setType(RestfulJsonMapper.class).build());
-		beans.add(beanDefinitionBuilder.setName("$RestfulNameValueMapper").setType(RestfulNameValueMapper.class).build());
-		beans.add(beanDefinitionBuilder.setName("$RestfulJsonSession").setType(RestfulJsonSession.class).build());
-		beans.add(beanDefinitionBuilder.setName("$RestfulXmlSession").setType(RestfulXmlSession.class).build());
+		beans.add(beanDefinitionBuilder.setName("_" + SqliteTemplate.class.getSimpleName()).setType(SqliteTemplate.class)
+				.setProperties(properties).build());
+		beans.add(beanDefinitionBuilder.setName("_" + SqliteSession.class.getSimpleName()).setType(SqliteSession.class).build());
+		beans.add(beanDefinitionBuilder.setName("_" + SqliteMapper.class.getSimpleName()).setType(SqliteMapper.class).build());
+		beans.add(beanDefinitionBuilder.setName("_" + DefaultTypeResolutionPolicy.class.getSimpleName())
+				.setType(DefaultTypeResolutionPolicy.class).build());
+		beans.add(beanDefinitionBuilder.setName("_" + SqliteModelFactory.class.getSimpleName()).setType(SqliteModelFactory.class).build());
+		beans.add(beanDefinitionBuilder.setName("_" + SqliteBuilder.class.getSimpleName()).setType(SqliteBuilder.class).build());
+		beans.add(beanDefinitionBuilder.setName("_" + SqliteUtils.class.getSimpleName()).setType(SqliteUtils.class).build());
+		beans.add(beanDefinitionBuilder.setName("_" + RestfulXmlMapper.class.getSimpleName()).setType(RestfulXmlMapper.class).build());
+		beans.add(beanDefinitionBuilder.setName("_" + RestfulJsonMapper.class.getSimpleName()).setType(RestfulJsonMapper.class).build());
+		beans.add(beanDefinitionBuilder.setName("_" + RestfulNameValueMapper.class.getSimpleName()).setType(RestfulNameValueMapper.class)
+				.build());
+		beans.add(beanDefinitionBuilder.setName("_" + RestfulJsonSession.class.getSimpleName()).setType(RestfulJsonSession.class).build());
+		beans.add(beanDefinitionBuilder.setName("_" + RestfulXmlSession.class.getSimpleName()).setType(RestfulXmlSession.class).build());
 		Class<?> type = getConfigurationMode() == ConfigurationMode.ANNOTATION ? AnnotationsPersistencePolicy.class
 				: XmlPersistencePolicy.class;
-		beans.add(beanDefinitionBuilder.setName("$PersistencePolicy").setType(type).build());
+		beans.add(beanDefinitionBuilder.setName("_" + type.getSimpleName()).setType(type).build());
 		return beans;
 	}
 

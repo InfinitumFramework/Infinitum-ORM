@@ -38,7 +38,7 @@ public class OneToOneRelationship extends ForeignKeyRelationship {
 		this();
 		OneToOne oto = f.getAnnotation(OneToOne.class);
 		mFirst = f.getDeclaringClass();
-		mSecond = mPackageReflector.getClass(oto.className());
+		mSecond = mClassReflector.getClass(oto.className());
 		mName = oto.name();
 		setColumn(oto.column());
 		setOwner(oto.owner());

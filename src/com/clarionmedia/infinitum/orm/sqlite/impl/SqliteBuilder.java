@@ -36,7 +36,7 @@ import com.clarionmedia.infinitum.orm.relationship.OneToManyRelationship;
 import com.clarionmedia.infinitum.orm.relationship.OneToOneRelationship;
 import com.clarionmedia.infinitum.orm.sql.SqlBuilder;
 import com.clarionmedia.infinitum.orm.sql.SqlConstants;
-import com.clarionmedia.infinitum.reflection.PackageReflector;
+import com.clarionmedia.infinitum.reflection.ClassReflector;
 
 /**
  * <p>
@@ -59,7 +59,7 @@ public class SqliteBuilder implements SqlBuilder {
 	private PersistencePolicy mPersistencePolicy;
 
 	@Autowired
-	private PackageReflector mPackageReflector;
+	private ClassReflector mClassReflector;
 
 	@Autowired
 	private InfinitumOrmContext mContext;
@@ -69,7 +69,7 @@ public class SqliteBuilder implements SqlBuilder {
 		int count = 0;
 		SQLiteDatabase db = dbHelper.getDatabase();
 		for (String m : mContext.getDomainTypes()) {
-			Class<?> c = mPackageReflector.getClass(m);
+			Class<?> c = mClassReflector.getClass(m);
 			if (c == null)
 				throw new InfinitumConfigurationException("No such class '" + m + "'.");
 			String sql = createModelTableString(c);
@@ -97,7 +97,7 @@ public class SqliteBuilder implements SqlBuilder {
 		int count = 0;
 		SQLiteDatabase db = dbHelper.getDatabase();
 		for (String m : mContext.getDomainTypes()) {
-			Class<?> c = mPackageReflector.getClass(m);
+			Class<?> c = mClassReflector.getClass(m);
 			if (c == null)
 				throw new InfinitumConfigurationException("No such class '" + m + "'.");
 			String sql = dropModelTableString(c);

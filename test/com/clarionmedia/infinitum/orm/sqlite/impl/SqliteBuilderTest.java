@@ -52,7 +52,7 @@ import com.clarionmedia.infinitum.orm.persistence.TypeResolutionPolicy.SqliteDat
 import com.clarionmedia.infinitum.orm.relationship.ManyToManyRelationship;
 import com.clarionmedia.infinitum.orm.relationship.OneToManyRelationship;
 import com.clarionmedia.infinitum.orm.relationship.OneToOneRelationship;
-import com.clarionmedia.infinitum.reflection.PackageReflector;
+import com.clarionmedia.infinitum.reflection.ClassReflector;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
@@ -74,7 +74,7 @@ public class SqliteBuilderTest {
 	private PersistencePolicy mockPersistencePolicy;
 	
 	@Mock
-	private PackageReflector mockPackageReflector;
+	private ClassReflector mockClassReflector;
 	
 	@Mock
 	private InfinitumOrmContext mockInfinitumContext;
@@ -122,8 +122,8 @@ public class SqliteBuilderTest {
 		when(mockCriterionB.toSql(mockCriteria)).thenReturn(CRITERION_B_SQL);
 		doReturn(Integer.class).when(mockManyToManyRelationship).getFirstType();
 		doReturn(Long.class).when(mockManyToManyRelationship).getSecondType();
-		doReturn(Integer.class).when(mockPackageReflector).getClass(any(String.class));
-		doReturn(Long.class).when(mockPackageReflector).getClass(any(String.class));
+		doReturn(Integer.class).when(mockClassReflector).getClass(any(String.class));
+		doReturn(Long.class).when(mockClassReflector).getClass(any(String.class));
 	}
 	
 	@Test
@@ -139,7 +139,7 @@ public class SqliteBuilderTest {
 	@Test(expected = InfinitumConfigurationException.class)
 	public void testCreateTables_fail() {
 		// Setup
-		doReturn(null).when(mockPackageReflector).getClass(any(String.class));
+		doReturn(null).when(mockClassReflector).getClass(any(String.class));
 		
 		// Run
 		sqliteBuilder.createTables(mockDbHelper);
@@ -177,7 +177,7 @@ public class SqliteBuilderTest {
 	@Test(expected = InfinitumConfigurationException.class)
 	public void testDropTables_fail() {
 		// Setup
-		doReturn(null).when(mockPackageReflector).getClass(any(String.class));
+		doReturn(null).when(mockClassReflector).getClass(any(String.class));
 		
 		// Run
 		sqliteBuilder.dropTables(mockDbHelper);
