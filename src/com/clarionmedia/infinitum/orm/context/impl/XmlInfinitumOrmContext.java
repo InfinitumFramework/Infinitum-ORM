@@ -86,7 +86,8 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 	@Override
 	public List<AbstractBeanDefinition> getBeans(BeanDefinitionBuilder beanDefinitionBuilder) {
 		List<AbstractBeanDefinition> beans = new ArrayList<AbstractBeanDefinition>();
-		beans.add(beanDefinitionBuilder.setName("$OrmContext").setType(XmlInfinitumOrmContext.class).build());
+		beans.add(beanDefinitionBuilder.setName("_" + InfinitumOrmContext.class.getSimpleName()).setType(XmlInfinitumOrmContext.class)
+				.build());
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put("mIsAutocommit", isAutocommit());
 		beans.add(beanDefinitionBuilder.setName("_" + SqliteTemplate.class.getSimpleName()).setType(SqliteTemplate.class)
@@ -106,7 +107,7 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 		beans.add(beanDefinitionBuilder.setName("_" + RestfulXmlSession.class.getSimpleName()).setType(RestfulXmlSession.class).build());
 		Class<?> type = getConfigurationMode() == ConfigurationMode.ANNOTATION ? AnnotationsPersistencePolicy.class
 				: XmlPersistencePolicy.class;
-		beans.add(beanDefinitionBuilder.setName("_" + type.getSimpleName()).setType(type).build());
+		beans.add(beanDefinitionBuilder.setName("_" + PersistencePolicy.class.getSimpleName()).setType(type).build());
 		return beans;
 	}
 
@@ -114,7 +115,7 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 	public Session getSession(SessionType source) throws InfinitumConfigurationException {
 		switch (source) {
 		case SQLITE:
-			return getBean("$SqliteSession", SqliteSession.class);
+			return getBean("_" + SqliteSession.class.getSimpleName(), SqliteSession.class);
 		case REST:
 			String client = mParentContext.getRestContext().getClientBean();
 			RestfulSession session;
@@ -123,10 +124,10 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 				// Resolve Session implementation if no client is defined
 				switch (messageType) {
 				case JSON:
-					session = getBean("$RestfulJsonSession", RestfulJsonSession.class);
+					session = getBean("_" + RestfulJsonSession.class.getSimpleName(), RestfulJsonSession.class);
 					break;
 				case XML:
-					session = getBean("$RestfulXmlSession", RestfulXmlSession.class);
+					session = getBean("_" + RestfulXmlSession.class.getSimpleName(), RestfulXmlSession.class);
 					break;
 				default:
 					throw new InfinitumConfigurationException("No qualifying Session implementation found.");
@@ -143,7 +144,7 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 
 	@Override
 	public PersistencePolicy getPersistencePolicy() {
-		return getBean("$PersistencePolicy", PersistencePolicy.class);
+		return getBean("_" + PersistencePolicy.class.getSimpleName(), PersistencePolicy.class);
 	}
 
 	@Override

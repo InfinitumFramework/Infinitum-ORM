@@ -123,13 +123,13 @@ public abstract class RestfulSession implements Session {
 		mRestClient.setHttpParams(getHttpParams());
 		switch (mRestContext.getMessageType()) {
 		case XML:
-			mMapper = mInfinitumContext.getBean("$RestfulXmlMapper", RestfulXmlMapper.class);
+			mMapper = mInfinitumContext.getBean("_" + RestfulXmlMapper.class.getSimpleName(), RestfulXmlMapper.class);
 			break;
 		case JSON:
-			mMapper = mInfinitumContext.getBean("$RestfulJsonMapper", RestfulJsonMapper.class);
+			mMapper = mInfinitumContext.getBean("_" + RestfulJsonMapper.class.getSimpleName(), RestfulJsonMapper.class);
 			break;
 		default:
-			mMapper = mInfinitumContext.getBean("$RestfulNameValueMapper", RestfulNameValueMapper.class);
+			mMapper = mInfinitumContext.getBean("_" + RestfulNameValueMapper.class.getSimpleName(), RestfulNameValueMapper.class);
 		}
 		mHost = mRestContext.getRestHost();
 		if (!mHost.endsWith("/"))
