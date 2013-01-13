@@ -25,6 +25,8 @@ import java.util.Map;
 
 import android.content.Context;
 
+import com.clarionmedia.infinitum.activity.EventSubscriber;
+import com.clarionmedia.infinitum.activity.LifecycleEvent;
 import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.context.RestfulContext;
 import com.clarionmedia.infinitum.context.RestfulContext.MessageType;
@@ -258,6 +260,16 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 	@Override
 	public RestfulContext getRestContext() {
 		return mParentContext.getRestContext();
+	}
+
+	@Override
+	public void publishEvent(LifecycleEvent event) {
+		mParentContext.publishEvent(event);
+	}
+	
+	@Override
+	public void subscribeForEvents(EventSubscriber subscriber) {
+		mParentContext.subscribeForEvents(subscriber);
 	}
 
 }
