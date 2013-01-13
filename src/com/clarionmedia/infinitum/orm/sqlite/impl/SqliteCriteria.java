@@ -23,6 +23,7 @@ import java.util.List;
 import android.database.Cursor;
 
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
+import com.clarionmedia.infinitum.orm.Session;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
 import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
@@ -178,6 +179,11 @@ public class SqliteCriteria<T> implements Criteria<T> {
 	@Override
 	public Cursor cursor() {
 		return mSession.executeForResult(toSql());
+	}
+
+	@Override
+	public Session getSession() {
+		return mSession;
 	}
 
 }

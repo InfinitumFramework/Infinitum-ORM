@@ -22,6 +22,7 @@ import android.database.Cursor;
 
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.orm.ObjectMapper;
+import com.clarionmedia.infinitum.orm.Session;
 import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
 
 /**
@@ -135,5 +136,12 @@ public interface Criteria<T> {
 	 * @return query {@code Cursor}
 	 */
 	Cursor cursor();
+
+	/**
+	 * Retrieves the {@link Session} this {@code Criteria} is attached to.
+	 * 
+	 * @return {@code Criteria} {@code Session}
+	 */
+	Session getSession();
 
 }
