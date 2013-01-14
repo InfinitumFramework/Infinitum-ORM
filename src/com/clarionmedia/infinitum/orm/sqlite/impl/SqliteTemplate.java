@@ -74,9 +74,6 @@ public class SqliteTemplate implements SqliteOperations {
 	protected InfinitumOrmContext mInfinitumContext;
 
 	@Autowired
-	protected SqliteSession mSession;
-
-	@Autowired
 	protected SqliteMapper mMapper;
 
 	@Autowired
@@ -113,7 +110,7 @@ public class SqliteTemplate implements SqliteOperations {
 
 	@Override
 	public <T> Criteria<T> createCriteria(Class<T> entityClass) {
-		return new SqliteCriteria<T>(mInfinitumContext, entityClass, mSession, mModelFactory, mSqlBuilder, mMapper);
+		return new SqliteCriteria<T>(mInfinitumContext, entityClass, mModelFactory, mSqlBuilder, mMapper);
 	}
 
 	@Override

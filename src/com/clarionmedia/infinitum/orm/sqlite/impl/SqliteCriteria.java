@@ -25,6 +25,7 @@ import android.database.Cursor;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.orm.Session;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
+import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext.SessionType;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
 import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
 import com.clarionmedia.infinitum.orm.internal.OrmPreconditions;
@@ -54,9 +55,9 @@ public class SqliteCriteria<T> implements Criteria<T> {
 	/**
 	 * Constructs a new {@code SqliteCriteria}.
 	 * 
-	 * @param session
-	 *            the {@link SqliteSession} this {@code SqliteCriteria} is
-	 *            attached to
+	 * @param context
+	 *            the {@link InfinitumOrmContext} this {@code SqliteCriteria} is
+	 *            scoped to
 	 * @param entityClass
 	 *            the {@code Class} to create {@code SqliteCriteria} for
 	 * @param sqlBuilder
@@ -66,10 +67,10 @@ public class SqliteCriteria<T> implements Criteria<T> {
 	 * @throws InfinitumRuntimeException
 	 *             if {@code entityClass} is transient
 	 */
-	public SqliteCriteria(InfinitumOrmContext context, Class<T> entityClass, SqliteSession session, SqliteModelFactory modelFactory, SqlBuilder sqlBuilder, SqliteMapper mapper)
-			throws InfinitumRuntimeException {
+	public SqliteCriteria(InfinitumOrmContext context, Class<T> entityClass, SqliteModelFactory modelFactory, SqlBuilder sqlBuilder,
+			SqliteMapper mapper) throws InfinitumRuntimeException {
 		OrmPreconditions.checkPersistenceForLoading(entityClass, context.getPersistencePolicy());
-		mSession = session;
+		mSession = (SqliteSession) context.getSession(SessionType.SQLITE);
 		mEntityClass = entityClass;
 		mModelFactory = modelFactory;
 		mCriterion = new ArrayList<Criterion>();
