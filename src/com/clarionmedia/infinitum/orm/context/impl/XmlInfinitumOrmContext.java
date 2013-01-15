@@ -26,7 +26,6 @@ import java.util.Map;
 
 import android.content.Context;
 
-import com.clarionmedia.infinitum.activity.EventSubscriber;
 import com.clarionmedia.infinitum.activity.LifecycleEvent;
 import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.context.RestfulContext;
@@ -36,6 +35,7 @@ import com.clarionmedia.infinitum.context.impl.XmlApplicationContext;
 import com.clarionmedia.infinitum.di.AbstractBeanDefinition;
 import com.clarionmedia.infinitum.di.BeanDefinitionBuilder;
 import com.clarionmedia.infinitum.di.BeanFactory;
+import com.clarionmedia.infinitum.event.EventSubscriber;
 import com.clarionmedia.infinitum.internal.ModuleUtils;
 import com.clarionmedia.infinitum.internal.ModuleUtils.Module;
 import com.clarionmedia.infinitum.orm.Session;

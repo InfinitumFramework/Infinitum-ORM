@@ -26,6 +26,7 @@ import android.database.SQLException;
 
 import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
+import com.clarionmedia.infinitum.event.InfinitumEvent;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.internal.caching.LruCache;
 import com.clarionmedia.infinitum.logging.Logger;
@@ -129,6 +130,7 @@ public class SqliteSession implements Session {
 	}
 
 	@Override
+	@InfinitumEvent("entitySaved")
 	public long save(Object model) throws InfinitumRuntimeException {
 		long id = mSqlite.save(model);
 		if (id != -1) {
@@ -140,6 +142,7 @@ public class SqliteSession implements Session {
 	}
 
 	@Override
+	@InfinitumEvent("entityUpdated")
 	public boolean update(Object model) throws InfinitumRuntimeException {
 		boolean success = mSqlite.update(model);
 		if (success) {
@@ -151,6 +154,7 @@ public class SqliteSession implements Session {
 	}
 
 	@Override
+	@InfinitumEvent("entityDeleted")
 	public boolean delete(Object model) throws InfinitumRuntimeException {
 		boolean success = mSqlite.delete(model);
 		if (success) {
@@ -162,6 +166,7 @@ public class SqliteSession implements Session {
 	}
 
 	@Override
+	@InfinitumEvent("entitySavedOrUpdated")
 	public long saveOrUpdate(Object model) throws InfinitumRuntimeException {
 		long id = mSqlite.saveOrUpdate(model);
 		if (id >= 0) {
@@ -173,6 +178,7 @@ public class SqliteSession implements Session {
 	}
 
 	@Override
+	@InfinitumEvent("entitiesSavedOrUpdated")
 	public int saveOrUpdateAll(Collection<? extends Object> models) throws InfinitumRuntimeException {
 		int count = 0;
 		for (Object model : models) {
@@ -187,6 +193,7 @@ public class SqliteSession implements Session {
 	}
 
 	@Override
+	@InfinitumEvent("entitiesSaved")
 	public int saveAll(Collection<? extends Object> models) throws InfinitumRuntimeException {
 		int count = 0;
 		for (Object model : models) {
@@ -201,6 +208,7 @@ public class SqliteSession implements Session {
 	}
 
 	@Override
+	@InfinitumEvent("entitiesDeleted")
 	public int deleteAll(Collection<? extends Object> models) throws InfinitumRuntimeException {
 		int count = 0;
 		for (Object model : models) {
