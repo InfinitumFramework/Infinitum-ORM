@@ -178,46 +178,31 @@ public class SqliteSession implements Session {
 	}
 
 	@Override
-	@InfinitumEvent("entitiesSavedOrUpdated")
 	public int saveOrUpdateAll(Collection<? extends Object> models) throws InfinitumRuntimeException {
 		int count = 0;
 		for (Object model : models) {
-			if (mSqlite.saveOrUpdate(model) >= 0) {
+			if (saveOrUpdate(model) >= 0)
 				count++;
-				// Update session cache
-				int hash = mPolicy.computeModelHash(model);
-				mSessionCache.put(hash, model);
-			}
 		}
 		return count;
 	}
 
 	@Override
-	@InfinitumEvent("entitiesSaved")
 	public int saveAll(Collection<? extends Object> models) throws InfinitumRuntimeException {
 		int count = 0;
 		for (Object model : models) {
-			if (mSqlite.save(model) > 0) {
+			if (save(model) != -1)
 				count++;
-				// Update session cache
-				int hash = mPolicy.computeModelHash(model);
-				mSessionCache.put(hash, model);
-			}
 		}
 		return count;
 	}
 
 	@Override
-	@InfinitumEvent("entitiesDeleted")
 	public int deleteAll(Collection<? extends Object> models) throws InfinitumRuntimeException {
 		int count = 0;
 		for (Object model : models) {
-			if (mSqlite.delete(model)) {
+			if (delete(model))
 				count++;
-				// Remove from session cache
-				int hash = mPolicy.computeModelHash(model);
-				mSessionCache.remove(hash);
-			}
 		}
 		return count;
 	}
