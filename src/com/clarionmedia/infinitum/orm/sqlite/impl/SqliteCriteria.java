@@ -17,7 +17,6 @@
 package com.clarionmedia.infinitum.orm.sqlite.impl;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import android.database.Cursor;
@@ -123,8 +122,8 @@ public class SqliteCriteria<T> implements Criteria<T> {
 
 	@Override
 	public List<T> list() {
-		List<T> ret = new LinkedList<T>();
 		Cursor result = mSession.executeForResult(toSql());
+		List<T> ret = new ArrayList<T>(result.getCount());
 		if (result.getCount() == 0) {
 			result.close();
 			return ret;
