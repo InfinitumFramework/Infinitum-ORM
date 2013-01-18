@@ -18,6 +18,7 @@ package com.clarionmedia.infinitum.orm.context.impl;
 
 import static java.lang.Boolean.parseBoolean;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,10 @@ import com.clarionmedia.infinitum.context.impl.XmlApplicationContext;
 import com.clarionmedia.infinitum.di.AbstractBeanDefinition;
 import com.clarionmedia.infinitum.di.BeanDefinitionBuilder;
 import com.clarionmedia.infinitum.di.BeanFactory;
+import com.clarionmedia.infinitum.event.AbstractEvent;
+import com.clarionmedia.infinitum.event.EventSubscriber;
+import com.clarionmedia.infinitum.internal.ModuleUtils;
+import com.clarionmedia.infinitum.internal.ModuleUtils.Module;
 import com.clarionmedia.infinitum.orm.Session;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
@@ -51,6 +56,8 @@ import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteMapper;
 import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteModelFactory;
 import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteSession;
 import com.clarionmedia.infinitum.orm.sqlite.impl.SqliteTemplate;
+import com.clarionmedia.infinitum.reflection.ClassReflector;
+import com.clarionmedia.infinitum.reflection.impl.JavaClassReflector;
 
 /**
  * <p>
@@ -66,6 +73,7 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 
 	private XmlApplicationContext mParentContext;
 	private List<InfinitumContext> mChildContexts;
+	private ClassReflector mClassReflector;
 
 	/**
 	 * Creates a new {@code XmlInfinitumOrmContext} instance as a child of the
@@ -77,6 +85,7 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 	public XmlInfinitumOrmContext(XmlApplicationContext parentContext) {
 		mParentContext = parentContext;
 		mChildContexts = new ArrayList<InfinitumContext>();
+		mClassReflector = new JavaClassReflector();
 	}
 
 	@Override
@@ -113,12 +122,13 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 
 	@Override
 	public Session getSession(SessionType source) throws InfinitumConfigurationException {
+		Session session;
 		switch (source) {
 		case SQLITE:
-			return getBean("_" + SqliteSession.class.getSimpleName(), SqliteSession.class);
+			session = getBean("_" + SqliteSession.class.getSimpleName(), SqliteSession.class);
+			break;
 		case REST:
 			String client = mParentContext.getRestContext().getClientBean();
-			RestfulSession session;
 			if (client == null) {
 				MessageType messageType = mParentContext.getRestContext().getMessageType();
 				// Resolve Session implementation if no client is defined
@@ -136,10 +146,17 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 				// Otherwise use the preferred client
 				session = getBean(client, RestfulSession.class);
 			}
-			return session;
+			break;
 		default:
 			throw new InfinitumConfigurationException("Session type not configured.");
 		}
+		if (ModuleUtils.hasModule(Module.UI)) {
+			@SuppressWarnings("unchecked")
+			InfinitumContext uiContext = getChildContext((Class<InfinitumContext>) mClassReflector.getClass(Module.UI.getContextClass()));
+			Method getProxiedSession = mClassReflector.getMethod(uiContext.getClass(), "getProxiedSession", Session.class);
+			return (Session) mClassReflector.invokeMethod(uiContext, getProxiedSession, session);
+		}
+		return session;
 	}
 
 	@Override
@@ -258,6 +275,16 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 	@Override
 	public RestfulContext getRestContext() {
 		return mParentContext.getRestContext();
+	}
+
+	@Override
+	public void publishEvent(AbstractEvent event) {
+		mParentContext.publishEvent(event);
+	}
+
+	@Override
+	public void subscribeForEvents(EventSubscriber subscriber) {
+		mParentContext.subscribeForEvents(subscriber);
 	}
 
 }
