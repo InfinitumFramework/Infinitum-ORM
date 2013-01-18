@@ -26,7 +26,7 @@ import android.database.SQLException;
 
 import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
-import com.clarionmedia.infinitum.event.InfinitumEvent;
+import com.clarionmedia.infinitum.event.annotation.InfinitumEvent;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.internal.caching.LruCache;
 import com.clarionmedia.infinitum.logging.Logger;

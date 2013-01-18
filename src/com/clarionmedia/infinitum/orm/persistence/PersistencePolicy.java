@@ -464,26 +464,11 @@ public abstract class PersistencePolicy {
 	 * @return primary key value
 	 */
 	public Serializable getPrimaryKey(Object model) {
-		Serializable ret = null;
 		if (AbstractProxy.isAopProxy(model)) {
 			model = AbstractProxy.getProxy(model).getTarget();
 		}
 		Field pkField = getPrimaryKeyField(model.getClass());
-		pkField.setAccessible(true);
-		try {
-			ret = (Serializable) pkField.get(model);
-		} catch (IllegalArgumentException e) {
-			mLogger.error("Unable to retrieve primary key for object of type '"
-					+ model.getClass().getName() + "'", e);
-		} catch (IllegalAccessException e) {
-			mLogger.error("Unable to retrieve primary key for object of type '"
-					+ model.getClass().getName() + "'", e);
-		} catch (ClassCastException e) {
-			throw new ModelConfigurationException(
-					"Invalid primary key specified for '"
-							+ model.getClass().getName() + "'.");
-		}
-		return ret;
+		return (Serializable) mClassReflector.getFieldValue(model, pkField);
 	}
 
 	/**
