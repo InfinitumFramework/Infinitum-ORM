@@ -119,16 +119,17 @@ public class SqliteModelFactory implements ModelFactory {
 		if (mSession.checkCache(objHash))
 			return (T) mSession.searchCache(objHash);
 		mSession.cache(objHash, ret);
-		loadRelationships(ret);
+		loadRelationships(ret, cursor);
 		return ret;
 	}
 
-	private <T> void loadRelationships(T model) throws ModelConfigurationException, InfinitumRuntimeException {
+	private <T> void loadRelationships(T model, Cursor cursor) throws ModelConfigurationException, InfinitumRuntimeException {
 		for (Field f : mPersistencePolicy.getPersistentFields(model.getClass())) {
 			f.setAccessible(true);
 			if (!mPersistencePolicy.isRelationship(f))
 				continue;
 			ModelRelationship rel = mPersistencePolicy.getRelationship(f);
+			Serializable fk = null;
 			switch (rel.getRelationType()) {
 			case ManyToMany:
 				if (mPersistencePolicy.isLazy(model.getClass()))
@@ -137,10 +138,12 @@ public class SqliteModelFactory implements ModelFactory {
 					loadManyToMany((ManyToManyRelationship) rel, f, model);
 				break;
 			case ManyToOne:
+				ManyToOneRelationship mto = (ManyToOneRelationship) rel;
+				fk = cursor.getString(cursor.getColumnIndex(mto.getColumn()));
 				if (mPersistencePolicy.isLazy(model.getClass()))
-					lazilyLoadManyToOne((ManyToOneRelationship) rel, f, model);
+					lazilyLoadManyToOne(mto, f, model, fk);
 				else
-					loadManyToOne((ManyToOneRelationship) rel, f, model);
+					loadManyToOne(mto, f, model, fk);
 				break;
 			case OneToMany:
 				if (mPersistencePolicy.isLazy(model.getClass()))
@@ -149,17 +152,21 @@ public class SqliteModelFactory implements ModelFactory {
 					loadOneToMany((OneToManyRelationship) rel, f, model);
 				break;
 			case OneToOne:
+				OneToOneRelationship oto = (OneToOneRelationship) rel;
+				int col = cursor.getColumnIndex(oto.getColumn());
+				if (col > -1)
+				    fk = cursor.getString(col);
 				if (mPersistencePolicy.isLazy(model.getClass()))
-					lazilyLoadOneToOne((OneToOneRelationship) rel, f, model);
+					lazilyLoadOneToOne(oto, f, model, fk);
 				else
-					loadOneToOne((OneToOneRelationship) rel, f, model);
+					loadOneToOne(oto, f, model, fk);
 				break;
 			}
 		}
 	}
 
-	private <T> void lazilyLoadOneToOne(final OneToOneRelationship rel, Field field, T model) {
-		final String sql = getOneToOneEntityQuery(model, rel.getSecondType(), field, rel);
+	private <T> void lazilyLoadOneToOne(final OneToOneRelationship rel, Field field, T model, Serializable foreignKey) {
+		final String sql = getOneToOneEntityQuery(model, rel.getSecondType(), field, rel, foreignKey);
 		Object related = null;
 		if (mSession.count(sql.replace("*", "count(*)")) > 0) {
 			related = new LazyLoadDexMakerProxy(mSession.getContext(), rel.getSecondType()) {
@@ -180,8 +187,8 @@ public class SqliteModelFactory implements ModelFactory {
 		mClassReflector.setFieldValue(model, field, related);
 	}
 
-	private <T> void loadOneToOne(OneToOneRelationship rel, Field field, T model) {
-		String sql = getOneToOneEntityQuery(model, rel.getSecondType(), field, rel);
+	private <T> void loadOneToOne(OneToOneRelationship rel, Field field, T model, Serializable foreignKey) {
+		String sql = getOneToOneEntityQuery(model, rel.getSecondType(), field, rel, foreignKey);
 		Cursor result = mSession.executeForResult(sql);
 		try {
 			while (result.moveToNext())
@@ -241,9 +248,9 @@ public class SqliteModelFactory implements ModelFactory {
 		mClassReflector.setFieldValue(model, field, related);
 	}
 
-	private <T> void lazilyLoadManyToOne(ManyToOneRelationship rel, Field field, T model) {
+	private <T> void lazilyLoadManyToOne(ManyToOneRelationship rel, Field field, T model, Serializable foreignKey) {
 		final Class<?> direction = model.getClass() == rel.getFirstType() ? rel.getSecondType() : rel.getFirstType();
-		final String sql = getEntityQuery(model, direction, field, rel);
+		final String sql = getEntityQuery(model, direction, field, rel, foreignKey);
 		Object related = null;
 		if (mSession.count(sql.replace("*", "count(*)")) > 0) {
 			related = new LazyLoadDexMakerProxy(mSession.getContext(), rel.getSecondType()) {
@@ -264,9 +271,9 @@ public class SqliteModelFactory implements ModelFactory {
 		mClassReflector.setFieldValue(model, field, related);
 	}
 
-	private <T> void loadManyToOne(ManyToOneRelationship rel, Field field, T model) {
+	private <T> void loadManyToOne(ManyToOneRelationship rel, Field field, T model, Serializable foreignKey) {
 		Class<?> direction = model.getClass() == rel.getFirstType() ? rel.getSecondType() : rel.getFirstType();
-		String sql = getEntityQuery(model, direction, field, rel);
+		String sql = getEntityQuery(model, direction, field, rel, foreignKey);
 		Cursor result = mSession.executeForResult(sql);
 		try {
 			while (result.moveToNext())
@@ -318,20 +325,20 @@ public class SqliteModelFactory implements ModelFactory {
 		mClassReflector.setFieldValue(model, f, related);
 	}
 
-	private String getEntityQuery(Object model, Class<?> c, Field field, ForeignKeyRelationship rel) {
+	private String getEntityQuery(Object model, Class<?> c, Field field, ForeignKeyRelationship rel, Serializable foreignKey) {
 		StringBuilder sql = new StringBuilder("SELECT * FROM ").append(mPersistencePolicy.getModelTableName(c)).append(" WHERE ")
 				.append(mPersistencePolicy.getFieldColumnName(mPersistencePolicy.getPrimaryKeyField(c))).append(" = ");
 		switch (mMapper.getSqliteDataType(field)) {
 		case TEXT:
-			sql.append("'").append(getForeignKey(model, rel)).append("'");
+			sql.append("'").append(foreignKey).append("'");
 			break;
 		default:
-			sql.append(getForeignKey(model, rel));
+			sql.append(foreignKey);
 		}
 		return sql.append(" LIMIT 1").toString();
 	}
 
-	private String getOneToOneEntityQuery(Object model, Class<?> relatedClass, Field field, OneToOneRelationship rel) {
+	private String getOneToOneEntityQuery(Object model, Class<?> relatedClass, Field field, OneToOneRelationship rel, Serializable foreignKey) {
 		boolean isOwner = rel.getOwner() == model.getClass();
 		StringBuilder sql = new StringBuilder("SELECT * FROM ").append(mPersistencePolicy.getModelTableName(relatedClass))
 				.append(" WHERE ");
@@ -341,47 +348,15 @@ public class SqliteModelFactory implements ModelFactory {
 			sql.append(rel.getColumn());
 		}
 		sql.append(" = ");
+		Serializable relKey = isOwner ? foreignKey : mPersistencePolicy.getPrimaryKey(model);
 		switch (mMapper.getSqliteDataType(field)) {
 		case TEXT:
-			sql.append("'").append(getOneToOneKey(model, isOwner, rel)).append("'");
+			sql.append("'").append(relKey).append("'");
 			break;
 		default:
-			sql.append(getOneToOneKey(model, isOwner, rel));
+			sql.append(relKey);
 		}
 		return sql.append(" LIMIT 1").toString();
-	}
-
-	private Serializable getOneToOneKey(Object model, boolean isOwner, OneToOneRelationship rel) {
-		if (isOwner) {
-			return getForeignKey(model, rel);
-		} else {
-			return mPersistencePolicy.getPrimaryKey(model);
-		}
-	}
-
-	private Serializable getForeignKey(Object model, ForeignKeyRelationship rel) {
-		StringBuilder q = new StringBuilder("SELECT ").append(rel.getColumn()).append(" FROM ")
-				.append(mPersistencePolicy.getModelTableName(model.getClass())).append(" WHERE ")
-				.append(mPersistencePolicy.getFieldColumnName(mPersistencePolicy.getPrimaryKeyField(model.getClass()))).append(" = ");
-		Serializable pk = mPersistencePolicy.getPrimaryKey(model);
-		switch (mMapper.getSqliteDataType(pk)) {
-		case TEXT:
-			q.append("'").append(pk).append("'");
-			break;
-		default:
-			q.append(pk);
-		}
-		Cursor result = mSession.executeForResult(q.toString());
-		result.moveToFirst();
-		Serializable id;
-		try {
-			id = result.getString(0);
-		} catch (ClassCastException e) {
-			throw new ModelConfigurationException("Invalid primary key specified for '" + model.getClass().getName() + "'.");
-		} finally {
-			result.close();
-		}
-		return id;
 	}
 
 }
