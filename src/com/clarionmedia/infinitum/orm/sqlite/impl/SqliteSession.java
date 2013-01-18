@@ -26,6 +26,7 @@ import android.database.SQLException;
 
 import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
+import com.clarionmedia.infinitum.event.annotation.InfinitumEvent;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.internal.caching.LruCache;
 import com.clarionmedia.infinitum.logging.Logger;
@@ -129,6 +130,7 @@ public class SqliteSession implements Session {
 	}
 
 	@Override
+	@InfinitumEvent("entitySaved")
 	public long save(Object model) throws InfinitumRuntimeException {
 		long id = mSqlite.save(model);
 		if (id != -1) {
@@ -140,6 +142,7 @@ public class SqliteSession implements Session {
 	}
 
 	@Override
+	@InfinitumEvent("entityUpdated")
 	public boolean update(Object model) throws InfinitumRuntimeException {
 		boolean success = mSqlite.update(model);
 		if (success) {
@@ -151,6 +154,7 @@ public class SqliteSession implements Session {
 	}
 
 	@Override
+	@InfinitumEvent("entityDeleted")
 	public boolean delete(Object model) throws InfinitumRuntimeException {
 		boolean success = mSqlite.delete(model);
 		if (success) {
@@ -162,6 +166,7 @@ public class SqliteSession implements Session {
 	}
 
 	@Override
+	@InfinitumEvent("entitySavedOrUpdated")
 	public long saveOrUpdate(Object model) throws InfinitumRuntimeException {
 		long id = mSqlite.saveOrUpdate(model);
 		if (id >= 0) {
@@ -176,12 +181,8 @@ public class SqliteSession implements Session {
 	public int saveOrUpdateAll(Collection<? extends Object> models) throws InfinitumRuntimeException {
 		int count = 0;
 		for (Object model : models) {
-			if (mSqlite.saveOrUpdate(model) >= 0) {
+			if (saveOrUpdate(model) >= 0)
 				count++;
-				// Update session cache
-				int hash = mPolicy.computeModelHash(model);
-				mSessionCache.put(hash, model);
-			}
 		}
 		return count;
 	}
@@ -190,12 +191,8 @@ public class SqliteSession implements Session {
 	public int saveAll(Collection<? extends Object> models) throws InfinitumRuntimeException {
 		int count = 0;
 		for (Object model : models) {
-			if (mSqlite.save(model) > 0) {
+			if (save(model) != -1)
 				count++;
-				// Update session cache
-				int hash = mPolicy.computeModelHash(model);
-				mSessionCache.put(hash, model);
-			}
 		}
 		return count;
 	}
@@ -204,12 +201,8 @@ public class SqliteSession implements Session {
 	public int deleteAll(Collection<? extends Object> models) throws InfinitumRuntimeException {
 		int count = 0;
 		for (Object model : models) {
-			if (mSqlite.delete(model)) {
+			if (delete(model))
 				count++;
-				// Remove from session cache
-				int hash = mPolicy.computeModelHash(model);
-				mSessionCache.remove(hash);
-			}
 		}
 		return count;
 	}

@@ -36,6 +36,7 @@ import android.database.Cursor;
 
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
+import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext.SessionType;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
 import com.clarionmedia.infinitum.orm.sql.SqlBuilder;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
@@ -63,8 +64,9 @@ public class SqliteCriteriaTest {
 		mockSqliteMapper = mock(SqliteMapper.class);
 		mockPersistencePolicy = mock(PersistencePolicy.class);
 		when(mockInfinitumContext.getPersistencePolicy()).thenReturn(mockPersistencePolicy);
+		when(mockInfinitumContext.getSession(SessionType.SQLITE)).thenReturn(mockSqliteSession);
 		when(mockPersistencePolicy.isPersistent(entityClass)).thenReturn(true);
-		sqliteCriteria = new SqliteCriteria<Object>(mockInfinitumContext, entityClass, mockSqliteSession, mockSqliteModelFactory,
+		sqliteCriteria = new SqliteCriteria<Object>(mockInfinitumContext, entityClass, mockSqliteModelFactory,
 				mockSqlBuilder, mockSqliteMapper);
 		mockCursor = mock(Cursor.class);
 	}
