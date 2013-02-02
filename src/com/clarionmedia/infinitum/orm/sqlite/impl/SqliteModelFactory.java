@@ -155,7 +155,7 @@ public class SqliteModelFactory implements ModelFactory {
 				OneToOneRelationship oto = (OneToOneRelationship) rel;
 				int col = cursor.getColumnIndex(oto.getColumn());
 				if (col > -1)
-				    fk = cursor.getString(col);
+					fk = cursor.getString(col);
 				if (mPersistencePolicy.isLazy(model.getClass()))
 					lazilyLoadOneToOne(oto, f, model, fk);
 				else
@@ -172,6 +172,11 @@ public class SqliteModelFactory implements ModelFactory {
 			related = new LazyLoadDexMakerProxy(mSession.getContext(), rel.getSecondType()) {
 				@Override
 				protected Object loadObject() {
+					boolean close = false;
+					if (!mSession.isOpen()) {
+						mSession.open();
+						close = true;
+					}
 					Object ret = null;
 					Cursor result = mSession.executeForResult(sql);
 					try {
@@ -179,6 +184,8 @@ public class SqliteModelFactory implements ModelFactory {
 							ret = createFromCursor(result, rel.getSecondType());
 					} finally {
 						result.close();
+						if (close)
+							mSession.close();
 					}
 					return ret;
 				}
@@ -215,10 +222,20 @@ public class SqliteModelFactory implements ModelFactory {
 		Collection<Object> related = (Collection<Object>) new LazyLoadDexMakerProxy(mSession.getContext(), collection.getClass()) {
 			@Override
 			protected Object loadObject() {
+				boolean close = false;
+				if (!mSession.isOpen()) {
+					mSession.open();
+					close = true;
+				}
 				Cursor result = mSession.executeForResult(sql.toString());
-				while (result.moveToNext())
-					collection.add(createFromCursor(result, rel.getManyType()));
-				result.close();
+				try {
+					while (result.moveToNext())
+						collection.add(createFromCursor(result, rel.getManyType()));
+				} finally {
+					result.close();
+					if (close)
+						mSession.close();
+				}
 				return collection;
 			}
 		}.getProxy();
@@ -256,6 +273,11 @@ public class SqliteModelFactory implements ModelFactory {
 			related = new LazyLoadDexMakerProxy(mSession.getContext(), rel.getSecondType()) {
 				@Override
 				protected Object loadObject() {
+					boolean close = false;
+					if (!mSession.isOpen()) {
+						mSession.open();
+						close = true;
+					}
 					Object ret = null;
 					Cursor result = mSession.executeForResult(sql);
 					try {
@@ -263,6 +285,8 @@ public class SqliteModelFactory implements ModelFactory {
 							ret = createFromCursor(result, direction);
 					} finally {
 						result.close();
+						if (close)
+							mSession.close();
 					}
 					return ret;
 				}
@@ -294,12 +318,19 @@ public class SqliteModelFactory implements ModelFactory {
 		Collection<Object> related = (Collection<Object>) new LazyLoadDexMakerProxy(mSession.getContext(), collection.getClass()) {
 			@Override
 			protected Object loadObject() {
+				boolean close = false;
+				if (!mSession.isOpen()) {
+					mSession.open();
+					close = true;
+				}
 				Cursor result = mSession.executeForResult(sql);
 				try {
 					while (result.moveToNext())
 						collection.add(createFromCursor(result, direction));
 				} finally {
 					result.close();
+					if (close)
+						mSession.close();
 				}
 				return collection;
 			}
@@ -338,7 +369,8 @@ public class SqliteModelFactory implements ModelFactory {
 		return sql.append(" LIMIT 1").toString();
 	}
 
-	private String getOneToOneEntityQuery(Object model, Class<?> relatedClass, Field field, OneToOneRelationship rel, Serializable foreignKey) {
+	private String getOneToOneEntityQuery(Object model, Class<?> relatedClass, Field field, OneToOneRelationship rel,
+			Serializable foreignKey) {
 		boolean isOwner = rel.getOwner() == model.getClass();
 		StringBuilder sql = new StringBuilder("SELECT * FROM ").append(mPersistencePolicy.getModelTableName(relatedClass))
 				.append(" WHERE ");

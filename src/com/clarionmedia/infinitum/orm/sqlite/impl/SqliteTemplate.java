@@ -115,12 +115,16 @@ public class SqliteTemplate implements SqliteOperations {
 
 	@Override
 	public void open() throws SQLException {
+		if (mIsOpen)
+			return;
 		mSqliteDb = mDbHelper.getWritableDatabase();
 		mIsOpen = true;
 	}
 
 	@Override
 	public void close() {
+		if (!mIsOpen)
+			return;
 		mDbHelper.close();
 		mIsOpen = false;
 	}
