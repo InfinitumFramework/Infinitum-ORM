@@ -18,8 +18,9 @@ package com.clarionmedia.infinitum.orm.internal.bind;
 
 import java.lang.reflect.Field;
 import java.util.Date;
+
 import android.content.ContentValues;
-import com.clarionmedia.infinitum.internal.DateFormatter;
+
 import com.clarionmedia.infinitum.orm.ResultSet;
 import com.clarionmedia.infinitum.orm.persistence.TypeResolutionPolicy.SqliteDataType;
 import com.clarionmedia.infinitum.orm.sqlite.SqliteTypeAdapter;
@@ -199,16 +200,16 @@ public final class SqliteTypeAdapters {
 		@Override
 		public void mapToObject(ResultSet result, int index, Field field, Object model) throws IllegalArgumentException, IllegalAccessException {
 			field.setAccessible(true);
-			String dateStr = result.getString(index);
-			field.set(model, DateFormatter.parseStringAsDate(dateStr));
+			long dateMillis = result.getLong(index);
+			field.set(model, new Date(dateMillis));
 		}
 		@Override
 		public void mapToColumn(Date value, String column, ContentValues values) {
-			values.put(column, DateFormatter.getDateAsISO8601String(value));
+			values.put(column, value.getTime());
 		}
 		@Override
 		public void mapObjectToColumn(Object value, String column, ContentValues values) {
-			values.put(column, DateFormatter.getDateAsISO8601String((Date) value));
+			values.put(column, ((Date) value).getTime());
 		}
 	};
 }
