@@ -168,29 +168,27 @@ public class SqliteModelFactory implements ModelFactory {
 	private <T> void lazilyLoadOneToOne(final OneToOneRelationship rel, Field field, T model, Serializable foreignKey) {
 		final String sql = getOneToOneEntityQuery(model, rel.getSecondType(), field, rel, foreignKey);
 		Object related = null;
-		if (mSession.count(sql.replace("*", "count(*)")) > 0) {
-			related = new LazyLoadDexMakerProxy(mSession.getContext(), rel.getSecondType()) {
-				@Override
-				protected Object loadObject() {
-					boolean close = false;
-					if (!mSession.isOpen()) {
-						mSession.open();
-						close = true;
-					}
-					Object ret = null;
-					Cursor result = mSession.executeForResult(sql);
-					try {
-						while (result.moveToNext())
-							ret = createFromCursor(result, rel.getSecondType());
-					} finally {
-						result.close();
-						if (close)
-							mSession.close();
-					}
-					return ret;
+		related = new LazyLoadDexMakerProxy(mSession.getContext(), rel.getSecondType()) {
+			@Override
+			protected Object loadObject() {
+				boolean close = false;
+				if (!mSession.isOpen()) {
+					mSession.open();
+					close = true;
 				}
-			}.getProxy();
-		}
+				Object ret = null;
+				Cursor result = mSession.executeForResult(sql);
+				try {
+					while (result.moveToNext())
+						ret = createFromCursor(result, rel.getSecondType());
+				} finally {
+					result.close();
+					if (close)
+						mSession.close();
+				}
+				return ret;
+			}
+		}.getProxy();
 		mClassReflector.setFieldValue(model, field, related);
 	}
 
@@ -269,29 +267,27 @@ public class SqliteModelFactory implements ModelFactory {
 		final Class<?> direction = model.getClass() == rel.getFirstType() ? rel.getSecondType() : rel.getFirstType();
 		final String sql = getEntityQuery(model, direction, field, rel, foreignKey);
 		Object related = null;
-		if (mSession.count(sql.replace("*", "count(*)")) > 0) {
-			related = new LazyLoadDexMakerProxy(mSession.getContext(), rel.getSecondType()) {
-				@Override
-				protected Object loadObject() {
-					boolean close = false;
-					if (!mSession.isOpen()) {
-						mSession.open();
-						close = true;
-					}
-					Object ret = null;
-					Cursor result = mSession.executeForResult(sql);
-					try {
-						while (result.moveToNext())
-							ret = createFromCursor(result, direction);
-					} finally {
-						result.close();
-						if (close)
-							mSession.close();
-					}
-					return ret;
+		related = new LazyLoadDexMakerProxy(mSession.getContext(), rel.getSecondType()) {
+			@Override
+			protected Object loadObject() {
+				boolean close = false;
+				if (!mSession.isOpen()) {
+					mSession.open();
+					close = true;
 				}
-			}.getProxy();
-		}
+				Object ret = null;
+				Cursor result = mSession.executeForResult(sql);
+				try {
+					while (result.moveToNext())
+						ret = createFromCursor(result, direction);
+				} finally {
+					result.close();
+					if (close)
+						mSession.close();
+				}
+				return ret;
+			}
+		}.getProxy();
 		mClassReflector.setFieldValue(model, field, related);
 	}
 

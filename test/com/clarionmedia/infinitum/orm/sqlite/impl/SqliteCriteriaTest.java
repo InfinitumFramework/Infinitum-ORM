@@ -98,7 +98,7 @@ public class SqliteCriteriaTest {
 
 		// Verify
 		verify(mockSqliteSession).executeForResult(query);
-		verify(mockCursor).getCount();
+		verify(mockCursor, times(2)).getCount();
 		verify(mockCursor).close();
 		assertEquals("Returned list should be empty", 0, actual.size());
 	}
@@ -119,7 +119,7 @@ public class SqliteCriteriaTest {
 
 		// Verify
 		verify(mockSqliteSession).executeForResult(query);
-		verify(mockCursor).getCount();
+		verify(mockCursor, times(2)).getCount();
 		verify(mockCursor).close();
 		verify(mockCursor, times(4)).moveToNext();
 		verify(mockSqliteModelFactory, times(3)).createFromCursor(mockCursor, entityClass);

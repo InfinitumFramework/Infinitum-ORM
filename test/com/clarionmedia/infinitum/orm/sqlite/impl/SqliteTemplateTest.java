@@ -174,7 +174,19 @@ public class SqliteTemplateTest {
 		sqliteTemplate.open();
 		
 		// Verify
-		verify(mockDbHelper, times(2)).getWritableDatabase();
+		verify(mockDbHelper).getWritableDatabase();
+	}
+	
+	@Test
+	public void testOpen_isIdempotent() {
+		// Run
+		sqliteTemplate.open();
+		boolean isOpen = sqliteTemplate.isOpen();
+		sqliteTemplate.open();
+		
+		// Verify
+		verify(mockDbHelper).getWritableDatabase();
+		assertTrue("Database should be open", isOpen);
 	}
 	
 	@Test
