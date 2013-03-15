@@ -16,18 +16,7 @@
 
 package com.clarionmedia.infinitum.orm.rest.impl;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.http.HttpStatus;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-
 import android.database.SQLException;
-
 import com.clarionmedia.infinitum.context.ContextFactory;
 import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.context.RestfulContext;
@@ -49,6 +38,15 @@ import com.clarionmedia.infinitum.web.context.InfinitumWebContext;
 import com.clarionmedia.infinitum.web.rest.RestfulClient;
 import com.clarionmedia.infinitum.web.rest.impl.CachingEnabledRestfulClient;
 import com.clarionmedia.infinitum.web.rest.impl.RestResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>
@@ -100,7 +98,7 @@ public abstract class RestfulSession implements Session {
 		mCacheSize = DEFAULT_CACHE_SIZE;
 		mSessionCache = new LruCache<Integer, Object>(mCacheSize);
 		mLogger = Logger.getInstance(getClass().getSimpleName());
-		mRestClient = new CachingEnabledRestfulClient(ContextFactory.newInstance().getAndroidContext());
+		mRestClient = new CachingEnabledRestfulClient(ContextFactory.getInstance().getAndroidContext());
 	}
 
 	/**
