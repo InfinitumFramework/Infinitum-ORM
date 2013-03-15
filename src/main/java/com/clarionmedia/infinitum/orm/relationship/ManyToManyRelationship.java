@@ -16,12 +16,12 @@
 
 package com.clarionmedia.infinitum.orm.relationship;
 
-import java.lang.reflect.Field;
-
 import com.clarionmedia.infinitum.context.ContextFactory;
 import com.clarionmedia.infinitum.orm.annotation.ManyToMany;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
+
+import java.lang.reflect.Field;
 
 /**
  * <p>
@@ -40,7 +40,7 @@ public class ManyToManyRelationship extends ModelRelationship {
 	
 	public ManyToManyRelationship() {
 		mRelationType = RelationType.ManyToMany;
-		mPolicy = ContextFactory.newInstance().getContext(InfinitumOrmContext.class).getPersistencePolicy();
+		mPolicy = ContextFactory.getInstance().getContext(InfinitumOrmContext.class).getPersistencePolicy();
 	}
 
 	public ManyToManyRelationship(Field f) {
