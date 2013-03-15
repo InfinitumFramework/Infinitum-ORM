@@ -44,7 +44,7 @@ public abstract class Criterion implements Serializable {
 	 *            the name of the {@code Field} to apply the condition to
 	 */
 	public Criterion(String fieldName) {
-		mContextFactory = ContextFactory.newInstance();
+		mContextFactory = ContextFactory.getInstance();
 		mFieldName = fieldName;
 	}
 
