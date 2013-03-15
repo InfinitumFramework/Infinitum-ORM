@@ -16,17 +16,12 @@
 
 package com.clarionmedia.infinitum.orm.sqlite.impl;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Map;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-
 import com.clarionmedia.infinitum.context.InfinitumContext;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
-import com.clarionmedia.infinitum.event.annotation.InfinitumEvent;
+import com.clarionmedia.infinitum.event.annotation.Event;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.internal.caching.LruCache;
 import com.clarionmedia.infinitum.logging.Logger;
@@ -37,6 +32,10 @@ import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
 import com.clarionmedia.infinitum.orm.persistence.TypeAdapter;
 import com.clarionmedia.infinitum.orm.rest.Deserializer;
 import com.clarionmedia.infinitum.orm.sqlite.SqliteTypeAdapter;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * <p>
@@ -130,7 +129,7 @@ public class SqliteSession implements Session {
 	}
 
 	@Override
-	@InfinitumEvent("entitySaved")
+	@Event("entitySaved")
 	public long save(Object model) throws InfinitumRuntimeException {
 		long id = mSqlite.save(model);
 		if (id != -1) {
@@ -142,7 +141,7 @@ public class SqliteSession implements Session {
 	}
 
 	@Override
-	@InfinitumEvent("entityUpdated")
+	@Event("entityUpdated")
 	public boolean update(Object model) throws InfinitumRuntimeException {
 		boolean success = mSqlite.update(model);
 		if (success) {
@@ -154,7 +153,7 @@ public class SqliteSession implements Session {
 	}
 
 	@Override
-	@InfinitumEvent("entityDeleted")
+	@Event("entityDeleted")
 	public boolean delete(Object model) throws InfinitumRuntimeException {
 		boolean success = mSqlite.delete(model);
 		if (success) {
@@ -166,7 +165,7 @@ public class SqliteSession implements Session {
 	}
 
 	@Override
-	@InfinitumEvent("entitySavedOrUpdated")
+	@Event("entitySavedOrUpdated")
 	public long saveOrUpdate(Object model) throws InfinitumRuntimeException {
 		long id = mSqlite.saveOrUpdate(model);
 		if (id >= 0) {
