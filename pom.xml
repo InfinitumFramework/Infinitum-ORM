@@ -4,7 +4,7 @@
 	<artifactId>infinitum-orm</artifactId>
 	<packaging>jar</packaging>
 	<name>Infinitum ORM</name>
-	<version>1.0.5-SNAPSHOT</version>
+	<version>1.0.5</version>
 	<description>Infinitum ORM framework module</description>
 	<url>http://infinitumframework.com</url>
 
@@ -227,7 +227,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore />
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
