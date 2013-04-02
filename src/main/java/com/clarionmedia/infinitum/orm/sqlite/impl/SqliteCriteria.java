@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Clarion Media, LLC
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,7 @@ import java.util.List;
 import android.database.Cursor;
 
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
+import com.clarionmedia.infinitum.internal.Pair;
 import com.clarionmedia.infinitum.orm.Session;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext.SessionType;
@@ -35,7 +36,7 @@ import com.clarionmedia.infinitum.orm.sql.SqlBuilder;
  * <p>
  * Implementation of {@link Criteria} for SQLite queries.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 02/17/12
  * @since 1.0
@@ -50,10 +51,11 @@ public class SqliteCriteria<T> implements Criteria<T> {
 	private int mOffset;
 	private SqlBuilder mSqlBuilder;
 	private PersistencePolicy mPersistencePolicy;
+    private List<Pair<String, Order>> mOrderings;
 
 	/**
 	 * Constructs a new {@code SqliteCriteria}.
-	 * 
+	 *
 	 * @param context
 	 *            the {@link InfinitumOrmContext} this {@code SqliteCriteria} is
 	 *            scoped to
@@ -75,6 +77,7 @@ public class SqliteCriteria<T> implements Criteria<T> {
 		mCriterion = new ArrayList<Criterion>();
 		mSqlBuilder = sqlBuilder;
 		mPersistencePolicy = context.getPersistencePolicy();
+        mOrderings = new ArrayList<Pair<String, Order>>(5);
 	}
 
 	@Override
@@ -185,5 +188,22 @@ public class SqliteCriteria<T> implements Criteria<T> {
 	public Session getSession() {
 		return mSession;
 	}
+
+    @Override
+    public Criteria<T> orderBy(String property) {
+        mOrderings.add(new Pair<String, Order>(property, Order.ASC));
+        return this;
+    }
+
+    @Override
+    public Criteria<T> orderBy(String property, Order order) {
+        mOrderings.add(new Pair<String, Order>(property, order));
+        return this;
+    }
+
+    @Override
+    public List<Pair<String, Order>> getOrderings() {
+        return mOrderings;
+    }
 
 }
