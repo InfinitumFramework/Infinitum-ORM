@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Clarion Media, LLC
+ * Copyright (C) 2013 Clarion Media, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ import com.clarionmedia.infinitum.reflection.ClassReflector;
  * </p>
  *
  * @author Tyler Treat
- * @version 1.0 03/03/12
+ * @version 1.0.6 04/02/13
  * @since 1.0
  */
 public class SqliteBuilder implements SqlBuilder {
