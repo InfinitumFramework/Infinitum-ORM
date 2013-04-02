@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Clarion Media, LLC
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.clarionmedia.infinitum.internal.Pair;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,7 +58,7 @@ import com.xtremelabs.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class SqliteBuilderTest {
-	
+
 	private static final String MODEL_TABLE_1 = "table1";
 	private static final String MODEL_TABLE_2 = "table2";
 	private static final String MTM_TABLE = "join_table";
@@ -66,40 +67,40 @@ public class SqliteBuilderTest {
 	private static final String MOCK_TYPE_A = "A";
 	private static final String MOCK_TYPE_B = "B";
 	private static final String MOCK_TYPE_C = "C";
-	
+
 	@Mock
 	private SqliteMapper mockSqliteMapper;
-	
+
 	@Mock
 	private PersistencePolicy mockPersistencePolicy;
-	
+
 	@Mock
 	private ClassReflector mockClassReflector;
-	
+
 	@Mock
 	private InfinitumOrmContext mockInfinitumContext;
-	
+
 	@Mock
 	private SqliteDbHelper mockDbHelper;
-	
+
 	@Mock
 	private SQLiteDatabase mockSqliteDb;
-	
+
 	@Mock
 	private ManyToManyRelationship mockManyToManyRelationship;
-	
+
 	@Mock
 	private Criteria<?> mockCriteria;
-	
+
 	@Mock
 	private Criterion mockCriterionA;
-	
+
 	@Mock
 	private Criterion mockCriterionB;
-	
+
 	@InjectMocks
 	private SqliteBuilder sqliteBuilder = new SqliteBuilder();
-	
+
 	@Before
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
@@ -125,29 +126,29 @@ public class SqliteBuilderTest {
 		doReturn(Integer.class).when(mockClassReflector).getClass(any(String.class));
 		doReturn(Long.class).when(mockClassReflector).getClass(any(String.class));
 	}
-	
+
 	@Test
 	public void testCreateTables_success() {
 		// Run
 		int result = sqliteBuilder.createTables(mockDbHelper);
-		
+
 		// Verify
 		verify(mockSqliteDb, times(3)).execSQL(any(String.class));
 		assertEquals("Returned value should be 3", 3, result);
 	}
-	
+
 	@Test(expected = InfinitumConfigurationException.class)
 	public void testCreateTables_fail() {
 		// Setup
 		doReturn(null).when(mockClassReflector).getClass(any(String.class));
-		
+
 		// Run
 		sqliteBuilder.createTables(mockDbHelper);
-		
+
 		// Verify
 		assertTrue("Exception should have been thrown", false);
 	}
-	
+
 	@Test
 	public void testCreateTables_withManyToMany_success() {
 		// Setup
@@ -155,39 +156,39 @@ public class SqliteBuilderTest {
 		Field field = ArrayList.class.getDeclaredFields()[0];
 		mockCache.put(field, mockManyToManyRelationship);
 		when(mockPersistencePolicy.getManyToManyCache()).thenReturn(mockCache);
-		
+
 		// Run
 		int result = sqliteBuilder.createTables(mockDbHelper);
-		
+
 		// Verify
 		verify(mockSqliteDb, times(4)).execSQL(any(String.class));
 		assertEquals("Returned value should be 4", 4, result);
 	}
-	
+
 	@Test
 	public void testDropTables_success() {
 		// Run
 		int result = sqliteBuilder.dropTables(mockDbHelper);
-		
+
 		// Verify
 		verify(mockSqliteDb, times(3)).execSQL(any(String.class));
 		assertEquals("Returned value should be 3", 3, result);
 	}
-	
+
 	@Test(expected = InfinitumConfigurationException.class)
 	public void testDropTables_fail() {
 		// Setup
 		doReturn(null).when(mockClassReflector).getClass(any(String.class));
-		
+
 		// Run
 		sqliteBuilder.dropTables(mockDbHelper);
-		
+
 		// Verify
 		assertTrue("Exception should have been thrown", false);
 	}
-	
+
 	@Test
-	public void testCreateQuery_singleCriterion_noLimitOrOffset() {
+	public void testCreateQuery_singleCriterion_noLimitOrOffset_noOrderBy() {
 		// Setup
 		doReturn(Object.class).when(mockCriteria).getEntityClass();
 		List<Criterion> mockCriterionList = new ArrayList<Criterion>();
@@ -196,21 +197,94 @@ public class SqliteBuilderTest {
 		when(mockCriteria.getLimit()).thenReturn(0);
 		when(mockCriteria.getOffset()).thenReturn(0);
 		when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
-		
+
 		// Run
 		String expected = "SELECT * FROM " + MODEL_TABLE_1 + " WHERE " + CRITERION_A_SQL;
 		String actual = sqliteBuilder.createQuery(mockCriteria);
-		
+
 		// Verify
 		verify(mockCriteria).getEntityClass();
 		verify(mockCriteria).getCriterion();
 		verify(mockCriteria).getLimit();
 		verify(mockCriteria).getOffset();
+        verify(mockCriteria).getOrderings();
 		assertEquals("Returned SQL query should match expected value", expected, actual);
 	}
-	
+
+    @Test
+    public void testCreateQuery_singleCriterion_noLimitOrOffset_orderBy() {
+        // Setup
+        doReturn(Object.class).when(mockCriteria).getEntityClass();
+        List<Criterion> mockCriterionList = new ArrayList<Criterion>();
+        mockCriterionList.add(mockCriterionA);
+        when(mockCriteria.getCriterion()).thenReturn(mockCriterionList);
+        when(mockCriteria.getLimit()).thenReturn(0);
+        when(mockCriteria.getOffset()).thenReturn(0);
+        when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
+        List<Pair<String, Criteria.Order>> orderings = new ArrayList<Pair<String, Criteria.Order>>();
+        String property = "prop";
+        orderings.add(new Pair<String, Criteria.Order>(property, Criteria.Order.DESC));
+        when(mockCriteria.getOrderings()).thenReturn(orderings);
+        Field field = ArrayList.class.getDeclaredFields()[0];
+        doReturn(field).when(mockPersistencePolicy).findPersistentField(Object.class, property);
+        String orderField = "foo";
+        when(mockPersistencePolicy.getFieldColumnName(field)).thenReturn(orderField);
+
+        // Run
+        String expected = "SELECT * FROM " + MODEL_TABLE_1 + " WHERE " + CRITERION_A_SQL + " ORDER BY " + orderField
+                + " DESC";
+        String actual = sqliteBuilder.createQuery(mockCriteria);
+
+        // Verify
+        verify(mockCriteria).getEntityClass();
+        verify(mockCriteria).getCriterion();
+        verify(mockCriteria).getLimit();
+        verify(mockCriteria).getOffset();
+        verify(mockCriteria, times(2)).getOrderings();
+        assertEquals("Returned SQL query should match expected value", expected, actual);
+    }
+
+    @Test
+    public void testCreateQuery_singleCriterion_noLimitOrOffset_multipleOrderBy() {
+        // Setup
+        doReturn(Object.class).when(mockCriteria).getEntityClass();
+        List<Criterion> mockCriterionList = new ArrayList<Criterion>();
+        mockCriterionList.add(mockCriterionA);
+        when(mockCriteria.getCriterion()).thenReturn(mockCriterionList);
+        when(mockCriteria.getLimit()).thenReturn(0);
+        when(mockCriteria.getOffset()).thenReturn(0);
+        when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
+        List<Pair<String, Criteria.Order>> orderings = new ArrayList<Pair<String, Criteria.Order>>();
+        String property1 = "prop1";
+        String property2 = "prop2";
+        orderings.add(new Pair<String, Criteria.Order>(property1, Criteria.Order.DESC));
+        orderings.add(new Pair<String, Criteria.Order>(property2, Criteria.Order.ASC));
+        when(mockCriteria.getOrderings()).thenReturn(orderings);
+        Field field1 = ArrayList.class.getDeclaredFields()[0];
+        Field field2 = ArrayList.class.getDeclaredFields()[1];
+        doReturn(field1).when(mockPersistencePolicy).findPersistentField(Object.class, property1);
+        doReturn(field2).when(mockPersistencePolicy).findPersistentField(Object.class, property2);
+        String orderField1 = "foo";
+        String orderField2 = "bar";
+        when(mockPersistencePolicy.getFieldColumnName(field1)).thenReturn(orderField1);
+        when(mockPersistencePolicy.getFieldColumnName(field2)).thenReturn(orderField2);
+
+        // Run
+        String expected = "SELECT * FROM " + MODEL_TABLE_1 + " WHERE " + CRITERION_A_SQL + " ORDER BY " + orderField1
+                + " DESC, " + orderField2 + " ASC";
+        String actual = sqliteBuilder.createQuery(mockCriteria);
+
+        // Verify
+        verify(mockCriteria).getEntityClass();
+        verify(mockCriteria).getCriterion();
+        verify(mockCriteria).getLimit();
+        verify(mockCriteria).getOffset();
+        verify(mockCriteria, times(2)).getOrderings();
+        assertEquals("Returned SQL query should match expected value", expected, actual);
+    }
+
 	@Test
-	public void testCreateQuery_singleCriterion_limitAndOffset() {
+	public void testCreateQuery_singleCriterion_limitAndOffset_noOrderBy() {
 		// Setup
 		doReturn(Object.class).when(mockCriteria).getEntityClass();
 		List<Criterion> mockCriterionList = new ArrayList<Criterion>();
@@ -219,11 +293,11 @@ public class SqliteBuilderTest {
 		when(mockCriteria.getLimit()).thenReturn(10);
 		when(mockCriteria.getOffset()).thenReturn(5);
 		when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
-		
+
 		// Run
 		String expected = "SELECT * FROM " + MODEL_TABLE_1 + " WHERE " + CRITERION_A_SQL + " LIMIT 10 OFFSET 5";
 		String actual = sqliteBuilder.createQuery(mockCriteria);
-		
+
 		// Verify
 		verify(mockCriteria).getEntityClass();
 		verify(mockCriteria).getCriterion();
@@ -232,9 +306,81 @@ public class SqliteBuilderTest {
 		verify(mockCriterionA).toSql(mockCriteria);
 		assertEquals("Returned SQL query should match expected value", expected, actual);
 	}
-	
+
+    @Test
+    public void testCreateQuery_singleCriterion_limitAndOffset_orderBy() {
+        // Setup
+        doReturn(Object.class).when(mockCriteria).getEntityClass();
+        List<Criterion> mockCriterionList = new ArrayList<Criterion>();
+        mockCriterionList.add(mockCriterionA);
+        when(mockCriteria.getCriterion()).thenReturn(mockCriterionList);
+        when(mockCriteria.getLimit()).thenReturn(10);
+        when(mockCriteria.getOffset()).thenReturn(5);
+        when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
+        List<Pair<String, Criteria.Order>> orderings = new ArrayList<Pair<String, Criteria.Order>>();
+        String property = "prop";
+        orderings.add(new Pair<String, Criteria.Order>(property, Criteria.Order.ASC));
+        when(mockCriteria.getOrderings()).thenReturn(orderings);
+        Field field = ArrayList.class.getDeclaredFields()[0];
+        doReturn(field).when(mockPersistencePolicy).findPersistentField(Object.class, property);
+        String orderField = "foo";
+        when(mockPersistencePolicy.getFieldColumnName(field)).thenReturn(orderField);
+
+        // Run
+        String expected = "SELECT * FROM " + MODEL_TABLE_1 + " WHERE " + CRITERION_A_SQL + " ORDER BY " + orderField
+                + " ASC LIMIT 10 OFFSET 5";
+        String actual = sqliteBuilder.createQuery(mockCriteria);
+
+        // Verify
+        verify(mockCriteria).getEntityClass();
+        verify(mockCriteria).getCriterion();
+        verify(mockCriteria).getLimit();
+        verify(mockCriteria, times(2)).getOffset();
+        verify(mockCriterionA).toSql(mockCriteria);
+        assertEquals("Returned SQL query should match expected value", expected, actual);
+    }
+
+    @Test
+    public void testCreateQuery_singleCriterion_limitAndOffset_multipleOrderBy() {
+        // Setup
+        doReturn(Object.class).when(mockCriteria).getEntityClass();
+        List<Criterion> mockCriterionList = new ArrayList<Criterion>();
+        mockCriterionList.add(mockCriterionA);
+        when(mockCriteria.getCriterion()).thenReturn(mockCriterionList);
+        when(mockCriteria.getLimit()).thenReturn(10);
+        when(mockCriteria.getOffset()).thenReturn(5);
+        when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
+        List<Pair<String, Criteria.Order>> orderings = new ArrayList<Pair<String, Criteria.Order>>();
+        String property1 = "prop1";
+        String property2 = "prop2";
+        orderings.add(new Pair<String, Criteria.Order>(property1, Criteria.Order.DESC));
+        orderings.add(new Pair<String, Criteria.Order>(property2, Criteria.Order.ASC));
+        when(mockCriteria.getOrderings()).thenReturn(orderings);
+        Field field1 = ArrayList.class.getDeclaredFields()[0];
+        Field field2 = ArrayList.class.getDeclaredFields()[1];
+        doReturn(field1).when(mockPersistencePolicy).findPersistentField(Object.class, property1);
+        doReturn(field2).when(mockPersistencePolicy).findPersistentField(Object.class, property2);
+        String orderField1 = "foo";
+        String orderField2 = "bar";
+        when(mockPersistencePolicy.getFieldColumnName(field1)).thenReturn(orderField1);
+        when(mockPersistencePolicy.getFieldColumnName(field2)).thenReturn(orderField2);
+
+        // Run
+        String expected = "SELECT * FROM " + MODEL_TABLE_1 + " WHERE " + CRITERION_A_SQL + " ORDER BY " + orderField1
+                + " DESC, " + orderField2 + " ASC LIMIT 10 OFFSET 5";
+        String actual = sqliteBuilder.createQuery(mockCriteria);
+
+        // Verify
+        verify(mockCriteria).getEntityClass();
+        verify(mockCriteria).getCriterion();
+        verify(mockCriteria).getLimit();
+        verify(mockCriteria, times(2)).getOffset();
+        verify(mockCriterionA).toSql(mockCriteria);
+        assertEquals("Returned SQL query should match expected value", expected, actual);
+    }
+
 	@Test
-	public void testCreateQuery_multipleCriterion_noLimitOrOffset() {
+	public void testCreateQuery_multipleCriterion_noLimitOrOffset_noOrderBy() {
 		// Setup
 		doReturn(Object.class).when(mockCriteria).getEntityClass();
 		List<Criterion> mockCriterionList = new ArrayList<Criterion>();
@@ -244,11 +390,11 @@ public class SqliteBuilderTest {
 		when(mockCriteria.getLimit()).thenReturn(0);
 		when(mockCriteria.getOffset()).thenReturn(0);
 		when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
-		
+
 		// Run
 		String expected = "SELECT * FROM " + MODEL_TABLE_1 + " WHERE " + CRITERION_A_SQL + " AND " + CRITERION_B_SQL;
 		String actual = sqliteBuilder.createQuery(mockCriteria);
-		
+
 		// Verify
 		verify(mockCriteria).getEntityClass();
 		verify(mockCriteria).getCriterion();
@@ -258,9 +404,85 @@ public class SqliteBuilderTest {
 		verify(mockCriterionB).toSql(mockCriteria);
 		assertEquals("Returned SQL query should match expected value", expected, actual);
 	}
-	
+
+    @Test
+    public void testCreateQuery_multipleCriterion_noLimitOrOffset_orderBy() {
+        // Setup
+        doReturn(Object.class).when(mockCriteria).getEntityClass();
+        List<Criterion> mockCriterionList = new ArrayList<Criterion>();
+        mockCriterionList.add(mockCriterionA);
+        mockCriterionList.add(mockCriterionB);
+        when(mockCriteria.getCriterion()).thenReturn(mockCriterionList);
+        when(mockCriteria.getLimit()).thenReturn(0);
+        when(mockCriteria.getOffset()).thenReturn(0);
+        when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
+        List<Pair<String, Criteria.Order>> orderings = new ArrayList<Pair<String, Criteria.Order>>();
+        String property = "prop";
+        orderings.add(new Pair<String, Criteria.Order>(property, Criteria.Order.ASC));
+        when(mockCriteria.getOrderings()).thenReturn(orderings);
+        Field field = ArrayList.class.getDeclaredFields()[0];
+        doReturn(field).when(mockPersistencePolicy).findPersistentField(Object.class, property);
+        String orderField = "foo";
+        when(mockPersistencePolicy.getFieldColumnName(field)).thenReturn(orderField);
+
+        // Run
+        String expected = "SELECT * FROM " + MODEL_TABLE_1 + " WHERE " + CRITERION_A_SQL + " AND " + CRITERION_B_SQL
+                + " ORDER BY " + orderField + " ASC";
+        String actual = sqliteBuilder.createQuery(mockCriteria);
+
+        // Verify
+        verify(mockCriteria).getEntityClass();
+        verify(mockCriteria).getCriterion();
+        verify(mockCriteria).getLimit();
+        verify(mockCriteria).getOffset();
+        verify(mockCriterionA).toSql(mockCriteria);
+        verify(mockCriterionB).toSql(mockCriteria);
+        assertEquals("Returned SQL query should match expected value", expected, actual);
+    }
+
+    @Test
+    public void testCreateQuery_multipleCriterion_noLimitOrOffset_multipleOrderBy() {
+        // Setup
+        doReturn(Object.class).when(mockCriteria).getEntityClass();
+        List<Criterion> mockCriterionList = new ArrayList<Criterion>();
+        mockCriterionList.add(mockCriterionA);
+        mockCriterionList.add(mockCriterionB);
+        when(mockCriteria.getCriterion()).thenReturn(mockCriterionList);
+        when(mockCriteria.getLimit()).thenReturn(0);
+        when(mockCriteria.getOffset()).thenReturn(0);
+        when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
+        List<Pair<String, Criteria.Order>> orderings = new ArrayList<Pair<String, Criteria.Order>>();
+        String property1 = "prop1";
+        String property2 = "prop2";
+        orderings.add(new Pair<String, Criteria.Order>(property1, Criteria.Order.DESC));
+        orderings.add(new Pair<String, Criteria.Order>(property2, Criteria.Order.ASC));
+        when(mockCriteria.getOrderings()).thenReturn(orderings);
+        Field field1 = ArrayList.class.getDeclaredFields()[0];
+        Field field2 = ArrayList.class.getDeclaredFields()[1];
+        doReturn(field1).when(mockPersistencePolicy).findPersistentField(Object.class, property1);
+        doReturn(field2).when(mockPersistencePolicy).findPersistentField(Object.class, property2);
+        String orderField1 = "foo";
+        String orderField2 = "bar";
+        when(mockPersistencePolicy.getFieldColumnName(field1)).thenReturn(orderField1);
+        when(mockPersistencePolicy.getFieldColumnName(field2)).thenReturn(orderField2);
+
+        // Run
+        String expected = "SELECT * FROM " + MODEL_TABLE_1 + " WHERE " + CRITERION_A_SQL + " AND " + CRITERION_B_SQL
+                + " ORDER BY " + orderField1 + " DESC, " + orderField2 + " ASC";
+        String actual = sqliteBuilder.createQuery(mockCriteria);
+
+        // Verify
+        verify(mockCriteria).getEntityClass();
+        verify(mockCriteria).getCriterion();
+        verify(mockCriteria).getLimit();
+        verify(mockCriteria).getOffset();
+        verify(mockCriterionA).toSql(mockCriteria);
+        verify(mockCriterionB).toSql(mockCriteria);
+        assertEquals("Returned SQL query should match expected value", expected, actual);
+    }
+
 	@Test
-	public void testCreateQuery_multipleCriterion_limitAndOffset() {
+	public void testCreateQuery_multipleCriterion_limitAndOffset_noOrderBy() {
 		// Setup
 		doReturn(Object.class).when(mockCriteria).getEntityClass();
 		List<Criterion> mockCriterionList = new ArrayList<Criterion>();
@@ -270,11 +492,11 @@ public class SqliteBuilderTest {
 		when(mockCriteria.getLimit()).thenReturn(10);
 		when(mockCriteria.getOffset()).thenReturn(5);
 		when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
-		
+
 		// Run
 		String expected = "SELECT * FROM " + MODEL_TABLE_1 + " WHERE " + CRITERION_A_SQL + " AND " + CRITERION_B_SQL + " LIMIT 10 OFFSET 5";
 		String actual = sqliteBuilder.createQuery(mockCriteria);
-		
+
 		// Verify
 		verify(mockCriteria).getEntityClass();
 		verify(mockCriteria).getCriterion();
@@ -284,7 +506,83 @@ public class SqliteBuilderTest {
 		verify(mockCriterionB).toSql(mockCriteria);
 		assertEquals("Returned SQL query should match expected value", expected, actual);
 	}
-	
+
+    @Test
+    public void testCreateQuery_multipleCriterion_limitAndOffset_orderBy() {
+        // Setup
+        doReturn(Object.class).when(mockCriteria).getEntityClass();
+        List<Criterion> mockCriterionList = new ArrayList<Criterion>();
+        mockCriterionList.add(mockCriterionA);
+        mockCriterionList.add(mockCriterionB);
+        when(mockCriteria.getCriterion()).thenReturn(mockCriterionList);
+        when(mockCriteria.getLimit()).thenReturn(10);
+        when(mockCriteria.getOffset()).thenReturn(5);
+        when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
+        List<Pair<String, Criteria.Order>> orderings = new ArrayList<Pair<String, Criteria.Order>>();
+        String property = "prop";
+        orderings.add(new Pair<String, Criteria.Order>(property, Criteria.Order.DESC));
+        when(mockCriteria.getOrderings()).thenReturn(orderings);
+        Field field = ArrayList.class.getDeclaredFields()[0];
+        doReturn(field).when(mockPersistencePolicy).findPersistentField(Object.class, property);
+        String orderField = "foo";
+        when(mockPersistencePolicy.getFieldColumnName(field)).thenReturn(orderField);
+
+        // Run
+        String expected = "SELECT * FROM " + MODEL_TABLE_1 + " WHERE " + CRITERION_A_SQL + " AND " + CRITERION_B_SQL
+                + " ORDER BY " + orderField + " DESC LIMIT 10 OFFSET 5";
+        String actual = sqliteBuilder.createQuery(mockCriteria);
+
+        // Verify
+        verify(mockCriteria).getEntityClass();
+        verify(mockCriteria).getCriterion();
+        verify(mockCriteria).getLimit();
+        verify(mockCriteria, times(2)).getOffset();
+        verify(mockCriterionA).toSql(mockCriteria);
+        verify(mockCriterionB).toSql(mockCriteria);
+        assertEquals("Returned SQL query should match expected value", expected, actual);
+    }
+
+    @Test
+    public void testCreateQuery_multipleCriterion_limitAndOffset_multipleOrderBy() {
+        // Setup
+        doReturn(Object.class).when(mockCriteria).getEntityClass();
+        List<Criterion> mockCriterionList = new ArrayList<Criterion>();
+        mockCriterionList.add(mockCriterionA);
+        mockCriterionList.add(mockCriterionB);
+        when(mockCriteria.getCriterion()).thenReturn(mockCriterionList);
+        when(mockCriteria.getLimit()).thenReturn(10);
+        when(mockCriteria.getOffset()).thenReturn(5);
+        when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
+        List<Pair<String, Criteria.Order>> orderings = new ArrayList<Pair<String, Criteria.Order>>();
+        String property1 = "prop1";
+        String property2 = "prop2";
+        orderings.add(new Pair<String, Criteria.Order>(property1, Criteria.Order.DESC));
+        orderings.add(new Pair<String, Criteria.Order>(property2, Criteria.Order.ASC));
+        when(mockCriteria.getOrderings()).thenReturn(orderings);
+        Field field1 = ArrayList.class.getDeclaredFields()[0];
+        Field field2 = ArrayList.class.getDeclaredFields()[1];
+        doReturn(field1).when(mockPersistencePolicy).findPersistentField(Object.class, property1);
+        doReturn(field2).when(mockPersistencePolicy).findPersistentField(Object.class, property2);
+        String orderField1 = "foo";
+        String orderField2 = "bar";
+        when(mockPersistencePolicy.getFieldColumnName(field1)).thenReturn(orderField1);
+        when(mockPersistencePolicy.getFieldColumnName(field2)).thenReturn(orderField2);
+
+        // Run
+        String expected = "SELECT * FROM " + MODEL_TABLE_1 + " WHERE " + CRITERION_A_SQL + " AND " + CRITERION_B_SQL
+                + " ORDER BY " + orderField1 + " DESC, " + orderField2 + " ASC LIMIT 10 OFFSET 5";
+        String actual = sqliteBuilder.createQuery(mockCriteria);
+
+        // Verify
+        verify(mockCriteria).getEntityClass();
+        verify(mockCriteria).getCriterion();
+        verify(mockCriteria).getLimit();
+        verify(mockCriteria, times(2)).getOffset();
+        verify(mockCriterionA).toSql(mockCriteria);
+        verify(mockCriterionB).toSql(mockCriteria);
+        assertEquals("Returned SQL query should match expected value", expected, actual);
+    }
+
 	@Test
 	public void testCreateCountQuery_singleCriterion_noLimitOrOffset() {
 		// Setup
@@ -295,11 +593,11 @@ public class SqliteBuilderTest {
 		when(mockCriteria.getLimit()).thenReturn(0);
 		when(mockCriteria.getOffset()).thenReturn(0);
 		when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
-		
+
 		// Run
 		String expected = "SELECT count(*) FROM " + MODEL_TABLE_1 + " WHERE " + CRITERION_A_SQL;
 		String actual = sqliteBuilder.createCountQuery(mockCriteria);
-		
+
 		// Verify
 		verify(mockCriteria).getEntityClass();
 		verify(mockCriteria).getCriterion();
@@ -307,7 +605,7 @@ public class SqliteBuilderTest {
 		verify(mockCriteria).getOffset();
 		assertEquals("Returned SQL query should match expected value", expected, actual);
 	}
-	
+
 	@Test
 	public void testCreateCountQuery_singleCriterion_limitAndOffset() {
 		// Setup
@@ -318,11 +616,11 @@ public class SqliteBuilderTest {
 		when(mockCriteria.getLimit()).thenReturn(10);
 		when(mockCriteria.getOffset()).thenReturn(5);
 		when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
-		
+
 		// Run
 		String expected = "SELECT count(*) FROM " + MODEL_TABLE_1 + " WHERE " + CRITERION_A_SQL + " LIMIT 10 OFFSET 5";
 		String actual = sqliteBuilder.createCountQuery(mockCriteria);
-		
+
 		// Verify
 		verify(mockCriteria).getEntityClass();
 		verify(mockCriteria).getCriterion();
@@ -331,7 +629,7 @@ public class SqliteBuilderTest {
 		verify(mockCriterionA).toSql(mockCriteria);
 		assertEquals("Returned SQL query should match expected value", expected, actual);
 	}
-	
+
 	@Test
 	public void testCreateCountQuery_multipleCriterion_noLimitOrOffset() {
 		// Setup
@@ -343,11 +641,11 @@ public class SqliteBuilderTest {
 		when(mockCriteria.getLimit()).thenReturn(0);
 		when(mockCriteria.getOffset()).thenReturn(0);
 		when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
-		
+
 		// Run
 		String expected = "SELECT count(*) FROM " + MODEL_TABLE_1 + " WHERE " + CRITERION_A_SQL + " AND " + CRITERION_B_SQL;
 		String actual = sqliteBuilder.createCountQuery(mockCriteria);
-		
+
 		// Verify
 		verify(mockCriteria).getEntityClass();
 		verify(mockCriteria).getCriterion();
@@ -357,7 +655,7 @@ public class SqliteBuilderTest {
 		verify(mockCriterionB).toSql(mockCriteria);
 		assertEquals("Returned SQL query should match expected value", expected, actual);
 	}
-	
+
 	@Test
 	public void testCreateCountQuery_multipleCriterion_limitAndOffset() {
 		// Setup
@@ -369,11 +667,11 @@ public class SqliteBuilderTest {
 		when(mockCriteria.getLimit()).thenReturn(10);
 		when(mockCriteria.getOffset()).thenReturn(5);
 		when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
-		
+
 		// Run
 		String expected = "SELECT count(*) FROM " + MODEL_TABLE_1 + " WHERE " + CRITERION_A_SQL + " AND " + CRITERION_B_SQL + " LIMIT 10 OFFSET 5";
 		String actual = sqliteBuilder.createCountQuery(mockCriteria);
-		
+
 		// Verify
 		verify(mockCriteria).getEntityClass();
 		verify(mockCriteria).getCriterion();
@@ -383,7 +681,7 @@ public class SqliteBuilderTest {
 		verify(mockCriterionB).toSql(mockCriteria);
 		assertEquals("Returned SQL query should match expected value", expected, actual);
 	}
-	
+
 	@Test
 	public void testCreateManyToManyJoinQuery_firstType_success() {
 		// Setup
@@ -401,11 +699,11 @@ public class SqliteBuilderTest {
 		when(mockSqliteMapper.getSqliteDataType(id)).thenReturn(SqliteDataType.INTEGER);
 		when(mockPersistencePolicy.getModelTableName(Integer.class)).thenReturn(MODEL_TABLE_1);
 		when(mockPersistencePolicy.getModelTableName(Long.class)).thenReturn(MODEL_TABLE_2);
-		
+
 		// Run
 		String expected = "SELECT x.* FROM table1 x, table2 y, join_table z WHERE z.table1_col = x.col AND z.table2_col = y.col AND y.col = 42";
 		String actual = sqliteBuilder.createManyToManyJoinQuery(mockRelationship, id, Integer.class);
-		
+
 		// Verify
 		verify(mockRelationship).contains(Integer.class);
 		verify(mockRelationship, times(4)).getFirstType();
@@ -419,7 +717,7 @@ public class SqliteBuilderTest {
 		verify(mockSqliteMapper).getSqliteDataType(id);
 		assertEquals("Returned SQL query should match expected value", expected, actual);
 	}
-	
+
 	@Test
 	public void testCreateManyToManyJoinQuery_secondType_success() {
 		// Setup
@@ -437,11 +735,11 @@ public class SqliteBuilderTest {
 		when(mockSqliteMapper.getSqliteDataType(id)).thenReturn(SqliteDataType.INTEGER);
 		when(mockPersistencePolicy.getModelTableName(Integer.class)).thenReturn(MODEL_TABLE_1);
 		when(mockPersistencePolicy.getModelTableName(Long.class)).thenReturn(MODEL_TABLE_2);
-		
+
 		// Run
 		String expected = "SELECT x.* FROM table1 y, table2 x, join_table z WHERE z.table2_col = x.col AND z.table1_col = y.col AND y.col = 42";
 		String actual = sqliteBuilder.createManyToManyJoinQuery(mockRelationship, id, Long.class);
-		
+
 		// Verify
 		verify(mockRelationship).contains(Long.class);
 		verify(mockRelationship, times(4)).getFirstType();
@@ -455,7 +753,7 @@ public class SqliteBuilderTest {
 		verify(mockSqliteMapper).getSqliteDataType(id);
 		assertEquals("Returned SQL query should match expected value", expected, actual);
 	}
-	
+
 	@Test(expected = InfinitumRuntimeException.class)
 	public void testCreateManyToManyJoinQuery_fail() {
 		// Setup
@@ -473,14 +771,14 @@ public class SqliteBuilderTest {
 		when(mockSqliteMapper.getSqliteDataType(id)).thenReturn(SqliteDataType.INTEGER);
 		when(mockPersistencePolicy.getModelTableName(Integer.class)).thenReturn(MODEL_TABLE_1);
 		when(mockPersistencePolicy.getModelTableName(Long.class)).thenReturn(MODEL_TABLE_2);
-		
+
 		// Run
 		sqliteBuilder.createManyToManyJoinQuery(mockRelationship, id, Integer.class);
-		
+
 		// Verify
 		assertTrue("Exception should have been thrown", false);
 	}
-	
+
 	@Test
 	public void testCreateDeleteStaleRelationshipQuery_firstType_singleRelated() {
 		// Setup
@@ -497,11 +795,11 @@ public class SqliteBuilderTest {
 		when(mockPersistencePolicy.getFieldColumnName(mockManyToManyRelationship.getSecondField())).thenReturn(COL_NAME);
 		when(mockPersistencePolicy.getPrimaryKey(entity)).thenReturn(entityPk);
 		when(mockSqliteMapper.getSqliteDataType(id)).thenReturn(SqliteDataType.INTEGER);
-		
+
 		// Run
 		String expected = "DELETE FROM " + MTM_TABLE + " WHERE " + MODEL_TABLE_1 + "_" + COL_NAME + " = '100' AND " + MODEL_TABLE_2 + "_id NOT IN (" + id + ")";
 		String actual = sqliteBuilder.createDeleteStaleRelationshipQuery(mockManyToManyRelationship, entity, relatedKeys);
-		
+
 		// Verify
 		verify(mockManyToManyRelationship).getTableName();
 		verify(mockManyToManyRelationship, times(4)).getFirstType();
@@ -516,7 +814,7 @@ public class SqliteBuilderTest {
 		verify(mockSqliteMapper).getSqliteDataType(any(Serializable.class));
 		assertEquals("Returned SQL query should match expected value", expected, actual);
 	}
-	
+
 	@Test
 	public void testCreateDeleteStaleRelationshipQuery_secondType_singleRelated() {
 		// Setup
@@ -532,11 +830,11 @@ public class SqliteBuilderTest {
 		when(mockPersistencePolicy.getFieldColumnName(mockManyToManyRelationship.getSecondField())).thenReturn(COL_NAME);
 		when(mockPersistencePolicy.getPrimaryKey(entity)).thenReturn(entityPk);
 		when(mockSqliteMapper.getSqliteDataType(id)).thenReturn(SqliteDataType.INTEGER);
-		
+
 		// Run
 		String expected = "DELETE FROM " + MTM_TABLE + " WHERE " + MODEL_TABLE_2 + "_" + COL_NAME + " = '100' AND " + MODEL_TABLE_1 + "_id NOT IN (" + id + ")";
 		String actual = sqliteBuilder.createDeleteStaleRelationshipQuery(mockManyToManyRelationship, entity, relatedKeys);
-		
+
 		// Verify
 		verify(mockManyToManyRelationship).getTableName();
 		verify(mockManyToManyRelationship, times(4)).getFirstType();
@@ -551,7 +849,7 @@ public class SqliteBuilderTest {
 		verify(mockSqliteMapper).getSqliteDataType(any(Serializable.class));
 		assertEquals("Returned SQL query should match expected value", expected, actual);
 	}
-	
+
 	@Test
 	public void testCreateDeleteStaleRelationshipQuery_multipleRelated() {
 		// Setup
@@ -574,11 +872,11 @@ public class SqliteBuilderTest {
 		when(mockSqliteMapper.getSqliteDataType(id1)).thenReturn(SqliteDataType.INTEGER);
 		when(mockSqliteMapper.getSqliteDataType(id2)).thenReturn(SqliteDataType.INTEGER);
 		when(mockSqliteMapper.getSqliteDataType(id3)).thenReturn(SqliteDataType.INTEGER);
-		
+
 		// Run
 		String expected = "DELETE FROM " + MTM_TABLE + " WHERE " + MODEL_TABLE_1 + "_" + COL_NAME + " = '100' AND " + MODEL_TABLE_2 + "_id NOT IN (" + id1 + ", " + id2 + ", " + id3 + ")";
 		String actual = sqliteBuilder.createDeleteStaleRelationshipQuery(mockManyToManyRelationship, entity, relatedKeys);
-		
+
 		// Verify
 		verify(mockManyToManyRelationship).getTableName();
 		verify(mockManyToManyRelationship, times(4)).getFirstType();
@@ -593,7 +891,7 @@ public class SqliteBuilderTest {
 		verify(mockSqliteMapper, times(3)).getSqliteDataType(any(Serializable.class));
 		assertEquals("Returned SQL query should match expected value", expected, actual);
 	}
-	
+
 	@Test
 	public void testCreateUpdateForeignKeyQuery_singleRelated() {
 		// Setup
@@ -615,11 +913,11 @@ public class SqliteBuilderTest {
 		when(mockPersistencePolicy.getPrimaryKey(entity)).thenReturn(entityPk);
 		when(mockSqliteMapper.getSqliteDataType(field)).thenReturn(SqliteDataType.INTEGER);
 		when(mockSqliteMapper.getSqliteDataType(id)).thenReturn(SqliteDataType.INTEGER);
-		
+
 		// Run
 		String expected = "UPDATE " + MODEL_TABLE_1 + " SET " + COL_NAME + " = " + entityPk + " WHERE " + PK_NAME + " IN (" + id + ")";
 		String actual = sqliteBuilder.createUpdateForeignKeyQuery(mockOneToManyRelationship, entity, relatedKeys);
-		
+
 		// Verify
 		verify(mockOneToManyRelationship, times(2)).getManyType();
 		verify(mockOneToManyRelationship).getColumn();
@@ -632,7 +930,7 @@ public class SqliteBuilderTest {
 		verify(mockSqliteMapper).getSqliteDataType(id);
 		assertEquals("Returned SQL query should match expected value", expected, actual);
 	}
-	
+
 	@Test
 	public void testCreateUpdateForeignKeyQuery_multipleRelated() {
 		// Setup
@@ -660,11 +958,11 @@ public class SqliteBuilderTest {
 		when(mockSqliteMapper.getSqliteDataType(id1)).thenReturn(SqliteDataType.INTEGER);
 		when(mockSqliteMapper.getSqliteDataType(id2)).thenReturn(SqliteDataType.INTEGER);
 		when(mockSqliteMapper.getSqliteDataType(id3)).thenReturn(SqliteDataType.INTEGER);
-		
+
 		// Run
 		String expected = "UPDATE " + MODEL_TABLE_1 + " SET " + COL_NAME + " = " + entityPk + " WHERE " + PK_NAME + " IN (" + id1 + ", " + id2 + ", " + id3 + ")";
 		String actual = sqliteBuilder.createUpdateForeignKeyQuery(mockOneToManyRelationship, entity, relatedKeys);
-		
+
 		// Verify
 		verify(mockOneToManyRelationship, times(2)).getManyType();
 		verify(mockOneToManyRelationship).getColumn();
@@ -677,7 +975,7 @@ public class SqliteBuilderTest {
 		verify(mockSqliteMapper).getSqliteDataType(id1);
 		assertEquals("Returned SQL query should match expected value", expected, actual);
 	}
-	
+
 	@Test
 	public void testCreateUpdateOneToOneForeignKeyQuery() {
 		// Setup
@@ -698,11 +996,11 @@ public class SqliteBuilderTest {
 		when(mockPersistencePolicy.getFieldColumnName(field2)).thenReturn(COL_NAME);
 		when(mockPersistencePolicy.getPrimaryKey(entity)).thenReturn(entityPk);
 		when(mockSqliteMapper.getSqliteDataType(any(Field.class))).thenReturn(SqliteDataType.INTEGER);
-		
+
 		// Run
 		String expected = "UPDATE " + MODEL_TABLE_1 + " SET " + FK_COL + " = " + relatedPk + " WHERE " + COL_NAME + " = " + entityPk;
 		String actual = sqliteBuilder.createUpdateOneToOneForeignKeyQuery(mockOneToOneRelationship, entity, related);
-		
+
 		// Verify
 		verify(mockOneToOneRelationship).getColumn();
 		verify(mockPersistencePolicy).getModelTableName(Object.class);
@@ -715,7 +1013,7 @@ public class SqliteBuilderTest {
 		verify(mockSqliteMapper).getSqliteDataType(field2);
 		assertEquals("Returned SQL query should match expected value", expected, actual);
 	}
-	
+
 	@Test
 	public void testCreateManyToManyDeleteQuery_firstType() {
 		// Setup
@@ -730,11 +1028,11 @@ public class SqliteBuilderTest {
 		when(mockPersistencePolicy.getPrimaryKeyField(entity.getClass())).thenReturn(field);
 		when(mockPersistencePolicy.getPrimaryKey(entity)).thenReturn(pk);
 		when(mockSqliteMapper.getSqliteDataType(field)).thenReturn(SqliteDataType.INTEGER);
-		
+
 		// Run
 		String expected = "DELETE FROM " + MTM_TABLE + " WHERE " + MODEL_TABLE_1 + "_" + COL_NAME + " = " + pk;
 		String actual = sqliteBuilder.createManyToManyDeleteQuery(entity, mockManyToManyRelationship);
-		
+
 		// Verify
 		verify(mockManyToManyRelationship).getTableName();
 		verify(mockManyToManyRelationship, times(2)).getFirstType();
@@ -746,7 +1044,7 @@ public class SqliteBuilderTest {
 		verify(mockSqliteMapper).getSqliteDataType(field);
 		assertEquals("Returned SQL query should match expected value", expected, actual);
 	}
-	
+
 	@Test
 	public void testCreateManyToManyDeleteQuery_secondType() {
 		// Setup
@@ -762,11 +1060,11 @@ public class SqliteBuilderTest {
 		when(mockPersistencePolicy.getPrimaryKeyField(entity.getClass())).thenReturn(field);
 		when(mockPersistencePolicy.getPrimaryKey(entity)).thenReturn(pk);
 		when(mockSqliteMapper.getSqliteDataType(field)).thenReturn(SqliteDataType.INTEGER);
-		
+
 		// Run
 		String expected = "DELETE FROM " + MTM_TABLE + " WHERE " + MODEL_TABLE_1 + "_" + COL_NAME + " = " + pk;
 		String actual = sqliteBuilder.createManyToManyDeleteQuery(entity, mockManyToManyRelationship);
-		
+
 		// Verify
 		verify(mockManyToManyRelationship).getTableName();
 		verify(mockManyToManyRelationship).getFirstType();
@@ -779,7 +1077,7 @@ public class SqliteBuilderTest {
 		verify(mockSqliteMapper).getSqliteDataType(field);
 		assertEquals("Returned SQL query should match expected value", expected, actual);
 	}
-	
+
 	@Test
 	public void testCreateUpdateQuery() {
 		// Setup
@@ -797,11 +1095,11 @@ public class SqliteBuilderTest {
 		when(mockPersistencePolicy.getPrimaryKeyField(entity.getClass())).thenReturn(field);
 		when(mockPersistencePolicy.getFieldColumnName(field)).thenReturn(PK_NAME);
 		when(mockSqliteMapper.getSqliteDataType(field)).thenReturn(SqliteDataType.INTEGER);
-		
+
 		// Run
 		String expected = "UPDATE " + MODEL_TABLE_1 + " SET " + COL_NAME + " = " + fk + " WHERE " + PK_NAME + " = " + pk;
 		String actual = sqliteBuilder.createUpdateQuery(entity, related, COL_NAME);
-		
+
 		// Verify
 		verify(mockPersistencePolicy).getPrimaryKey(related);
 		verify(mockPersistencePolicy).getPrimaryKey(entity);
