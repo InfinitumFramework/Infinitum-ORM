@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2012 Clarion Media, LLC
- * 
+ * Copyright (C) 2013 Clarion Media, LLC
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -62,7 +62,7 @@ import com.clarionmedia.infinitum.reflection.ClassReflector;
  * database and act as a factory for constructing {@link Criteria} and
  * {@link Criteria} queries.
  * </p>
- * 
+ *
  * @author Tyler Treat
  * @version 1.0 02/11/12
  * @since 1.0
@@ -104,7 +104,7 @@ public class SqliteTemplate implements SqliteOperations {
 	private void init() {
 		mLogger = Logger.getInstance(getClass().getSimpleName());
 		mTransactionStack = new Stack<Boolean>();
-		mDbHelper = new SqliteDbHelper(mInfinitumContext, mMapper, mSqlBuilder);
+        mDbHelper = SqliteDbHelper.getInstance(mInfinitumContext, mSqlBuilder);
 	}
 
 	@Override
@@ -296,7 +296,7 @@ public class SqliteTemplate implements SqliteOperations {
 	/**
 	 * Returns the {@link SqliteMapper} associated with this
 	 * {@code SqliteTemplate}.
-	 * 
+	 *
 	 * @return {@code SqliteMapper}
 	 */
 	public SqliteMapper getSqliteMapper() {
