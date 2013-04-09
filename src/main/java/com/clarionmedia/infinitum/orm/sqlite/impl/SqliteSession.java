@@ -192,7 +192,7 @@ public class SqliteSession implements Session {
     }
 
     @Override
-    public int saveOrUpdateAll(Collection<? extends Object> models) throws InfinitumRuntimeException {
+    public int saveOrUpdateAll(Collection<?> models) throws InfinitumRuntimeException {
         int count = 0;
         for (Object model : models) {
             if (saveOrUpdate(model) >= 0)
@@ -202,7 +202,7 @@ public class SqliteSession implements Session {
     }
 
     @Override
-    public int saveAll(Collection<? extends Object> models) throws InfinitumRuntimeException {
+    public int saveAll(Collection<?> models) throws InfinitumRuntimeException {
         int count = 0;
         for (Object model : models) {
             if (save(model) != -1)
@@ -212,7 +212,7 @@ public class SqliteSession implements Session {
     }
 
     @Override
-    public int deleteAll(Collection<? extends Object> models) throws InfinitumRuntimeException {
+    public int deleteAll(Collection<?> models) throws InfinitumRuntimeException {
         int count = 0;
         for (Object model : models) {
             if (delete(model))
