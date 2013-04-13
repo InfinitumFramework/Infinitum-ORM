@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2012 Clarion Media, LLC
- * 
+ * Copyright (C) 2013 Clarion Media, LLC
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@ import java.util.List;
 import android.database.Cursor;
 
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
+import com.clarionmedia.infinitum.internal.Pair;
 import com.clarionmedia.infinitum.orm.ObjectMapper;
 import com.clarionmedia.infinitum.orm.Session;
 import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
@@ -31,117 +32,139 @@ import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
  * {@code Criteria} queries consist of {@link Criterion}, which act as
  * restrictions on a query.
  * </p>
- * 
+ *
  * @author Tyler Treat
- * @version 1.0 02/17/12
+ * @version 1.0.6 04/02/13
  * @since 1.0
  */
 public interface Criteria<T> {
 
-	/**
-	 * Returns the {@code Criteria} query in SQL form.
-	 * 
-	 * @return SQL {@link String} for this {@code Criteria}
-	 */
-	String toSql();
+    public static enum Order {ASC, DESC}
 
-	/**
-	 * Returns the {@link Class} associated with this {@code Criteria}.
-	 * 
-	 * @return {@code Criteria } entity {@code Class}
-	 */
-	Class<?> getEntityClass();
+    /**
+     * Returns the {@code Criteria} query in SQL form.
+     *
+     * @return SQL {@link String} for this {@code Criteria}
+     */
+    String toSql();
 
-	/**
-	 * Returns the {@link List} of {@link Criterion} for this {@code Criteria}.
-	 * 
-	 * @return {@code List} of {@code Criterion}
-	 */
-	List<Criterion> getCriterion();
+    /**
+     * Returns the {@link Class} associated with this {@code Criteria}.
+     *
+     * @return {@code Criteria } entity {@code Class}
+     */
+    Class<?> getEntityClass();
 
-	/**
-	 * Returns the result set limit for this {@code Criteria}.
-	 * 
-	 * @return result set limit
-	 */
-	int getLimit();
+    /**
+     * Returns the {@link List} of {@link Criterion} for this {@code Criteria}.
+     *
+     * @return {@code List} of {@code Criterion}
+     */
+    List<Criterion> getCriterion();
 
-	/**
-	 * Returns the offset value for this {@code Criteria}.
-	 * 
-	 * @return offset value
-	 */
-	int getOffset();
+    /**
+     * Returns the result set limit for this {@code Criteria}.
+     *
+     * @return result set limit
+     */
+    int getLimit();
 
-	/**
-	 * Returns the {@link ObjectMapper} associated with this {@code Criteria}.
-	 * 
-	 * @return {@code ObjectMapper}
-	 */
-	ObjectMapper getObjectMapper();
+    /**
+     * Returns the offset value for this {@code Criteria}.
+     *
+     * @return offset value
+     */
+    int getOffset();
 
-	/**
-	 * Adds a {@link Criterion} to filter retrieved query results.
-	 * 
-	 * @param criterion
-	 *            the {@code Criterion} to apply to the {@link Criteria} query
-	 * @return this {@code Criteria} to allow for method chaining
-	 */
-	Criteria<T> add(Criterion criterion);
+    /**
+     * Returns the {@link ObjectMapper} associated with this {@code Criteria}.
+     *
+     * @return {@code ObjectMapper}
+     */
+    ObjectMapper getObjectMapper();
 
-	/**
-	 * Limits the number of query results.
-	 * 
-	 * @param limit
-	 *            max number of entities to retrieve
-	 * @return this {@code Criteria} to allow for method chaining
-	 */
-	Criteria<T> limit(int limit);
+    /**
+     * Adds a {@link Criterion} to filter retrieved query results.
+     *
+     * @param criterion the {@code Criterion} to apply to the {@link Criteria} query
+     * @return this {@code Criteria} to allow for method chaining
+     */
+    Criteria<T> add(Criterion criterion);
 
-	/**
-	 * Offsets the result set by the given amount.
-	 * 
-	 * @param offset
-	 *            amount to offset results
-	 * @return this {@code Criteria} to allow for method chaining
-	 */
-	Criteria<T> offset(int offset);
+    /**
+     * Limits the number of query results.
+     *
+     * @param limit max number of entities to retrieve
+     * @return this {@code Criteria} to allow for method chaining
+     */
+    Criteria<T> limit(int limit);
 
-	/**
-	 * Retrieves the query results as a {@link List}.
-	 * 
-	 * @return query results in {@code List} form
-	 */
-	List<T> list();
+    /**
+     * Offsets the result set by the given amount.
+     *
+     * @param offset amount to offset results
+     * @return this {@code Criteria} to allow for method chaining
+     */
+    Criteria<T> offset(int offset);
 
-	/**
-	 * Retrieves a unique query result for the {@code Criteria} query.
-	 * 
-	 * @return unique query result or {@code null} if no such result exists
-	 * @throws InfinitumRuntimeException
-	 *             if there was not a unique result for the query
-	 */
-	T unique() throws InfinitumRuntimeException;
+    /**
+     * Retrieves the query results as a {@link List}.
+     *
+     * @return query results in {@code List} form
+     */
+    List<T> list();
 
-	/**
-	 * Retrieves the number of results for the {@code Criteria} query.
-	 * 
-	 * @return number of results for the query
-	 */
-	long count();
+    /**
+     * Retrieves a unique query result for the {@code Criteria} query.
+     *
+     * @return unique query result or {@code null} if no such result exists
+     * @throws InfinitumRuntimeException if there was not a unique result for the query
+     */
+    T unique() throws InfinitumRuntimeException;
 
-	/**
-	 * Retrieves the database {@link Cursor} for the {@code Criteria} query.
-	 * 
-	 * @return query {@code Cursor}
-	 */
-	Cursor cursor();
+    /**
+     * Retrieves the number of results for the {@code Criteria} query.
+     *
+     * @return number of results for the query
+     */
+    long count();
 
-	/**
-	 * Retrieves the {@link Session} this {@code Criteria} is attached to.
-	 * 
-	 * @return {@code Criteria} {@code Session}
-	 */
-	Session getSession();
+    /**
+     * Retrieves the database {@link Cursor} for the {@code Criteria} query.
+     *
+     * @return query {@code Cursor}
+     */
+    Cursor cursor();
+
+    /**
+     * Retrieves the {@link Session} this {@code Criteria} is attached to.
+     *
+     * @return {@code Criteria} {@code Session}
+     */
+    Session getSession();
+
+    /**
+     * Adds an ascending ordering to the query results based on the given property.
+     *
+     * @param property the property to order results by
+     * @return this {@code Criteria} to allow for method chaining
+     */
+    Criteria<T> orderBy(String property);
+
+    /**
+     * Adds an ordering to the query results based on the given order and property.
+     *
+     * @param property the property to order results by
+     * @param order    the {@link Order} to order results by
+     * @return this {@code Criteria} to allow for method chaining
+     */
+    Criteria<T> orderBy(String property, Order order);
+
+    /**
+     * Returns the {@link List} or query orderings.
+     *
+     * @return query orderings
+     */
+    List<Pair<String, Order>> getOrderings();
 
 }
