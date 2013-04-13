@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2012 Clarion Media, LLC
- * 
+ * Copyright (C) 2013 Clarion Media, LLC
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,65 +31,79 @@ import com.clarionmedia.infinitum.orm.sql.SqlBuilder;
  * extension of {@link SQLiteOpenHelper} that will take care of opening a
  * database, creating it if it does not exist, and upgrading it if necessary.
  * </p>
- * 
+ *
  * @author Tyler Treat
- * @version 1.0 02/12/12
+ * @version 1.0.6 04/04/13
  * @since 1.0
  */
 public class SqliteDbHelper extends SQLiteOpenHelper {
 
-	private SqlBuilder mSqlBuilder;
-	private SQLiteDatabase mSqliteDb;
-	private InfinitumOrmContext mInfinitumContext;
-	private Logger mLogger;
+    private static SqliteDbHelper sInstance;
 
-	/**
-	 * Constructs a new {@code SqliteDbHelper} with the given {@link Context}
-	 * and {@link SqliteMapper}.
-	 * 
-	 * @param context
-	 *            the {@link InfinitumContext} of the {@code SqliteDbHelper}
-	 * @param mapper
-	 *            the {@code SqliteMapper} to use for {@link Object} mapping
-	 */
-	public SqliteDbHelper(InfinitumOrmContext context, SqliteMapper mapper, SqlBuilder sqlBuilder) {
-		super(context.getAndroidContext(), context.getSqliteDbName(), null, context.getSqliteDbVersion());
-		mLogger = Logger.getInstance(getClass().getSimpleName());
-		mInfinitumContext = context;
-		mSqlBuilder = sqlBuilder;
-	}
+    private SqlBuilder mSqlBuilder;
+    private SQLiteDatabase mSqliteDb;
+    private InfinitumOrmContext mInfinitumContext;
+    private Logger mLogger;
 
-	/**
-	 * Returns an instance of the {@link SQLiteDatabase}.
-	 * 
-	 * @return the {@code SQLiteDatabase} for this application
-	 */
-	public SQLiteDatabase getDatabase() {
-		return mSqliteDb;
-	}
+    /**
+     * Constructs a new {@code SqliteDbHelper} with the given {@link Context}
+     * and {@link SqliteMapper}.
+     *
+     * @param context    the {@link InfinitumOrmContext} of the {@code SqliteDbHelper}
+     * @param sqlBuilder the {@code SqlBuilder} to use
+     */
+    private SqliteDbHelper(InfinitumOrmContext context, SqlBuilder sqlBuilder) {
+        super(context.getAndroidContext(), context.getSqliteDbName(), null, context.getSqliteDbVersion());
+        mLogger = Logger.getInstance(getClass().getSimpleName());
+        mInfinitumContext = context;
+        mSqlBuilder = sqlBuilder;
+    }
 
-	@Override
-	public void onCreate(SQLiteDatabase db) {
-		mSqliteDb = db;
-		if (!mInfinitumContext.isSchemaGenerated())
-			return;
-		mLogger.debug("Creating database tables");
-		try {
-			mSqlBuilder.createTables(this);
-		} catch (ModelConfigurationException e) {
-			mLogger.error("Error creating database tables.", e);
-		}
-		mLogger.debug("Database tables created successfully");
-	}
+    /**
+     * Returns a singleton instance of {@code SqliteDbHelper}.
+     *
+     * @param context    the {@link InfinitumOrmContext} of the {@code SqliteDbHelper}
+     * @param sqlBuilder the {@code SqlBuilder} to use
+     * @return {@code SqliteDbHelper} singleton
+     */
+    public static SqliteDbHelper getInstance(InfinitumOrmContext context, SqlBuilder sqlBuilder) {
+        if (sInstance == null) {
+            sInstance = new SqliteDbHelper(context, sqlBuilder);
+        }
+        return sInstance;
+    }
 
-	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		mLogger.debug("Upgrading database from version " + oldVersion + " to " + newVersion
-				+ ", which will destroy all old data");
-		mSqliteDb = db;
-		mSqlBuilder.dropTables(this);
-		mLogger.debug("Database tables dropped successfully");
-		onCreate(db);
-	}
+    /**
+     * Returns an instance of the {@link SQLiteDatabase}.
+     *
+     * @return the {@code SQLiteDatabase} for this application
+     */
+    public SQLiteDatabase getDatabase() {
+        return mSqliteDb;
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        mSqliteDb = db;
+        if (!mInfinitumContext.isSchemaGenerated())
+            return;
+        mLogger.debug("Creating database tables");
+        try {
+            mSqlBuilder.createTables(this);
+        } catch (ModelConfigurationException e) {
+            mLogger.error("Error creating database tables.", e);
+        }
+        mLogger.debug("Database tables created successfully");
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        mLogger.debug("Upgrading database from version " + oldVersion + " to " + newVersion
+                + ", which will destroy all old data");
+        mSqliteDb = db;
+        mSqlBuilder.dropTables(this);
+        mLogger.debug("Database tables dropped successfully");
+        onCreate(db);
+    }
 
 }
