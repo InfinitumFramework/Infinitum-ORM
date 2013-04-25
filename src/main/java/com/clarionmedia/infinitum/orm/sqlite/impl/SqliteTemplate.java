@@ -16,20 +16,11 @@
 
 package com.clarionmedia.infinitum.orm.sqlite.impl;
 
-import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-
 import com.clarionmedia.infinitum.di.AbstractProxy;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
 import com.clarionmedia.infinitum.di.annotation.PostConstruct;
@@ -37,6 +28,7 @@ import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.internal.Pair;
 import com.clarionmedia.infinitum.internal.Primitives;
 import com.clarionmedia.infinitum.logging.Logger;
+import com.clarionmedia.infinitum.logging.impl.SmartLogger;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
 import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
@@ -55,6 +47,10 @@ import com.clarionmedia.infinitum.orm.sqlite.SqliteTypeAdapter;
 import com.clarionmedia.infinitum.orm.sqlite.SqliteUtils;
 import com.clarionmedia.infinitum.reflection.ClassReflector;
 
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.util.*;
+
 /**
  * <p>
  * An implementation of {@link SqliteOperations}. This class is designed to
@@ -64,7 +60,7 @@ import com.clarionmedia.infinitum.reflection.ClassReflector;
  * </p>
  *
  * @author Tyler Treat
- * @version 1.0.6 04/04/13
+ * @version 1.1.0 04/25/13
  * @since 1.0
  */
 public class SqliteTemplate implements SqliteOperations {
@@ -102,7 +98,7 @@ public class SqliteTemplate implements SqliteOperations {
 
     @PostConstruct
     private void init() {
-        mLogger = Logger.getInstance(getClass().getSimpleName());
+        mLogger = new SmartLogger(getClass().getSimpleName());
         mTransactionStack = new Stack<Boolean>();
         mDbHelper = SqliteDbHelper.getInstance(mInfinitumContext, mSqlBuilder);
     }
