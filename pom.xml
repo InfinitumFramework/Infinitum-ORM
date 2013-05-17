@@ -103,7 +103,7 @@
         <dependency>
             <groupId>com.infinitumframework</groupId>
             <artifactId>infinitum-web</artifactId>
-            <version>1.0.6</version>
+            <version>${infinitum.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.android</groupId>
