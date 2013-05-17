@@ -25,6 +25,7 @@ import com.clarionmedia.infinitum.event.annotation.Event;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.internal.caching.LruCache;
 import com.clarionmedia.infinitum.logging.Logger;
+import com.clarionmedia.infinitum.logging.impl.SmartLogger;
 import com.clarionmedia.infinitum.orm.Session;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
 import com.clarionmedia.infinitum.orm.exception.SQLGrammarException;
@@ -38,21 +39,15 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * <p>
- * Implementation of {@link Session} for interacting with SQLite.
- * </p>
- * <p>
- * {@code SqliteSession} is threadsafe in the sense that if two threads call
- * {@link #open()}, then if one thread performs an operation and then closes
- * the {@code Session} while the other thread subsequently does the same, the
- * latter thread will not be affected by the prior closing of the {@code Session}.
- * This is because {@code SqliteSession} tracks how many times {@link #open()} has
- * been called and decrements this counter when {@link #close()} is called,
- * actually closing the {@code Session} only when the count reaches zero.
- * </p>
+ * <p> Implementation of {@link Session} for interacting with SQLite. </p> <p> {@code SqliteSession} is threadsafe in
+ * the sense that if two threads call {@link #open()}, then if one thread performs an operation and then closes the
+ * {@code Session} while the other thread subsequently does the same, the latter thread will not be affected by the
+ * prior closing of the {@code Session}. This is because {@code SqliteSession} tracks how many times {@link #open()} has
+ * been called and decrements this counter when {@link #close()} is called, actually closing the {@code Session} only
+ * when the count reaches zero. </p>
  *
  * @author Tyler Treat
- * @version 1.0.6 04/09/13
+ * @version 1.1.0 04/25/13
  * @since 1.0
  */
 public class SqliteSession implements Session {
@@ -81,13 +76,12 @@ public class SqliteSession implements Session {
     /**
      * Constructs a new {@code SqliteSession} with the given cache size.
      *
-     * @param cacheSize the maximum number of {@code Objects} the {@code Session}
-     *                  cache can store
+     * @param cacheSize the maximum number of {@code Objects} the {@code Session} cache can store
      */
     public SqliteSession(int cacheSize) {
         mSessionCount = 0;
         mCacheSize = cacheSize;
-        mLogger = Logger.getInstance(getClass().getSimpleName());
+        mLogger = new SmartLogger(getClass().getSimpleName());
         mSessionCache = new LruCache<Integer, Object>(mCacheSize);
     }
 
@@ -318,8 +312,7 @@ public class SqliteSession implements Session {
     }
 
     /**
-     * Executes the given count query and returns the number of rows resulting
-     * from it.
+     * Executes the given count query and returns the number of rows resulting from it.
      *
      * @param sql the SQL count query to execute
      * @return number of rows
@@ -349,8 +342,7 @@ public class SqliteSession implements Session {
     }
 
     /**
-     * Returns the {@link SqliteMapper} associated with this
-     * {@code SqliteSession}.
+     * Returns the {@link SqliteMapper} associated with this {@code SqliteSession}.
      *
      * @return {@code SqliteMapper}
      */

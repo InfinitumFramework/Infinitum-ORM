@@ -21,19 +21,18 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.clarionmedia.infinitum.logging.Logger;
+import com.clarionmedia.infinitum.logging.impl.SmartLogger;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
 import com.clarionmedia.infinitum.orm.sql.SqlBuilder;
 
 /**
- * <p>
- * A helper class to manage database creation and version management. This is an
- * extension of {@link SQLiteOpenHelper} that will take care of opening a
- * database, creating it if it does not exist, and upgrading it if necessary.
- * </p>
+ * <p> A helper class to manage database creation and version management. This is an extension of {@link
+ * SQLiteOpenHelper} that will take care of opening a database, creating it if it does not exist, and upgrading it if
+ * necessary. </p>
  *
  * @author Tyler Treat
- * @version 1.0.6 04/04/13
+ * @version 1.1.0 04/25/13
  * @since 1.0
  */
 public class SqliteDbHelper extends SQLiteOpenHelper {
@@ -46,15 +45,14 @@ public class SqliteDbHelper extends SQLiteOpenHelper {
     private Logger mLogger;
 
     /**
-     * Constructs a new {@code SqliteDbHelper} with the given {@link Context}
-     * and {@link SqliteMapper}.
+     * Constructs a new {@code SqliteDbHelper} with the given {@link Context} and {@link SqliteMapper}.
      *
      * @param context    the {@link InfinitumOrmContext} of the {@code SqliteDbHelper}
      * @param sqlBuilder the {@code SqlBuilder} to use
      */
     private SqliteDbHelper(InfinitumOrmContext context, SqlBuilder sqlBuilder) {
         super(context.getAndroidContext(), context.getSqliteDbName(), null, context.getSqliteDbVersion());
-        mLogger = Logger.getInstance(getClass().getSimpleName());
+        mLogger = new SmartLogger(getClass().getSimpleName());
         mInfinitumContext = context;
         mSqlBuilder = sqlBuilder;
     }
