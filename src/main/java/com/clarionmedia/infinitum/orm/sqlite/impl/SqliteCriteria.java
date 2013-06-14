@@ -16,21 +16,20 @@
 
 package com.clarionmedia.infinitum.orm.sqlite.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.database.Cursor;
-
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
-import com.clarionmedia.infinitum.internal.Pair;
 import com.clarionmedia.infinitum.orm.Session;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext.SessionType;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
+import com.clarionmedia.infinitum.orm.criteria.Order;
 import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
 import com.clarionmedia.infinitum.orm.internal.OrmPreconditions;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
 import com.clarionmedia.infinitum.orm.sql.SqlBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -51,7 +50,7 @@ public class SqliteCriteria<T> implements Criteria<T> {
 	private int mOffset;
 	private SqlBuilder mSqlBuilder;
 	private PersistencePolicy mPersistencePolicy;
-    private List<Pair<String, Order>> mOrderings;
+    private List<Order> mOrderings;
 
 	/**
 	 * Constructs a new {@code SqliteCriteria}.
@@ -77,7 +76,7 @@ public class SqliteCriteria<T> implements Criteria<T> {
 		mCriterion = new ArrayList<Criterion>();
 		mSqlBuilder = sqlBuilder;
 		mPersistencePolicy = context.getPersistencePolicy();
-        mOrderings = new ArrayList<Pair<String, Order>>(5);
+        mOrderings = new ArrayList<Order>(5);
 	}
 
 	@Override
@@ -190,19 +189,13 @@ public class SqliteCriteria<T> implements Criteria<T> {
 	}
 
     @Override
-    public Criteria<T> orderBy(String property) {
-        mOrderings.add(new Pair<String, Order>(property, Order.ASC));
+    public Criteria<T> orderBy(Order order) {
+        mOrderings.add(order);
         return this;
     }
 
     @Override
-    public Criteria<T> orderBy(String property, Order order) {
-        mOrderings.add(new Pair<String, Order>(property, order));
-        return this;
-    }
-
-    @Override
-    public List<Pair<String, Order>> getOrderings() {
+    public List<Order> getOrderings() {
         return mOrderings;
     }
 
