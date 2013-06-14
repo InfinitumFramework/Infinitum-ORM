@@ -35,7 +35,7 @@ public abstract class Criterion implements Serializable {
 
     protected String mFieldName;
     protected ContextFactory mContextFactory;
-    protected boolean mIgnoreCase;
+    protected boolean mIgnoreCase; 
 
     /**
      * Constructs a new {@code Criterion} with the given {@link Field} name.
