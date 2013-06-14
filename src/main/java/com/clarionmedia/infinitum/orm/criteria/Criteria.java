@@ -16,30 +16,23 @@
 
 package com.clarionmedia.infinitum.orm.criteria;
 
-import java.util.List;
-
 import android.database.Cursor;
-
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
-import com.clarionmedia.infinitum.internal.Pair;
 import com.clarionmedia.infinitum.orm.ObjectMapper;
 import com.clarionmedia.infinitum.orm.Session;
 import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
 
+import java.util.List;
+
 /**
- * <p>
- * This interface represents a query for a particular persistent class.
- * {@code Criteria} queries consist of {@link Criterion}, which act as
- * restrictions on a query.
- * </p>
+ * <p> This interface represents a query for a particular persistent class. {@code Criteria} queries consist of {@link
+ * Criterion}, which act as restrictions on a query. </p>
  *
  * @author Tyler Treat
  * @version 1.0.6 04/02/13
  * @since 1.0
  */
 public interface Criteria<T> {
-
-    public static enum Order {ASC, DESC}
 
     /**
      * Returns the {@code Criteria} query in SQL form.
@@ -144,27 +137,18 @@ public interface Criteria<T> {
     Session getSession();
 
     /**
-     * Adds an ascending ordering to the query results based on the given property.
+     * Adds an ordering to the query results based on the given {@link Order}.
      *
-     * @param property the property to order results by
+     * @param order the {@link Order} to order results by
      * @return this {@code Criteria} to allow for method chaining
      */
-    Criteria<T> orderBy(String property);
-
-    /**
-     * Adds an ordering to the query results based on the given order and property.
-     *
-     * @param property the property to order results by
-     * @param order    the {@link Order} to order results by
-     * @return this {@code Criteria} to allow for method chaining
-     */
-    Criteria<T> orderBy(String property, Order order);
+    Criteria<T> orderBy(Order order);
 
     /**
      * Returns the {@link List} or query orderings.
      *
      * @return query orderings
      */
-    List<Pair<String, Order>> getOrderings();
+    List<Order> getOrderings();
 
 }

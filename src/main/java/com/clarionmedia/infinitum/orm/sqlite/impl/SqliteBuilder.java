@@ -16,18 +16,13 @@
 
 package com.clarionmedia.infinitum.orm.sqlite.impl;
 
-import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.util.List;
-
 import android.database.sqlite.SQLiteDatabase;
-
 import com.clarionmedia.infinitum.context.exception.InfinitumConfigurationException;
 import com.clarionmedia.infinitum.di.annotation.Autowired;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
-import com.clarionmedia.infinitum.internal.Pair;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
+import com.clarionmedia.infinitum.orm.criteria.Order;
 import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
 import com.clarionmedia.infinitum.orm.exception.InvalidCriteriaException;
 import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
@@ -39,6 +34,10 @@ import com.clarionmedia.infinitum.orm.relationship.OneToOneRelationship;
 import com.clarionmedia.infinitum.orm.sql.SqlBuilder;
 import com.clarionmedia.infinitum.orm.sql.SqlConstants;
 import com.clarionmedia.infinitum.reflection.ClassReflector;
+
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.util.List;
 
 /**
  * <p>
@@ -128,14 +127,18 @@ public class SqliteBuilder implements SqlBuilder {
         if (criteria.getOrderings().size() > 0) {
             query.append(' ').append(SqlConstants.ORDER_BY).append(' ');
             String separator = "";
-            for (Pair<String, Criteria.Order> ordering : criteria.getOrderings()) {
+            for (Order ordering : criteria.getOrderings()) {
                 query.append(separator);
                 separator = ", ";
-                Field field = mPersistencePolicy.findPersistentField(c, ordering.getFirst());
+                Field field = mPersistencePolicy.findPersistentField(c, ordering.getProperty());
                 if (field == null)
                     throw new InvalidCriteriaException(String.format("Invalid Criteria for type '%s'.", c.getName()));
                 String column = mPersistencePolicy.getFieldColumnName(field);
-                query.append(column).append(' ').append(ordering.getSecond().name());
+                query.append(column).append(' ');
+                if (ordering.isIgnoreCase()) {
+                    query.append(SqlConstants.COLLATE_NOCASE).append(' ');
+                }
+                query.append(ordering.getOrdering().name());
             }
         }
 
