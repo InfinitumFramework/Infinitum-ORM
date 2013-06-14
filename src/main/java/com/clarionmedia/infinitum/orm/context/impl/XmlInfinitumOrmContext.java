@@ -30,6 +30,7 @@ import com.clarionmedia.infinitum.event.EventSubscriber;
 import com.clarionmedia.infinitum.internal.ModuleUtils;
 import com.clarionmedia.infinitum.internal.ModuleUtils.Module;
 import com.clarionmedia.infinitum.orm.Session;
+import com.clarionmedia.infinitum.orm.annotation.Entity;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
 import com.clarionmedia.infinitum.orm.persistence.impl.AnnotationsPersistencePolicy;
@@ -42,10 +43,7 @@ import com.clarionmedia.infinitum.reflection.ClassReflector;
 import com.clarionmedia.infinitum.reflection.impl.JavaClassReflector;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.lang.Boolean.parseBoolean;
 
@@ -62,6 +60,7 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
     private XmlApplicationContext mParentContext;
     private List<InfinitumContext> mChildContexts;
     private ClassReflector mClassReflector;
+    private List<String> mScannedEntities;
 
     /**
      * Creates a new {@code XmlInfinitumOrmContext} instance as a child of the given {@link XmlApplicationContext}.
@@ -72,10 +71,16 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
         mParentContext = parentContext;
         mChildContexts = new ArrayList<InfinitumContext>();
         mClassReflector = new JavaClassReflector();
+        mScannedEntities = new ArrayList<String>();
     }
 
     @Override
     public void postProcess(Context context) {
+        // Register scanned domain entity classes
+        Set<Class<?>> scannedEntities = getAndRemoveEntities(mParentContext.getScannedComponents());
+        for (Class<?> entityClass : scannedEntities) {
+            mScannedEntities.add(entityClass.getName());
+        }
     }
 
     @Override
@@ -199,13 +204,14 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 
     @Override
     public List<String> getDomainTypes() {
-        List<String> models = new ArrayList<String>();
+        Set<String> models = new HashSet<String>();
+        models.addAll(mScannedEntities);
         if (mParentContext.getModels() == null)
-            return models;
+            return new ArrayList<String>(models);
         for (XmlApplicationContext.Model model : mParentContext.getModels()) {
             models.add(model.getResource());
         }
-        return models;
+        return new ArrayList<String>(models);
     }
 
     @Override
@@ -283,6 +289,19 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
     @Override
     public void subscribeForEvents(EventSubscriber subscriber) {
         mParentContext.subscribeForEvents(subscriber);
+    }
+
+    private Set<Class<?>> getAndRemoveEntities(Collection<Class<?>> components) {
+        Set<Class<?>> entities = new HashSet<Class<?>>();
+        Iterator<Class<?>> iter = components.iterator();
+        while (iter.hasNext()) {
+            Class<?> component = iter.next();
+            if (component.isAnnotationPresent(Entity.class)) {
+                entities.add(component);
+                iter.remove();
+            }
+        }
+        return entities;
     }
 
 }

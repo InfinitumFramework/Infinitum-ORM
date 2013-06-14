@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Clarion Media, LLC
+ * Copyright (C) 2013 Clarion Media, LLC
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,11 @@
 
 package com.clarionmedia.infinitum.orm.annotation;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
+import com.clarionmedia.infinitum.di.annotation.Component;
 import com.clarionmedia.infinitum.orm.OrmConstants.PersistenceMode;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy.Cascade;
+
+import java.lang.annotation.*;
 
 /**
  * <p>
@@ -43,12 +40,13 @@ import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy.Cascade;
  * </pre>
  * 
  * @author Tyler Treat
- * @version 1.0 02/12/12
+ * @version 1.1.0 06/13/13
  * @since 1.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Component
 public @interface Entity {
 
 	/**
