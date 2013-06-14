@@ -37,7 +37,7 @@ public interface Criteria<T> {
     /**
      * Returns the {@code Criteria} query in {@code String} form.
      *
-     * @return SQL {@link String} for this {@code Criteria}
+     * @return {@link String} representation of this {@code Criteria}
      */
     String getRepresentation();
 
