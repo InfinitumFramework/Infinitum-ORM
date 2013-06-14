@@ -16,37 +16,12 @@
 
 package com.clarionmedia.infinitum.orm.sqlite.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.clarionmedia.infinitum.internal.Pair;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
 import android.database.sqlite.SQLiteDatabase;
-
 import com.clarionmedia.infinitum.context.exception.InfinitumConfigurationException;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
+import com.clarionmedia.infinitum.orm.criteria.Order;
 import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
 import com.clarionmedia.infinitum.orm.persistence.TypeResolutionPolicy.SqliteDataType;
@@ -55,6 +30,21 @@ import com.clarionmedia.infinitum.orm.relationship.OneToManyRelationship;
 import com.clarionmedia.infinitum.orm.relationship.OneToOneRelationship;
 import com.clarionmedia.infinitum.reflection.ClassReflector;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.util.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricTestRunner.class)
 public class SqliteBuilderTest {
@@ -221,9 +211,9 @@ public class SqliteBuilderTest {
         when(mockCriteria.getLimit()).thenReturn(0);
         when(mockCriteria.getOffset()).thenReturn(0);
         when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
-        List<Pair<String, Criteria.Order>> orderings = new ArrayList<Pair<String, Criteria.Order>>();
+        List<Order> orderings = new ArrayList<Order>();
         String property = "prop";
-        orderings.add(new Pair<String, Criteria.Order>(property, Criteria.Order.DESC));
+        orderings.add(Order.desc(property));
         when(mockCriteria.getOrderings()).thenReturn(orderings);
         Field field = ArrayList.class.getDeclaredFields()[0];
         doReturn(field).when(mockPersistencePolicy).findPersistentField(Object.class, property);
@@ -245,6 +235,39 @@ public class SqliteBuilderTest {
     }
 
     @Test
+    public void testCreateQuery_singleCriterion_noLimitOrOffset_orderBy_ignoreCase() {
+        // Setup
+        doReturn(Object.class).when(mockCriteria).getEntityClass();
+        List<Criterion> mockCriterionList = new ArrayList<Criterion>();
+        mockCriterionList.add(mockCriterionA);
+        when(mockCriteria.getCriterion()).thenReturn(mockCriterionList);
+        when(mockCriteria.getLimit()).thenReturn(0);
+        when(mockCriteria.getOffset()).thenReturn(0);
+        when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
+        List<Order> orderings = new ArrayList<Order>();
+        String property = "prop";
+        orderings.add(Order.desc(property).ignoreCase());
+        when(mockCriteria.getOrderings()).thenReturn(orderings);
+        Field field = ArrayList.class.getDeclaredFields()[0];
+        doReturn(field).when(mockPersistencePolicy).findPersistentField(Object.class, property);
+        String orderField = "foo";
+        when(mockPersistencePolicy.getFieldColumnName(field)).thenReturn(orderField);
+
+        // Run
+        String expected = "SELECT * FROM " + MODEL_TABLE_1 + " WHERE " + CRITERION_A_SQL + " ORDER BY " + orderField
+                + " COLLATE NOCASE DESC";
+        String actual = sqliteBuilder.createQuery(mockCriteria);
+
+        // Verify
+        verify(mockCriteria).getEntityClass();
+        verify(mockCriteria).getCriterion();
+        verify(mockCriteria).getLimit();
+        verify(mockCriteria).getOffset();
+        verify(mockCriteria, times(2)).getOrderings();
+        assertEquals("Returned SQL query should match expected value", expected, actual);
+    }
+
+    @Test
     public void testCreateQuery_singleCriterion_noLimitOrOffset_multipleOrderBy() {
         // Setup
         doReturn(Object.class).when(mockCriteria).getEntityClass();
@@ -254,11 +277,11 @@ public class SqliteBuilderTest {
         when(mockCriteria.getLimit()).thenReturn(0);
         when(mockCriteria.getOffset()).thenReturn(0);
         when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
-        List<Pair<String, Criteria.Order>> orderings = new ArrayList<Pair<String, Criteria.Order>>();
+        List<Order> orderings = new ArrayList<Order>();
         String property1 = "prop1";
         String property2 = "prop2";
-        orderings.add(new Pair<String, Criteria.Order>(property1, Criteria.Order.DESC));
-        orderings.add(new Pair<String, Criteria.Order>(property2, Criteria.Order.ASC));
+        orderings.add(Order.desc(property1));
+        orderings.add(Order.asc(property2));
         when(mockCriteria.getOrderings()).thenReturn(orderings);
         Field field1 = ArrayList.class.getDeclaredFields()[0];
         Field field2 = ArrayList.class.getDeclaredFields()[1];
@@ -317,9 +340,9 @@ public class SqliteBuilderTest {
         when(mockCriteria.getLimit()).thenReturn(10);
         when(mockCriteria.getOffset()).thenReturn(5);
         when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
-        List<Pair<String, Criteria.Order>> orderings = new ArrayList<Pair<String, Criteria.Order>>();
+        List<Order> orderings = new ArrayList<Order>();
         String property = "prop";
-        orderings.add(new Pair<String, Criteria.Order>(property, Criteria.Order.ASC));
+        orderings.add(Order.asc(property));
         when(mockCriteria.getOrderings()).thenReturn(orderings);
         Field field = ArrayList.class.getDeclaredFields()[0];
         doReturn(field).when(mockPersistencePolicy).findPersistentField(Object.class, property);
@@ -350,11 +373,11 @@ public class SqliteBuilderTest {
         when(mockCriteria.getLimit()).thenReturn(10);
         when(mockCriteria.getOffset()).thenReturn(5);
         when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
-        List<Pair<String, Criteria.Order>> orderings = new ArrayList<Pair<String, Criteria.Order>>();
+        List<Order> orderings = new ArrayList<Order>();
         String property1 = "prop1";
         String property2 = "prop2";
-        orderings.add(new Pair<String, Criteria.Order>(property1, Criteria.Order.DESC));
-        orderings.add(new Pair<String, Criteria.Order>(property2, Criteria.Order.ASC));
+        orderings.add(Order.desc(property1));
+        orderings.add(Order.asc(property2));
         when(mockCriteria.getOrderings()).thenReturn(orderings);
         Field field1 = ArrayList.class.getDeclaredFields()[0];
         Field field2 = ArrayList.class.getDeclaredFields()[1];
@@ -416,9 +439,9 @@ public class SqliteBuilderTest {
         when(mockCriteria.getLimit()).thenReturn(0);
         when(mockCriteria.getOffset()).thenReturn(0);
         when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
-        List<Pair<String, Criteria.Order>> orderings = new ArrayList<Pair<String, Criteria.Order>>();
+        List<Order> orderings = new ArrayList<Order>();
         String property = "prop";
-        orderings.add(new Pair<String, Criteria.Order>(property, Criteria.Order.ASC));
+        orderings.add(Order.asc(property));
         when(mockCriteria.getOrderings()).thenReturn(orderings);
         Field field = ArrayList.class.getDeclaredFields()[0];
         doReturn(field).when(mockPersistencePolicy).findPersistentField(Object.class, property);
@@ -451,11 +474,11 @@ public class SqliteBuilderTest {
         when(mockCriteria.getLimit()).thenReturn(0);
         when(mockCriteria.getOffset()).thenReturn(0);
         when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
-        List<Pair<String, Criteria.Order>> orderings = new ArrayList<Pair<String, Criteria.Order>>();
+        List<Order> orderings = new ArrayList<Order>();
         String property1 = "prop1";
         String property2 = "prop2";
-        orderings.add(new Pair<String, Criteria.Order>(property1, Criteria.Order.DESC));
-        orderings.add(new Pair<String, Criteria.Order>(property2, Criteria.Order.ASC));
+        orderings.add(Order.desc(property1));
+        orderings.add(Order.asc(property2));
         when(mockCriteria.getOrderings()).thenReturn(orderings);
         Field field1 = ArrayList.class.getDeclaredFields()[0];
         Field field2 = ArrayList.class.getDeclaredFields()[1];
@@ -518,9 +541,9 @@ public class SqliteBuilderTest {
         when(mockCriteria.getLimit()).thenReturn(10);
         when(mockCriteria.getOffset()).thenReturn(5);
         when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
-        List<Pair<String, Criteria.Order>> orderings = new ArrayList<Pair<String, Criteria.Order>>();
+        List<Order> orderings = new ArrayList<Order>();
         String property = "prop";
-        orderings.add(new Pair<String, Criteria.Order>(property, Criteria.Order.DESC));
+        orderings.add(Order.desc(property));
         when(mockCriteria.getOrderings()).thenReturn(orderings);
         Field field = ArrayList.class.getDeclaredFields()[0];
         doReturn(field).when(mockPersistencePolicy).findPersistentField(Object.class, property);
@@ -553,11 +576,11 @@ public class SqliteBuilderTest {
         when(mockCriteria.getLimit()).thenReturn(10);
         when(mockCriteria.getOffset()).thenReturn(5);
         when(mockPersistencePolicy.getModelTableName(Object.class)).thenReturn(MODEL_TABLE_1);
-        List<Pair<String, Criteria.Order>> orderings = new ArrayList<Pair<String, Criteria.Order>>();
+        List<Order> orderings = new ArrayList<Order>();
         String property1 = "prop1";
         String property2 = "prop2";
-        orderings.add(new Pair<String, Criteria.Order>(property1, Criteria.Order.DESC));
-        orderings.add(new Pair<String, Criteria.Order>(property2, Criteria.Order.ASC));
+        orderings.add(Order.desc(property1));
+        orderings.add(Order.asc(property2));
         when(mockCriteria.getOrderings()).thenReturn(orderings);
         Field field1 = ArrayList.class.getDeclaredFields()[0];
         Field field2 = ArrayList.class.getDeclaredFields()[1];
