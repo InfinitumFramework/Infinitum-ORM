@@ -29,17 +29,17 @@ import java.util.List;
  * Criterion}, which act as restrictions on a query. </p>
  *
  * @author Tyler Treat
- * @version 1.0.6 04/02/13
+ * @version 1.1.0 06/13/13
  * @since 1.0
  */
 public interface Criteria<T> {
 
     /**
-     * Returns the {@code Criteria} query in SQL form.
+     * Returns the {@code Criteria} query in {@code String} form.
      *
      * @return SQL {@link String} for this {@code Criteria}
      */
-    String toSql();
+    String getRepresentation();
 
     /**
      * Returns the {@link Class} associated with this {@code Criteria}.

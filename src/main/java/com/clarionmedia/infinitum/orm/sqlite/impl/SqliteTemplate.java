@@ -60,7 +60,7 @@ import java.util.*;
  * </p>
  *
  * @author Tyler Treat
- * @version 1.1.0 04/25/13
+ * @version 1.1.0 06/13/13
  * @since 1.0
  */
 public class SqliteTemplate implements SqliteOperations {
@@ -105,7 +105,7 @@ public class SqliteTemplate implements SqliteOperations {
 
     @Override
     public <T> Criteria<T> createCriteria(Class<T> entityClass) {
-        return new SqliteCriteria<T>(mInfinitumContext, entityClass, mModelFactory, mSqlBuilder, mMapper);
+        return new SqliteCriteria<T>(mInfinitumContext, entityClass, mModelFactory, mSqlBuilder);
     }
 
     @Override
