@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Clarion Media, LLC
+ * Copyright (C) 2013 Clarion Media, LLC
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,62 +16,69 @@
 
 package com.clarionmedia.infinitum.orm.relationship;
 
-import java.lang.reflect.Field;
-
 import com.clarionmedia.infinitum.orm.annotation.OneToMany;
+import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 /**
- * <p>
- * This class encapsulates a one-to-many relationship between two models.
- * </p>
- * 
+ * <p> This class encapsulates a one-to-many relationship between two models. </p>
+ *
  * @author Tyler Treat
- * @version 1.0 03/03/12
+ * @version 1.1.0 06/15/13
+ * @since 1.0
  */
 public class OneToManyRelationship extends ForeignKeyRelationship {
-	
-	private String mColumn;
-	private Class<?> mOneType;
-	private Class<?> mManyType;
-	
-	public OneToManyRelationship() {
-		mRelationType = RelationType.OneToMany;
-	}
 
-	public OneToManyRelationship(Field f) {
-		this();
-		OneToMany otm = f.getAnnotation(OneToMany.class);
-		mFirst = f.getDeclaringClass();
-		setOneType(mFirst);
-		mSecond = mClassReflector.getClass(otm.className());
-		setManyType(mSecond);
-		setOwner(mSecond);
-		mName = otm.name();
-		mColumn = otm.column();
-	}
+    private String mColumn;
+    private Class<?> mOneType;
+    private Class<?> mManyType;
 
-	public void setColumn(String mColumn) {
-		this.mColumn = mColumn;
-	}
+    public OneToManyRelationship() {
+        mRelationType = RelationType.OneToMany;
+    }
 
-	public String getColumn() {
-		return mColumn;
-	}
+    public OneToManyRelationship(Field f) {
+        this();
+        OneToMany otm = f.getAnnotation(OneToMany.class);
+        mFirst = f.getDeclaringClass();
+        setOneType(mFirst);
+        Type type = f.getGenericType();
+        if (!(type instanceof ParameterizedType)) {
+            throw new ModelConfigurationException("OneToMany relationship field must be generic collection.");
+        }
+        ParameterizedType entityType = (ParameterizedType) type;
+        mSecond = (Class<?>) entityType.getActualTypeArguments()[0];
+        setManyType(mSecond);
+        setOwner(mSecond);
+        mName = otm.name();
+        mColumn = otm.column();
+    }
 
-	public void setOneType(Class<?> mOneType) {
-		this.mOneType = mOneType;
-	}
+    public void setColumn(String mColumn) {
+        this.mColumn = mColumn;
+    }
 
-	public Class<?> getOneType() {
-		return mOneType;
-	}
+    public String getColumn() {
+        return mColumn;
+    }
 
-	public void setManyType(Class<?> mManyType) {
-		this.mManyType = mManyType;
-	}
+    public void setOneType(Class<?> mOneType) {
+        this.mOneType = mOneType;
+    }
 
-	public Class<?> getManyType() {
-		return mManyType;
-	}
+    public Class<?> getOneType() {
+        return mOneType;
+    }
+
+    public void setManyType(Class<?> mManyType) {
+        this.mManyType = mManyType;
+    }
+
+    public Class<?> getManyType() {
+        return mManyType;
+    }
 
 }
