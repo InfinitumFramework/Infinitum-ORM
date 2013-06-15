@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * This annotation indicates that the annotated {@link Field} represents a
+ * This annotation indicates that the annotated {@link java.lang.reflect.Field} represents a
  * many-to-one relationship with another persistent class.
  * </p>
  * 
@@ -35,14 +35,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface ManyToOne {
-
-	/**
-	 * Returns the name of the persistent {@link Class} this relationship links
-	 * to.
-	 * 
-	 * @return name of persistent {@code Class}
-	 */
-	String className();
 
 	/**
 	 * Returns the name of the column representing the foreign key in this
