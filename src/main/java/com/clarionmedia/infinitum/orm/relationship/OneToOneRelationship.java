@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Clarion Media, LLC
+ * Copyright (C) 2013 Clarion Media, LLC
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,33 +16,32 @@
 
 package com.clarionmedia.infinitum.orm.relationship;
 
-import java.lang.reflect.Field;
-
 import com.clarionmedia.infinitum.orm.annotation.OneToOne;
 
+import java.lang.reflect.Field;
+
 /**
- * <p>
- * This class encapsulates a one-to-one relationship between two models.
- * </p>
- * 
+ * <p> This class encapsulates a one-to-one relationship between two models. </p>
+ *
  * @author Tyler Treat
- * @version 1.0 03/03/12
+ * @version 1.1.0 06/15/13
+ * @since 1.0
  */
 public class OneToOneRelationship extends ForeignKeyRelationship {
-	
-	public OneToOneRelationship() {
-		mRelationType = RelationType.OneToOne;
-	}
 
-	public OneToOneRelationship(Field f) {
-		this();
-		OneToOne oto = f.getAnnotation(OneToOne.class);
-		mFirst = f.getDeclaringClass();
-		mSecond = mClassReflector.getClass(oto.className());
-		mName = oto.name();
-		setColumn(oto.column());
-		setOwner(oto.owner());
-		
-	}
+    public OneToOneRelationship() {
+        mRelationType = RelationType.OneToOne;
+    }
+
+    public OneToOneRelationship(Field f) {
+        this();
+        OneToOne oto = f.getAnnotation(OneToOne.class);
+        mFirst = f.getDeclaringClass();
+        mSecond = f.getType();
+        mName = oto.name();
+        setColumn(oto.column());
+        setOwner(oto.owner());
+
+    }
 
 }
