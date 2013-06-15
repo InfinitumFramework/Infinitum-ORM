@@ -19,9 +19,12 @@ package com.clarionmedia.infinitum.orm.relationship;
 import com.clarionmedia.infinitum.context.ContextFactory;
 import com.clarionmedia.infinitum.orm.annotation.ManyToMany;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
+import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 /**
  * <p>
@@ -48,7 +51,12 @@ public class ManyToManyRelationship extends ModelRelationship {
 		ManyToMany mtm = f.getAnnotation(ManyToMany.class);
 		mTableName = mtm.table();
 		mFirst = f.getDeclaringClass();
-		mSecond = mClassReflector.getClass(mtm.className());
+        Type type = f.getGenericType();
+        if (!(type instanceof ParameterizedType)) {
+            throw new ModelConfigurationException("ManyToMany relationship field must be generic collection.");
+        }
+        ParameterizedType entityType = (ParameterizedType) type;
+		mSecond = (Class<?>) entityType.getActualTypeArguments()[0];
 		mFirstFieldName = mtm.keyField();
 		mSecondFieldName = mtm.foreignField();
 		mName = mtm.name();
