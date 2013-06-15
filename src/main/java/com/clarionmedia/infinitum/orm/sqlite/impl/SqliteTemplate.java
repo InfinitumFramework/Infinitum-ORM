@@ -357,7 +357,7 @@ public class SqliteTemplate implements SqliteOperations {
     private void processManyToManyRelationships(Object model, SqliteModelMap map, Map<Integer, Object> objectMap, Cascade cascade) {
         for (Pair<ManyToManyRelationship, Iterable<Object>> relationshipPair : map.getManyToManyRelationships()) {
             ManyToManyRelationship relationship = relationshipPair.getFirst();
-            List<Serializable> staleKeys = new ArrayList<Serializable>();
+            List<Serializable> nonStaleKeys = new ArrayList<Serializable>();
             for (Object relatedEntity : relationshipPair.getSecond()) {
                 if (relatedEntity == null) {
                     // Related entity is null, nothing to do here...
@@ -365,7 +365,7 @@ public class SqliteTemplate implements SqliteOperations {
                 }
                 int relatedHash = mPersistencePolicy.computeModelHash(relatedEntity);
                 if (objectMap.containsKey(relatedHash) && !mPersistencePolicy.isPKNullOrZero(relatedEntity)) {
-                    staleKeys.add(mPersistencePolicy.getPrimaryKey(relatedEntity));
+                    nonStaleKeys.add(mPersistencePolicy.getPrimaryKey(relatedEntity));
                     continue;
                 }
                 // Cascade.All means we persist/update related entities
@@ -374,17 +374,17 @@ public class SqliteTemplate implements SqliteOperations {
                     if (saveOrUpdateRec(relatedEntity, objectMap) >= 0) {
                         // Persist relationship to many-to-many table
                         insertManyToManyRelationship(model, relatedEntity, relationship);
-                        staleKeys.add(mPersistencePolicy.getPrimaryKey(relatedEntity));
+                        nonStaleKeys.add(mPersistencePolicy.getPrimaryKey(relatedEntity));
                     }
                     // Cascade.Keys means we persist/update foreign keys
                 } else if (cascade == Cascade.KEYS && !mPersistencePolicy.isPKNullOrZero(relatedEntity)) {
                     // Persist relationship to many-to-many table
                     insertManyToManyRelationship(model, relatedEntity, relationship);
-                    staleKeys.add(mPersistencePolicy.getPrimaryKey(relatedEntity));
+                    nonStaleKeys.add(mPersistencePolicy.getPrimaryKey(relatedEntity));
                 }
             }
             // Delete stale relationships
-            String staleRelQuery = mSqlBuilder.createDeleteStaleRelationshipQuery(relationship, model, staleKeys);
+            String staleRelQuery = mSqlBuilder.createDeleteStaleRelationshipQuery(relationship, model, nonStaleKeys);
             // Execute only if there are stale relationships
             if (!staleRelQuery.contains("NOT IN ()"))
                 mSqliteDb.execSQL(staleRelQuery);
