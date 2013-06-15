@@ -57,7 +57,7 @@ import java.util.*;
  * Criteria} queries. </p>
  *
  * @author Tyler Treat
- * @version 1.1.0 06/13/13
+ * @version 1.1.0 06/14/13
  * @since 1.0
  */
 public class SqliteTemplate implements SqliteOperations {
@@ -233,7 +233,7 @@ public class SqliteTemplate implements SqliteOperations {
         if (!mTypePolicy.isValidPrimaryKey(mPersistencePolicy.getPrimaryKeyField(clazz), id))
             throw new IllegalArgumentException(String.format("Invalid primary key value of type '%s' for '%s'.",
                     id.getClass()
-                    .getSimpleName(), clazz.getName()));
+                            .getSimpleName(), clazz.getName()));
         Cursor cursor = mSqliteDb.query(mPersistencePolicy.getModelTableName(clazz), null,
                 mSqliteUtil.getWhereClause(clazz, id, mMapper),
                 null, null, null, null, "1");
@@ -546,11 +546,16 @@ public class SqliteTemplate implements SqliteOperations {
             case INTEGER:
                 if (Primitives.unwrap(field.getType()) == int.class)
                     relationshipData.put(column, (Integer) value);
-                else
+                else if (Primitives.unwrap(field.getType()) == long.class)
                     relationshipData.put(column, (Long) value);
+                else
+                    relationshipData.put(column, (Short) value);
                 break;
             case TEXT:
-                relationshipData.put(column, (String) value);
+                if (Primitives.unwrap(field.getType()) == char.class)
+                    relationshipData.put(column, Character.toString((Character) value));
+                else
+                    relationshipData.put(column, (String) value);
                 break;
             case REAL:
                 if (Primitives.unwrap(field.getType()) == float.class)
@@ -559,7 +564,10 @@ public class SqliteTemplate implements SqliteOperations {
                     relationshipData.put(column, (Double) value);
                 break;
             case BLOB:
-                relationshipData.put(column, (byte[]) value);
+                if (Primitives.unwrap(field.getType()) == byte.class)
+                    relationshipData.put(column, (Byte) value);
+                else
+                    relationshipData.put(column, (byte[]) value);
                 break;
             default:
                 throw new InfinitumRuntimeException("Invalid relational key type");
