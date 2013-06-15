@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Clarion Media, LLC
+ * Copyright (C) 2013 Clarion Media, LLC
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,25 +24,18 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * This annotation indicates that the annotated {@link Field} represents a
+ * This annotation indicates that the annotated {@link java.lang.reflect.Field} represents a
  * many-to-many relationship with another persistent class.
  * </p>
  * 
  * @author Tyler Treat
- * @version 1.0 02/19/12
+ * @version 1.1.0 06/14/13
+ * @since 1.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface ManyToMany {
-
-	/**
-	 * Returns the name of the persistent {@link Class} this relationship links
-	 * to.
-	 * 
-	 * @return name of persistent {@code Class}
-	 */
-	String className();
 
 	/**
 	 * Returns the name of the many-to-many table.
@@ -52,7 +45,7 @@ public @interface ManyToMany {
 	String table();
 
 	/**
-	 * Returns the name of the {@link Field} identifying this {@code Class's}
+	 * Returns the name of the {@link java.lang.reflect.Field} identifying this {@code Class's}
 	 * side of the relationship, typically the primary key.
 	 * 
 	 * @return name of key {@code Field}
@@ -60,7 +53,7 @@ public @interface ManyToMany {
 	String keyField();
 
 	/**
-	 * Returns the name of the {@link Field} identifying the associated
+	 * Returns the name of the {@link java.lang.reflect.Field} identifying the associated
 	 * {@code Class's} side of the relationship, typically the primary key of
 	 * the associated {@code Class}.
 	 * 
