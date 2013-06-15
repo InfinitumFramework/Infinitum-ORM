@@ -52,12 +52,9 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 /**
- * <p>
- * An implementation of {@link SqliteOperations}. This class is designed to
- * provide implementations of core CRUD operations for interacting with a SQLite
- * database and act as a factory for constructing {@link Criteria} and
- * {@link Criteria} queries.
- * </p>
+ * <p> An implementation of {@link SqliteOperations}. This class is designed to provide implementations of core CRUD
+ * operations for interacting with a SQLite database and act as a factory for constructing {@link Criteria} and {@link
+ * Criteria} queries. </p>
  *
  * @author Tyler Treat
  * @version 1.1.0 06/13/13
@@ -234,9 +231,11 @@ public class SqliteTemplate implements SqliteOperations {
     public <T> T load(Class<T> clazz, Serializable id) throws InfinitumRuntimeException, IllegalArgumentException {
         OrmPreconditions.checkPersistenceForLoading(clazz, mPersistencePolicy);
         if (!mTypePolicy.isValidPrimaryKey(mPersistencePolicy.getPrimaryKeyField(clazz), id))
-            throw new IllegalArgumentException(String.format("Invalid primary key value of type '%s' for '%s'.", id.getClass()
+            throw new IllegalArgumentException(String.format("Invalid primary key value of type '%s' for '%s'.",
+                    id.getClass()
                     .getSimpleName(), clazz.getName()));
-        Cursor cursor = mSqliteDb.query(mPersistencePolicy.getModelTableName(clazz), null, mSqliteUtil.getWhereClause(clazz, id, mMapper),
+        Cursor cursor = mSqliteDb.query(mPersistencePolicy.getModelTableName(clazz), null,
+                mSqliteUtil.getWhereClause(clazz, id, mMapper),
                 null, null, null, null, "1");
         if (cursor.getCount() == 0) {
             cursor.close();
@@ -263,7 +262,8 @@ public class SqliteTemplate implements SqliteOperations {
         try {
             mSqliteDb.execSQL(sql);
         } catch (SQLiteException e) {
-            throw new SQLGrammarException(String.format("There was a problem with the SQL formatting. Could not execute query: %s", sql));
+            throw new SQLGrammarException(String.format("There was a problem with the SQL formatting. Could not " +
+                    "execute query: %s", sql));
         }
     }
 
@@ -273,7 +273,8 @@ public class SqliteTemplate implements SqliteOperations {
         try {
             return mSqliteDb.rawQuery(sql, null);
         } catch (SQLiteException e) {
-            throw new SQLGrammarException(String.format("There was a problem with the SQL formatting. Could not execute query: %s", sql));
+            throw new SQLGrammarException(String.format("There was a problem with the SQL formatting. Could not " +
+                    "execute query: %s", sql));
         }
     }
 
@@ -288,8 +289,7 @@ public class SqliteTemplate implements SqliteOperations {
     }
 
     /**
-     * Returns the {@link SqliteMapper} associated with this
-     * {@code SqliteTemplate}.
+     * Returns the {@link SqliteMapper} associated with this {@code SqliteTemplate}.
      *
      * @return {@code SqliteMapper}
      */
@@ -345,7 +345,8 @@ public class SqliteTemplate implements SqliteOperations {
         return true;
     }
 
-    private void processRelationships(SqliteModelMap map, Map<Integer, Object> objectMap, Object model, Cascade cascade) {
+    private void processRelationships(SqliteModelMap map, Map<Integer, Object> objectMap, Object model,
+                                      Cascade cascade) {
         if (cascade == Cascade.NONE)
             return;
         processManyToManyRelationships(model, map, objectMap, cascade);
@@ -354,7 +355,8 @@ public class SqliteTemplate implements SqliteOperations {
         processOneToOneRelationships(model, map, objectMap, cascade);
     }
 
-    private void processManyToManyRelationships(Object model, SqliteModelMap map, Map<Integer, Object> objectMap, Cascade cascade) {
+    private void processManyToManyRelationships(Object model, SqliteModelMap map, Map<Integer, Object> objectMap,
+                                                Cascade cascade) {
         for (Pair<ManyToManyRelationship, Iterable<Object>> relationshipPair : map.getManyToManyRelationships()) {
             ManyToManyRelationship relationship = relationshipPair.getFirst();
             List<Serializable> nonStaleKeys = new ArrayList<Serializable>();
@@ -391,7 +393,8 @@ public class SqliteTemplate implements SqliteOperations {
         }
     }
 
-    private void processOneToOneRelationships(Object model, SqliteModelMap map, Map<Integer, Object> objectMap, Cascade cascade) {
+    private void processOneToOneRelationships(Object model, SqliteModelMap map, Map<Integer, Object> objectMap,
+                                              Cascade cascade) {
         for (Pair<OneToOneRelationship, Object> relationshipPair : map.getOneToOneRelationships()) {
             OneToOneRelationship relationship = relationshipPair.getFirst();
             Object relatedEntity = relationshipPair.getSecond();
@@ -416,7 +419,8 @@ public class SqliteTemplate implements SqliteOperations {
         }
     }
 
-    private void processOneToManyRelationships(Object model, SqliteModelMap map, Map<Integer, Object> objectMap, Cascade cascade) {
+    private void processOneToManyRelationships(Object model, SqliteModelMap map, Map<Integer, Object> objectMap,
+                                               Cascade cascade) {
         for (Pair<OneToManyRelationship, Iterable<Object>> relationshipPair : map.getOneToManyRelationships()) {
             List<Serializable> relatedKeys = new ArrayList<Serializable>();
             for (Object relatedEntity : relationshipPair.getSecond()) {
@@ -441,12 +445,14 @@ public class SqliteTemplate implements SqliteOperations {
                 }
             }
             // Update the foreign keys
-            String updateQuery = mSqlBuilder.createUpdateForeignKeyQuery(relationshipPair.getFirst(), model, relatedKeys);
+            String updateQuery = mSqlBuilder.createUpdateForeignKeyQuery(relationshipPair.getFirst(), model,
+                    relatedKeys);
             mSqliteDb.execSQL(updateQuery);
         }
     }
 
-    private void processManyToOneRelationships(Object model, SqliteModelMap map, Map<Integer, Object> objectMap, Cascade cascade) {
+    private void processManyToOneRelationships(Object model, SqliteModelMap map, Map<Integer, Object> objectMap,
+                                               Cascade cascade) {
         for (Pair<ManyToOneRelationship, Object> relationshipPair : map.getManyToOneRelationships()) {
             Object relatedEntity = relationshipPair.getSecond();
             if (mClassReflector.isNull(relatedEntity)) {
@@ -458,13 +464,15 @@ public class SqliteTemplate implements SqliteOperations {
                 // Save or update the related entity
                 if (saveOrUpdateRec(relatedEntity, objectMap) >= 0) {
                     // Update the foreign key
-                    String update = mSqlBuilder.createUpdateQuery(model, relatedEntity, relationshipPair.getFirst().getColumn());
+                    String update = mSqlBuilder.createUpdateQuery(model, relatedEntity,
+                            relationshipPair.getFirst().getColumn());
                     mSqliteDb.execSQL(update);
                 }
                 // Cascade.Keys means we persist/update foreign keys
             } else if (cascade == Cascade.KEYS && !mPersistencePolicy.isPKNullOrZero(relatedEntity)) {
                 // Update the foreign key
-                String update = mSqlBuilder.createUpdateQuery(model, relatedEntity, relationshipPair.getFirst().getColumn());
+                String update = mSqlBuilder.createUpdateQuery(model, relatedEntity,
+                        relationshipPair.getFirst().getColumn());
                 mSqliteDb.execSQL(update);
             }
         }
@@ -493,11 +501,13 @@ public class SqliteTemplate implements SqliteOperations {
             } else {
                 throw new InfinitumRuntimeException("Invalid many-to-many relationship");
             }
-            String firstCol = mPersistencePolicy.getModelTableName(firstType) + '_' + mPersistencePolicy.getFieldColumnName(firstField);
-            String secondCol = mPersistencePolicy.getModelTableName(secondType) + '_' + mPersistencePolicy.getFieldColumnName(secondField);
+            String firstCol = mPersistencePolicy.getModelTableName(firstType) + '_' + mPersistencePolicy
+                    .getFieldColumnName(firstField);
+            String secondCol = mPersistencePolicy.getModelTableName(secondType) + '_' + mPersistencePolicy
+                    .getFieldColumnName(secondField);
             putRelationalKey(relationshipData, firstCol, firstField, firstPk);
             putRelationalKey(relationshipData, secondCol, secondField, secondPk);
-            boolean result = false;
+            boolean result;
             try {
                 result = mSqliteDb.insertOrThrow(mtm.getTableName(), null, relationshipData) > 0;
             } catch (SQLException e) {
@@ -506,7 +516,8 @@ public class SqliteTemplate implements SqliteOperations {
             if (result)
                 mLogger.debug(firstType.getSimpleName() + "-" + secondType.getSimpleName() + " relationship saved");
             else
-                mLogger.error(firstType.getSimpleName() + "-" + secondType.getSimpleName() + " relationship was not saved");
+                mLogger.error(firstType.getSimpleName() + "-" + secondType.getSimpleName() + " relationship was not " +
+                        "saved");
         } catch (ClassCastException e) {
             throw new ModelConfigurationException("Invalid primary key.", e);
         }
