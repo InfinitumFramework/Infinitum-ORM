@@ -724,7 +724,8 @@ public class SqliteBuilderTest {
 		when(mockPersistencePolicy.getModelTableName(Long.class)).thenReturn(MODEL_TABLE_2);
 
 		// Run
-		String expected = "SELECT x.* FROM table1 x, table2 y, join_table z WHERE z.table1_col = x.col AND z.table2_col = y.col AND y.col = 42";
+		String expected = "SELECT x.* FROM table1 x, table2 y, join_table z WHERE z.table1_col_1 = x.col AND z" +
+                ".table2_col_2 = y.col AND y.col = 42";
 		String actual = sqliteBuilder.createManyToManyJoinQuery(mockRelationship, id, Integer.class);
 
 		// Verify
@@ -760,7 +761,8 @@ public class SqliteBuilderTest {
 		when(mockPersistencePolicy.getModelTableName(Long.class)).thenReturn(MODEL_TABLE_2);
 
 		// Run
-		String expected = "SELECT x.* FROM table1 y, table2 x, join_table z WHERE z.table2_col = x.col AND z.table1_col = y.col AND y.col = 42";
+		String expected = "SELECT x.* FROM table1 y, table2 x, join_table z WHERE z.table2_col_2 = x.col AND z" +
+                ".table1_col_1 = y.col AND y.col = 42";
 		String actual = sqliteBuilder.createManyToManyJoinQuery(mockRelationship, id, Long.class);
 
 		// Verify
@@ -820,7 +822,9 @@ public class SqliteBuilderTest {
 		when(mockSqliteMapper.getSqliteDataType(id)).thenReturn(SqliteDataType.INTEGER);
 
 		// Run
-		String expected = "DELETE FROM " + MTM_TABLE + " WHERE " + MODEL_TABLE_1 + "_" + COL_NAME + " = '100' AND " + MODEL_TABLE_2 + "_id NOT IN (" + id + ")";
+		String expected = "DELETE FROM " + MTM_TABLE + " WHERE " + MODEL_TABLE_1 + "_" + COL_NAME + "_1" + " = '100' " +
+                "AND "
+                + MODEL_TABLE_2 + "_" + COL_NAME + "_2 NOT IN (" + id + ")";
 		String actual = sqliteBuilder.createDeleteStaleRelationshipQuery(mockManyToManyRelationship, entity, relatedKeys);
 
 		// Verify
@@ -855,7 +859,8 @@ public class SqliteBuilderTest {
 		when(mockSqliteMapper.getSqliteDataType(id)).thenReturn(SqliteDataType.INTEGER);
 
 		// Run
-		String expected = "DELETE FROM " + MTM_TABLE + " WHERE " + MODEL_TABLE_2 + "_" + COL_NAME + " = '100' AND " + MODEL_TABLE_1 + "_id NOT IN (" + id + ")";
+		String expected = "DELETE FROM " + MTM_TABLE + " WHERE " + MODEL_TABLE_2 + "_" + COL_NAME + "_2 = '100' AND "
+                + MODEL_TABLE_1 + "_" + COL_NAME + "_1 NOT IN (" + id + ")";
 		String actual = sqliteBuilder.createDeleteStaleRelationshipQuery(mockManyToManyRelationship, entity, relatedKeys);
 
 		// Verify
@@ -897,7 +902,8 @@ public class SqliteBuilderTest {
 		when(mockSqliteMapper.getSqliteDataType(id3)).thenReturn(SqliteDataType.INTEGER);
 
 		// Run
-		String expected = "DELETE FROM " + MTM_TABLE + " WHERE " + MODEL_TABLE_1 + "_" + COL_NAME + " = '100' AND " + MODEL_TABLE_2 + "_id NOT IN (" + id1 + ", " + id2 + ", " + id3 + ")";
+		String expected = "DELETE FROM " + MTM_TABLE + " WHERE " + MODEL_TABLE_1 + "_" + COL_NAME + "_1 = '100' AND "
+                + MODEL_TABLE_2 + "_" + COL_NAME + "_2 NOT IN (" + id1 + ", " + id2 + ", " + id3 + ")";
 		String actual = sqliteBuilder.createDeleteStaleRelationshipQuery(mockManyToManyRelationship, entity, relatedKeys);
 
 		// Verify
@@ -1053,7 +1059,7 @@ public class SqliteBuilderTest {
 		when(mockSqliteMapper.getSqliteDataType(field)).thenReturn(SqliteDataType.INTEGER);
 
 		// Run
-		String expected = "DELETE FROM " + MTM_TABLE + " WHERE " + MODEL_TABLE_1 + "_" + COL_NAME + " = " + pk;
+		String expected = "DELETE FROM " + MTM_TABLE + " WHERE " + MODEL_TABLE_1 + "_" + COL_NAME + "_1 = " + pk;
 		String actual = sqliteBuilder.createManyToManyDeleteQuery(entity, mockManyToManyRelationship);
 
 		// Verify
@@ -1085,7 +1091,7 @@ public class SqliteBuilderTest {
 		when(mockSqliteMapper.getSqliteDataType(field)).thenReturn(SqliteDataType.INTEGER);
 
 		// Run
-		String expected = "DELETE FROM " + MTM_TABLE + " WHERE " + MODEL_TABLE_1 + "_" + COL_NAME + " = " + pk;
+		String expected = "DELETE FROM " + MTM_TABLE + " WHERE " + MODEL_TABLE_1 + "_" + COL_NAME + "_2 = " + pk;
 		String actual = sqliteBuilder.createManyToManyDeleteQuery(entity, mockManyToManyRelationship);
 
 		// Verify
