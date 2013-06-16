@@ -57,7 +57,7 @@ import java.util.*;
  * Criteria} queries. </p>
  *
  * @author Tyler Treat
- * @version 1.1.0 06/14/13
+ * @version 1.1.0 06/15/13
  * @since 1.0
  */
 public class SqliteTemplate implements SqliteOperations {
@@ -502,9 +502,9 @@ public class SqliteTemplate implements SqliteOperations {
                 throw new InfinitumRuntimeException("Invalid many-to-many relationship");
             }
             String firstCol = mPersistencePolicy.getModelTableName(firstType) + '_' + mPersistencePolicy
-                    .getFieldColumnName(firstField);
+                    .getFieldColumnName(firstField) + "_1";
             String secondCol = mPersistencePolicy.getModelTableName(secondType) + '_' + mPersistencePolicy
-                    .getFieldColumnName(secondField);
+                    .getFieldColumnName(secondField) + "_2";
             putRelationalKey(relationshipData, firstCol, firstField, firstPk);
             putRelationalKey(relationshipData, secondCol, secondField, secondPk);
             boolean result;
