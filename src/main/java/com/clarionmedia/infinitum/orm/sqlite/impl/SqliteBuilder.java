@@ -177,8 +177,8 @@ public class SqliteBuilder implements SqlBuilder {
                 sb.append(parentPkCol).append(" ").append(SqlConstants.IN).append(" (SELECT ").append(mtmParent)
                         .append(" FROM ").append(mtm.getTableName()).append(" ").append(SqlConstants.WHERE).append(" " +
                         "").append(mtmChild).append(" ").append(SqlConstants.IN).append(" (");
-                subQuery = createQuery(criteria, "SELECT " + pkCol);
-                sb.append(subQuery).append(")");
+                subQuery = createQuery(criteria, "SELECT " + pkCol + " FROM ");
+                sb.append(subQuery).append("))");
                 break;
         }
 
