@@ -29,7 +29,7 @@ import java.util.List;
  * Criterion}, which act as restrictions on a query. </p>
  *
  * @author Tyler Treat
- * @version 1.1.0 06/13/13
+ * @version 1.1.0 06/16/13
  * @since 1.0
  */
 public interface Criteria<T> {
@@ -150,5 +150,20 @@ public interface Criteria<T> {
      * @return query orderings
      */
     List<Order> getOrderings();
+
+    /**
+     * Adds an association {@code Criteria} to this {@code Criteria}.
+     *
+     * @param association the name of the association {@link java.lang.reflect.Field}
+     * @return association {@code Criteria}
+     */
+    Criteria<?> createCriteria(String association);
+
+    /**
+     * Returns a {@link List} of {@link AssociationCriteria} for this {@code Criteria}.
+     *
+     * @return {@code List} of {@code AssociationCriteria}
+     */
+    List<AssociationCriteria<?>> getAssociationCriteria();
 
 }

@@ -26,6 +26,7 @@ import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
 import com.clarionmedia.infinitum.orm.persistence.TypeResolutionPolicy.SqliteDataType;
 import com.clarionmedia.infinitum.orm.relationship.ManyToManyRelationship;
+import com.clarionmedia.infinitum.orm.relationship.ModelRelationship;
 import com.clarionmedia.infinitum.orm.relationship.OneToManyRelationship;
 import com.clarionmedia.infinitum.orm.relationship.OneToOneRelationship;
 import com.clarionmedia.infinitum.reflection.ClassReflector;
@@ -88,6 +89,12 @@ public class SqliteBuilderTest {
 	@Mock
 	private Criterion mockCriterionB;
 
+    @Mock
+    private SqliteAssociationCriteria<?> mockAssociationCriteria;
+
+    @Mock
+    private OneToOneRelationship mockOtoRelationship;
+
 	@InjectMocks
 	private SqliteBuilder sqliteBuilder = new SqliteBuilder();
 
@@ -111,6 +118,8 @@ public class SqliteBuilderTest {
 		when(mockSqliteMapper.getSqliteDataType(field)).thenReturn(SqliteDataType.TEXT);
 		when(mockCriterionA.toSql(mockCriteria)).thenReturn(CRITERION_A_SQL);
 		when(mockCriterionB.toSql(mockCriteria)).thenReturn(CRITERION_B_SQL);
+        when(mockCriterionA.toSql(mockAssociationCriteria)).thenReturn(CRITERION_A_SQL);
+        when(mockCriterionB.toSql(mockAssociationCriteria)).thenReturn(CRITERION_B_SQL);
 		doReturn(Integer.class).when(mockManyToManyRelationship).getFirstType();
 		doReturn(Long.class).when(mockManyToManyRelationship).getSecondType();
 		doReturn(Integer.class).when(mockClassReflector).getClass(any(String.class));
@@ -1139,5 +1148,76 @@ public class SqliteBuilderTest {
 		verify(mockSqliteMapper, times(2)).getSqliteDataType(field);
 		assertEquals("Returned SQL query should match expected value", expected, actual);
 	}
+
+    @Test
+    public void testGetAssociationCriteriaDiscriminator_oneToOne_associatedOwner() throws NoSuchFieldException {
+        // Setup
+        Field pkField = Foo.class.getDeclaredField("id");
+        when(mockPersistencePolicy.getPrimaryKeyField(Foo.class)).thenReturn(pkField);
+        String pkCol = "id";
+        when(mockPersistencePolicy.getFieldColumnName(pkField)).thenReturn(pkCol);
+        when(mockPersistencePolicy.getPrimaryKeyField(Object.class)).thenReturn(pkField);
+        when(mockAssociationCriteria.getRelationship()).thenReturn(mockOtoRelationship);
+        when(mockOtoRelationship.getRelationType()).thenReturn(ModelRelationship.RelationType.OneToOne);
+        doReturn(Foo.class).when(mockOtoRelationship).getOwner();
+        String fkCol = "fk";
+        when(mockOtoRelationship.getColumn()).thenReturn(fkCol);
+        Field field = Foo.class.getDeclaredField("bar");
+        when(mockAssociationCriteria.getRelationshipField()).thenReturn(field);
+        doReturn(Foo.class).when(mockAssociationCriteria).getEntityClass();
+
+        String fooTable = "foo";
+        when(mockPersistencePolicy.getModelTableName(Foo.class)).thenReturn(fooTable);
+        List<Criterion> mockCriterionList = new ArrayList<Criterion>();
+        mockCriterionList.add(mockCriterionA);
+        when(mockAssociationCriteria.getCriterion()).thenReturn(mockCriterionList);
+
+        // Run
+        String expected = pkCol + " IN (SELECT " + fkCol + " FROM " + fooTable + " WHERE " + CRITERION_A_SQL + ")";
+        String actual = sqliteBuilder.getAssociationCriteriaDiscriminator(Object.class, mockAssociationCriteria);
+
+        // Verify
+        assertEquals("Returned SQL fragment should match expected value", expected, actual);
+    }
+
+    @Test
+    public void testGetAssociationCriteriaDiscriminator_oneToOne_associatedNotOwner() throws NoSuchFieldException {
+        // Setup
+        Field pkField = Foo.class.getDeclaredField("id");
+        when(mockPersistencePolicy.getPrimaryKeyField(Foo.class)).thenReturn(pkField);
+        String pkCol = "id";
+        when(mockPersistencePolicy.getFieldColumnName(pkField)).thenReturn(pkCol);
+        when(mockPersistencePolicy.getPrimaryKeyField(Object.class)).thenReturn(pkField);
+        when(mockAssociationCriteria.getRelationship()).thenReturn(mockOtoRelationship);
+        when(mockOtoRelationship.getRelationType()).thenReturn(ModelRelationship.RelationType.OneToOne);
+        doReturn(Object.class).when(mockOtoRelationship).getOwner();
+        String fkCol = "fk";
+        when(mockOtoRelationship.getColumn()).thenReturn(fkCol);
+        Field relationshipField = Foo.class.getDeclaredField("bar");
+        when(mockAssociationCriteria.getRelationshipField()).thenReturn(relationshipField);
+        String relCol = relationshipField.getName();
+        when(mockPersistencePolicy.getFieldColumnName(relationshipField)).thenReturn(relCol);
+        doReturn(Foo.class).when(mockAssociationCriteria).getEntityClass();
+
+        String fooTable = "foo";
+        when(mockPersistencePolicy.getModelTableName(Foo.class)).thenReturn(fooTable);
+        List<Criterion> mockCriterionList = new ArrayList<Criterion>();
+        mockCriterionList.add(mockCriterionA);
+        when(mockAssociationCriteria.getCriterion()).thenReturn(mockCriterionList);
+
+        // Run
+        String expected = relCol + " IN (SELECT " + pkCol + " FROM " + fooTable + " WHERE " + CRITERION_A_SQL + ")";
+        String actual = sqliteBuilder.getAssociationCriteriaDiscriminator(Object.class, mockAssociationCriteria);
+
+        // Verify
+        assertEquals("Returned SQL fragment should match expected value", expected, actual);
+    }
+
+    private class Foo {
+
+        private long id;
+        private int bar;
+
+    }
 
 }

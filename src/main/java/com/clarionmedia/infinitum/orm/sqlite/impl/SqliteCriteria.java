@@ -21,13 +21,18 @@ import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.orm.Session;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext.SessionType;
+import com.clarionmedia.infinitum.orm.criteria.AssociationCriteria;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
 import com.clarionmedia.infinitum.orm.criteria.Order;
 import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
 import com.clarionmedia.infinitum.orm.internal.OrmPreconditions;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
+import com.clarionmedia.infinitum.orm.relationship.ModelRelationship;
 import com.clarionmedia.infinitum.orm.sql.SqlBuilder;
+import com.clarionmedia.infinitum.reflection.ClassReflector;
+import com.clarionmedia.infinitum.reflection.impl.JavaClassReflector;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +45,7 @@ import java.util.List;
  */
 public class SqliteCriteria<T> implements Criteria<T> {
 
+    private InfinitumOrmContext mOrmContext;
     private Class<T> mEntityClass;
     private SqliteSession mSession;
     private SqliteModelFactory mModelFactory;
@@ -49,6 +55,7 @@ public class SqliteCriteria<T> implements Criteria<T> {
     private SqlBuilder mSqlBuilder;
     private PersistencePolicy mPersistencePolicy;
     private List<Order> mOrderings;
+    private List<AssociationCriteria<?>> mAssociationCriteria;
 
     /**
      * Constructs a new {@code SqliteCriteria}.
@@ -61,6 +68,7 @@ public class SqliteCriteria<T> implements Criteria<T> {
     public SqliteCriteria(InfinitumOrmContext context, Class<T> entityClass, SqliteModelFactory modelFactory,
                           SqlBuilder sqlBuilder) throws InfinitumRuntimeException {
         OrmPreconditions.checkPersistenceForLoading(entityClass, context.getPersistencePolicy());
+        mOrmContext = context;
         mSession = (SqliteSession) context.getSession(SessionType.SQLITE);
         mEntityClass = entityClass;
         mModelFactory = modelFactory;
@@ -68,6 +76,7 @@ public class SqliteCriteria<T> implements Criteria<T> {
         mSqlBuilder = sqlBuilder;
         mPersistencePolicy = context.getPersistencePolicy();
         mOrderings = new ArrayList<Order>(5);
+        mAssociationCriteria = new ArrayList<AssociationCriteria<?>>(3);
     }
 
     @Override
@@ -189,6 +198,38 @@ public class SqliteCriteria<T> implements Criteria<T> {
     @Override
     public List<Order> getOrderings() {
         return mOrderings;
+    }
+
+    @Override
+    public Criteria<?> createCriteria(String association) {
+        AssociationCriteria<?> associationCriteria = getAssociationCriteria(association);
+        mAssociationCriteria.add(associationCriteria);
+        return associationCriteria;
+    }
+
+    @Override
+    public List<AssociationCriteria<?>> getAssociationCriteria() {
+        return mAssociationCriteria;
+    }
+
+    private AssociationCriteria<?> getAssociationCriteria(String association) {
+        ClassReflector classReflector = new JavaClassReflector();
+        Field associationField = classReflector.getField(mEntityClass, association);
+        if (associationField == null) {
+            throw new InfinitumRuntimeException("No relationship field '" + association + "' in type " + mEntityClass
+                    .getName());
+        }
+
+        ModelRelationship relationship = mPersistencePolicy.getRelationship(associationField);
+        Class associationType;
+        if (relationship.getFirstType() == mEntityClass) {
+            associationType = relationship.getSecondType();
+        } else {
+            associationType = relationship.getFirstType();
+        }
+
+        return new SqliteAssociationCriteria<Object>(mOrmContext,
+                associationType, mModelFactory, mSqlBuilder, relationship, associationField);
     }
 
 }

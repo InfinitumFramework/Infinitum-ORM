@@ -21,6 +21,7 @@ import com.clarionmedia.infinitum.context.exception.InfinitumConfigurationExcept
 import com.clarionmedia.infinitum.di.annotation.Autowired;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
+import com.clarionmedia.infinitum.orm.criteria.AssociationCriteria;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
 import com.clarionmedia.infinitum.orm.criteria.Order;
 import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
@@ -28,9 +29,7 @@ import com.clarionmedia.infinitum.orm.exception.InvalidCriteriaException;
 import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
 import com.clarionmedia.infinitum.orm.persistence.TypeResolutionPolicy.SqliteDataType;
-import com.clarionmedia.infinitum.orm.relationship.ManyToManyRelationship;
-import com.clarionmedia.infinitum.orm.relationship.OneToManyRelationship;
-import com.clarionmedia.infinitum.orm.relationship.OneToOneRelationship;
+import com.clarionmedia.infinitum.orm.relationship.*;
 import com.clarionmedia.infinitum.orm.sql.SqlBuilder;
 import com.clarionmedia.infinitum.orm.sql.SqlConstants;
 import com.clarionmedia.infinitum.reflection.ClassReflector;
@@ -109,10 +108,91 @@ public class SqliteBuilder implements SqlBuilder {
         return count;
     }
 
+    public String getAssociationCriteriaDiscriminator(Class<?> parentType, AssociationCriteria<?> criteria) {
+        ModelRelationship relationship = criteria.getRelationship();
+        StringBuilder sb = new StringBuilder();
+
+        Field pkField = mPersistencePolicy.getPrimaryKeyField(criteria.getEntityClass());
+        String pkCol = mPersistencePolicy.getFieldColumnName(pkField);
+
+        Field relationshipField = criteria.getRelationshipField();
+        String subQuery;
+        String fkColumn;
+
+        switch (relationship.getRelationType()) {
+            case OneToOne:
+                OneToOneRelationship oto = (OneToOneRelationship) relationship;
+                if (oto.getOwner() == criteria.getEntityClass()) {
+                    fkColumn = oto.getColumn();
+                    Field nonOwnerPkField = mPersistencePolicy.getPrimaryKeyField(parentType);
+                    String nonOwnerPkCol = mPersistencePolicy.getFieldColumnName(nonOwnerPkField);
+                    sb.append(nonOwnerPkCol).append(" ").append(SqlConstants.IN).append(" (");
+                    subQuery = createQuery(criteria, "SELECT " + fkColumn + " FROM ");
+                    sb.append(subQuery).append(")");
+                } else {
+                    fkColumn = mPersistencePolicy.getFieldColumnName(relationshipField);
+                    sb.append(fkColumn).append(" ").append(SqlConstants.IN).append(" (");
+                    subQuery = createQuery(criteria, "SELECT " + pkCol + " FROM ");
+                    sb.append(subQuery).append(")");
+                }
+                break;
+            case ManyToOne:
+                fkColumn = mPersistencePolicy.getFieldColumnName(relationshipField);
+                sb.append(fkColumn).append(" ").append(SqlConstants.IN).append(" (");
+                subQuery = createQuery(criteria, "SELECT " + pkCol + " FROM ");
+                sb.append(subQuery).append(")");
+                break;
+            case OneToMany:
+                OneToManyRelationship otm = (OneToManyRelationship) relationship;
+                if (otm.getOwner() == criteria.getEntityClass()) {
+                    fkColumn = otm.getColumn();
+                    Field nonOwnerPkField = mPersistencePolicy.getPrimaryKeyField(parentType);
+                    String nonOwnerPkCol = mPersistencePolicy.getFieldColumnName(nonOwnerPkField);
+                    sb.append(nonOwnerPkCol).append(" ").append(SqlConstants.IN).append(" (");
+                    subQuery = createQuery(criteria, "SELECT " + fkColumn + " FROM ");
+                    sb.append(subQuery).append(")");
+                } else {
+                    fkColumn = mPersistencePolicy.getFieldColumnName(relationshipField);
+                    sb.append(fkColumn).append(" ").append(SqlConstants.IN).append(" (");
+                    subQuery = createQuery(criteria, "SELECT " + pkCol + " FROM ");
+                    sb.append(subQuery).append(")");
+                }
+                break;
+            case ManyToMany:
+                ManyToManyRelationship mtm = (ManyToManyRelationship) relationship;
+                Field parentPkField = mPersistencePolicy.getPrimaryKeyField(parentType);
+                String parentPkCol = mPersistencePolicy.getFieldColumnName(parentPkField);
+                String mtmParent;
+                String mtmChild;
+                if (mtm.getFirstType() == parentType) {
+                    mtmParent = mPersistencePolicy.getModelTableName(parentType) + "_" + parentPkCol +
+                            "_1";
+                    mtmChild = mPersistencePolicy.getModelTableName(criteria.getEntityClass()) + "_" + pkCol + "_2";
+                } else {
+                    mtmParent = mPersistencePolicy.getModelTableName(parentType) + "_" + parentPkCol +
+                            "_2";
+                    mtmChild = mPersistencePolicy.getModelTableName(criteria.getEntityClass()) + "_" + pkCol + "_1";
+                }
+
+                sb.append(parentPkCol).append(" ").append(SqlConstants.IN).append(" (SELECT ").append(mtmParent)
+                        .append(" FROM ").append(mtm.getTableName()).append(" ").append(SqlConstants.WHERE).append(" " +
+                        "").append(mtmChild).append(" ").append(SqlConstants.IN).append(" (");
+                subQuery = createQuery(criteria, "SELECT " + pkCol);
+                sb.append(subQuery).append(")");
+                break;
+        }
+
+        return sb.toString();
+    }
+
     @Override
     public String createQuery(Criteria<?> criteria) {
+        return createQuery(criteria, SqlConstants.SELECT_ALL_FROM);
+    }
+
+    private String createQuery(Criteria<?> criteria, String selectStatement) {
         Class<?> c = criteria.getEntityClass();
-        StringBuilder query = new StringBuilder(SqlConstants.SELECT_ALL_FROM).append(mPersistencePolicy
+        StringBuilder query = new StringBuilder(selectStatement).append(mPersistencePolicy
                 .getModelTableName(c));
         String prefix = " WHERE ";
 
@@ -121,6 +201,13 @@ public class SqliteBuilder implements SqlBuilder {
             query.append(prefix);
             prefix = ' ' + SqlConstants.AND + ' ';
             query.append(criterion.toSql(criteria));
+        }
+
+        // Append association Criteria expressions
+        for (AssociationCriteria<?> associationCriteria : criteria.getAssociationCriteria()) {
+            query.append(prefix);
+            prefix = ' ' + SqlConstants.AND + ' ';
+            query.append(getAssociationCriteriaDiscriminator(c, associationCriteria));
         }
 
         // Append order by expressions
