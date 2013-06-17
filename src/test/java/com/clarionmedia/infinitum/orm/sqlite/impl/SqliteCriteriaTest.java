@@ -59,7 +59,7 @@ public class SqliteCriteriaTest {
         when(mockInfinitumContext.getSession(SessionType.SQLITE)).thenReturn(mockSqliteSession);
         when(mockPersistencePolicy.isPersistent(entityClass)).thenReturn(true);
         sqliteCriteria = new SqliteCriteria<Object>(mockInfinitumContext, entityClass, mockSqliteModelFactory,
-                mockSqlBuilder);
+                mockSqlBuilder, null);
         mockCursor = mock(Cursor.class);
     }
 

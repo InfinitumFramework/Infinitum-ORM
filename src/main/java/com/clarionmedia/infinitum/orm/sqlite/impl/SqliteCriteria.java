@@ -46,16 +46,17 @@ import java.util.List;
 public class SqliteCriteria<T> implements Criteria<T> {
 
     private InfinitumOrmContext mOrmContext;
-    private Class<T> mEntityClass;
-    private SqliteSession mSession;
-    private SqliteModelFactory mModelFactory;
+    protected Class<T> mEntityClass;
+    protected SqliteSession mSession;
+    protected SqliteModelFactory mModelFactory;
     private List<Criterion> mCriterion;
     private int mLimit;
     private int mOffset;
     private SqlBuilder mSqlBuilder;
-    private PersistencePolicy mPersistencePolicy;
+    protected PersistencePolicy mPersistencePolicy;
     private List<Order> mOrderings;
     private List<AssociationCriteria<?>> mAssociationCriteria;
+    protected SqliteCriteria<?> mParent;
 
     /**
      * Constructs a new {@code SqliteCriteria}.
@@ -66,7 +67,7 @@ public class SqliteCriteria<T> implements Criteria<T> {
      * @throws InfinitumRuntimeException if {@code entityClass} is transient
      */
     public SqliteCriteria(InfinitumOrmContext context, Class<T> entityClass, SqliteModelFactory modelFactory,
-                          SqlBuilder sqlBuilder) throws InfinitumRuntimeException {
+                          SqlBuilder sqlBuilder, SqliteCriteria<?> parent) throws InfinitumRuntimeException {
         OrmPreconditions.checkPersistenceForLoading(entityClass, context.getPersistencePolicy());
         mOrmContext = context;
         mSession = (SqliteSession) context.getSession(SessionType.SQLITE);
@@ -77,6 +78,7 @@ public class SqliteCriteria<T> implements Criteria<T> {
         mPersistencePolicy = context.getPersistencePolicy();
         mOrderings = new ArrayList<Order>(5);
         mAssociationCriteria = new ArrayList<AssociationCriteria<?>>(3);
+        mParent = parent;
     }
 
     @Override
@@ -212,6 +214,11 @@ public class SqliteCriteria<T> implements Criteria<T> {
         return mAssociationCriteria;
     }
 
+    @Override
+    public SqliteCriteria<?> getParentCriteria() {
+        return mParent;
+    }
+
     private AssociationCriteria<?> getAssociationCriteria(String association) {
         ClassReflector classReflector = new JavaClassReflector();
         Field associationField = classReflector.getField(mEntityClass, association);
@@ -228,8 +235,8 @@ public class SqliteCriteria<T> implements Criteria<T> {
             associationType = relationship.getFirstType();
         }
 
-        return new SqliteAssociationCriteria<Object>(mOrmContext,
-                associationType, mModelFactory, mSqlBuilder, relationship, associationField);
+        return new SqliteAssociationCriteria(mOrmContext,
+                associationType, mModelFactory, mSqlBuilder, relationship, associationField, this);
     }
 
 }

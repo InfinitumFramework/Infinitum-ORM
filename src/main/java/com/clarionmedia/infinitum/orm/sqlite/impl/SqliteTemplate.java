@@ -102,7 +102,7 @@ public class SqliteTemplate implements SqliteOperations {
 
     @Override
     public <T> Criteria<T> createCriteria(Class<T> entityClass) {
-        return new SqliteCriteria<T>(mInfinitumContext, entityClass, mModelFactory, mSqlBuilder);
+        return new SqliteCriteria<T>(mInfinitumContext, entityClass, mModelFactory, mSqlBuilder, null);
     }
 
     @Override

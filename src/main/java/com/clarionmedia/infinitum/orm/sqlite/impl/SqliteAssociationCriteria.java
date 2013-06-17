@@ -1,5 +1,6 @@
 package com.clarionmedia.infinitum.orm.sqlite.impl;
 
+import android.database.Cursor;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.criteria.AssociationCriteria;
@@ -7,8 +8,10 @@ import com.clarionmedia.infinitum.orm.relationship.ModelRelationship;
 import com.clarionmedia.infinitum.orm.sql.SqlBuilder;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
-public class SqliteAssociationCriteria<T> extends SqliteCriteria<T> implements AssociationCriteria<T> {
+public class SqliteAssociationCriteria extends SqliteCriteria<Object> implements AssociationCriteria<Object> {
 
     private ModelRelationship mRelationship;
     private Field mRelationshipField;
@@ -24,11 +27,12 @@ public class SqliteAssociationCriteria<T> extends SqliteCriteria<T> implements A
      * @throws com.clarionmedia.infinitum.exception.InfinitumRuntimeException
      *          if {@code entityClass} is transient
      */
-    public SqliteAssociationCriteria(InfinitumOrmContext context, Class<T> entityClass,
+    public SqliteAssociationCriteria(InfinitumOrmContext context, Class<Object> entityClass,
                                      SqliteModelFactory modelFactory, SqlBuilder sqlBuilder,
-                                     ModelRelationship relationship, Field relationshipField) throws
+                                     ModelRelationship relationship, Field relationshipField,
+                                     SqliteCriteria<?> parent) throws
             InfinitumRuntimeException {
-        super(context, entityClass, modelFactory, sqlBuilder);
+        super(context, entityClass, modelFactory, sqlBuilder, parent);
         mRelationship = relationship;
         mRelationshipField = relationshipField;
     }
@@ -41,6 +45,32 @@ public class SqliteAssociationCriteria<T> extends SqliteCriteria<T> implements A
     @Override
     public Field getRelationshipField() {
         return mRelationshipField;
+    }
+
+    @Override
+    public List list() {
+        SqliteCriteria criteria = this;
+        while (criteria.mParent != null) {
+            criteria = criteria.mParent;
+        }
+
+        Cursor result = criteria.mSession.executeForResult(criteria.getRepresentation());
+        List ret = new ArrayList(result.getCount());
+        if (result.getCount() == 0) {
+            result.close();
+            return ret;
+        }
+        try {
+            while (result.moveToNext()) {
+                Object entity = criteria.mModelFactory.createFromCursor(result, criteria.mEntityClass);
+                ret.add(entity);
+                // Cache results
+                criteria.mSession.cache(criteria.mPersistencePolicy.computeModelHash(entity), entity);
+            }
+            return ret;
+        } finally {
+            result.close();
+        }
     }
 
 }

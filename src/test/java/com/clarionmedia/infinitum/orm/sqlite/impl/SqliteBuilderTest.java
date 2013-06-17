@@ -87,7 +87,7 @@ public class SqliteBuilderTest {
     private Criterion mockCriterionB;
 
     @Mock
-    private SqliteAssociationCriteria<?> mockAssociationCriteria;
+    private SqliteAssociationCriteria mockAssociationCriteria;
 
     @Mock
     private OneToOneRelationship mockOtoRelationship;

@@ -166,4 +166,6 @@ public interface Criteria<T> {
      */
     List<AssociationCriteria<?>> getAssociationCriteria();
 
+    Criteria<?> getParentCriteria();
+
 }
