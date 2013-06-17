@@ -767,8 +767,8 @@ public class SqliteBuilderTest {
 
 		// Verify
 		verify(mockRelationship).contains(Long.class);
-		verify(mockRelationship, times(4)).getFirstType();
-		verify(mockRelationship, times(3)).getSecondType();
+		verify(mockRelationship, times(5)).getFirstType();
+		verify(mockRelationship, times(4)).getSecondType();
 		verify(mockRelationship, times(3)).getFirstField();
 		verify(mockRelationship, times(2)).getSecondField();
 		verify(mockRelationship).getTableName();
