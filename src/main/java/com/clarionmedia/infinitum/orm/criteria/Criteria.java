@@ -157,7 +157,7 @@ public interface Criteria<T> {
      * @param association the name of the association {@link java.lang.reflect.Field}
      * @return association {@code Criteria}
      */
-    Criteria<?> createCriteria(String association);
+    AssociationCriteria<?> createCriteria(String association);
 
     /**
      * Returns a {@link List} of {@link AssociationCriteria} for this {@code Criteria}.

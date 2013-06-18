@@ -49,9 +49,9 @@ public class SqliteCriteria<T> implements Criteria<T> {
     protected Class<T> mEntityClass;
     protected SqliteSession mSession;
     protected SqliteModelFactory mModelFactory;
-    private List<Criterion> mCriterion;
-    private int mLimit;
-    private int mOffset;
+    protected List<Criterion> mCriterion;
+    protected int mLimit;
+    protected int mOffset;
     private SqlBuilder mSqlBuilder;
     protected PersistencePolicy mPersistencePolicy;
     private List<Order> mOrderings;
@@ -203,7 +203,7 @@ public class SqliteCriteria<T> implements Criteria<T> {
     }
 
     @Override
-    public Criteria<?> createCriteria(String association) {
+    public AssociationCriteria<?> createCriteria(String association) {
         AssociationCriteria<?> associationCriteria = getAssociationCriteria(association);
         mAssociationCriteria.add(associationCriteria);
         return associationCriteria;

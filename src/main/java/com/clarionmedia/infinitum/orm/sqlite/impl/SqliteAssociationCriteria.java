@@ -4,6 +4,7 @@ import android.database.Cursor;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.criteria.AssociationCriteria;
+import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
 import com.clarionmedia.infinitum.orm.relationship.ModelRelationship;
 import com.clarionmedia.infinitum.orm.sql.SqlBuilder;
 
@@ -48,7 +49,12 @@ public class SqliteAssociationCriteria extends SqliteCriteria<Object> implements
     }
 
     @Override
-    public List list() {
+    public <E> List<E> list(Class<E> type) {
+        return (List<E>) list();
+    }
+
+    @Override
+    public List<Object> list() {
         SqliteCriteria criteria = this;
         while (criteria.mParent != null) {
             criteria = criteria.mParent;
@@ -71,6 +77,24 @@ public class SqliteAssociationCriteria extends SqliteCriteria<Object> implements
         } finally {
             result.close();
         }
+    }
+
+    @Override
+    public AssociationCriteria<Object> add(Criterion criterion) {
+        mCriterion.add(criterion);
+        return this;
+    }
+
+    @Override
+    public AssociationCriteria<Object> limit(int limit) {
+        mLimit = limit;
+        return this;
+    }
+
+    @Override
+    public AssociationCriteria<Object> offset(int offset) {
+        mOffset = offset;
+        return this;
     }
 
 }
