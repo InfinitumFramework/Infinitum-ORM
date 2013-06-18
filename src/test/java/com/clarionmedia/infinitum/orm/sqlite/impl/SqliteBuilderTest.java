@@ -787,8 +787,8 @@ public class SqliteBuilderTest {
 
         // Verify
         verify(mockRelationship).contains(Long.class);
-        verify(mockRelationship, times(4)).getFirstType();
-        verify(mockRelationship, times(3)).getSecondType();
+        verify(mockRelationship, times(5)).getFirstType();
+        verify(mockRelationship, times(4)).getSecondType();
         verify(mockRelationship, times(3)).getFirstField();
         verify(mockRelationship, times(2)).getSecondField();
         verify(mockRelationship).getTableName();
@@ -846,8 +846,7 @@ public class SqliteBuilderTest {
 
         // Run
         String expected = "DELETE FROM " + MTM_TABLE + " WHERE " + MODEL_TABLE_1 + "_" + COL_NAME + "_1" + " = '100' " +
-                "AND "
-                + MODEL_TABLE_2 + "_" + COL_NAME + "_2 NOT IN (" + id + ")";
+                "AND " + MODEL_TABLE_2 + "_" + COL_NAME + "_2 NOT IN (" + id + ")";
         String actual = sqliteBuilder.createDeleteStaleRelationshipQuery(mockManyToManyRelationship, entity,
                 relatedKeys);
 

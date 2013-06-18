@@ -277,7 +277,7 @@ public class SqliteBuilder implements SqlBuilder {
         else
             query.append("y, ");
         query.append(mPersistencePolicy.getModelTableName(rel.getSecondType())).append(' ');
-        if (direction == rel.getSecondType())
+        if (direction == rel.getSecondType() && rel.getFirstType() != rel.getSecondType())
             query.append("x, ");
         else
             query.append("y, ");
