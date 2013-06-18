@@ -40,7 +40,7 @@ import java.util.List;
  * <p> Implementation of {@link Criteria} for SQLite queries. </p>
  *
  * @author Tyler Treat
- * @version 1.1.0 06/13/13
+ * @version 1.1.0 06/17/13
  * @since 1.0
  */
 public class SqliteCriteria<T> implements Criteria<T> {
@@ -52,7 +52,7 @@ public class SqliteCriteria<T> implements Criteria<T> {
     protected List<Criterion> mCriterion;
     protected int mLimit;
     protected int mOffset;
-    private SqlBuilder mSqlBuilder;
+    protected SqlBuilder mSqlBuilder;
     protected PersistencePolicy mPersistencePolicy;
     private List<Order> mOrderings;
     private List<AssociationCriteria<?>> mAssociationCriteria;
@@ -61,9 +61,11 @@ public class SqliteCriteria<T> implements Criteria<T> {
     /**
      * Constructs a new {@code SqliteCriteria}.
      *
-     * @param context     the {@link InfinitumOrmContext} this {@code SqliteCriteria} is scoped to
-     * @param entityClass the {@code Class} to create {@code SqliteCriteria} for
-     * @param sqlBuilder  {@link SqlBuilder} for generating SQL statements
+     * @param context      the {@link InfinitumOrmContext} this {@code SqliteCriteria} is scoped to
+     * @param entityClass  the {@code Class} to create {@code SqliteCriteria} for
+     * @param modelFactory {@link SqliteModelFactory} for generating models
+     * @param sqlBuilder   {@link SqlBuilder} for generating SQL statements
+     * @param parent       the parent of this {@code Criteria}
      * @throws InfinitumRuntimeException if {@code entityClass} is transient
      */
     public SqliteCriteria(InfinitumOrmContext context, Class<T> entityClass, SqliteModelFactory modelFactory,
@@ -212,11 +214,6 @@ public class SqliteCriteria<T> implements Criteria<T> {
     @Override
     public List<AssociationCriteria<?>> getAssociationCriteria() {
         return mAssociationCriteria;
-    }
-
-    @Override
-    public SqliteCriteria<?> getParentCriteria() {
-        return mParent;
     }
 
     private AssociationCriteria<?> getAssociationCriteria(String association) {
