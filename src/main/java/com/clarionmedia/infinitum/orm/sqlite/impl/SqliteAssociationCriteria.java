@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2013 Clarion Media, LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.clarionmedia.infinitum.orm.sqlite.impl;
 
 import android.database.Cursor;
@@ -12,6 +28,13 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>Implementation of {@link AssociationCriteria} for SQLite queries.</p>
+ *
+ * @author Tyler Treat
+ * @version 1.1.0 06/17/13
+ * @since 1.0
+ */
 public class SqliteAssociationCriteria extends SqliteCriteria<Object> implements AssociationCriteria<Object> {
 
     private ModelRelationship mRelationship;
@@ -20,11 +43,13 @@ public class SqliteAssociationCriteria extends SqliteCriteria<Object> implements
     /**
      * Constructs a new {@code SqliteAssociationCriteria}.
      *
-     * @param context      the {@link com.clarionmedia.infinitum.orm.context.InfinitumOrmContext} this {@code
-     *                     SqliteCriteria} is scoped to
-     * @param entityClass  the {@code Class} to create {@code SqliteCriteria} for
-     * @param sqlBuilder   {@link com.clarionmedia.infinitum.orm.sql.SqlBuilder} for generating SQL statements
-     * @param relationship the {@link ModelRelationship} being queried on
+     * @param context           the {@link InfinitumOrmContext} this {@code SqliteCriteria} is scoped to
+     * @param entityClass       the {@code Class} to create {@code SqliteCriteria} for
+     * @param modelFactory      {@link SqliteModelFactory} for generating models
+     * @param sqlBuilder        {@link SqlBuilder} for generating SQL statements
+     * @param relationship      the {@link ModelRelationship} being queried on
+     * @param relationshipField the {@link Field} representing the association
+     * @param parent            the parent of this {@code Criteria}
      * @throws com.clarionmedia.infinitum.exception.InfinitumRuntimeException
      *          if {@code entityClass} is transient
      */
@@ -55,13 +80,10 @@ public class SqliteAssociationCriteria extends SqliteCriteria<Object> implements
 
     @Override
     public List<Object> list() {
-        SqliteCriteria criteria = this;
-        while (criteria.mParent != null) {
-            criteria = criteria.mParent;
-        }
+        SqliteCriteria<?> criteria = getRootCriteria();
 
         Cursor result = criteria.mSession.executeForResult(criteria.getRepresentation());
-        List ret = new ArrayList(result.getCount());
+        List<Object> ret = new ArrayList<Object>(result.getCount());
         if (result.getCount() == 0) {
             result.close();
             return ret;
@@ -73,6 +95,35 @@ public class SqliteAssociationCriteria extends SqliteCriteria<Object> implements
                 // Cache results
                 criteria.mSession.cache(criteria.mPersistencePolicy.computeModelHash(entity), entity);
             }
+            return ret;
+        } finally {
+            result.close();
+        }
+    }
+
+    @Override
+    public <E> E unique(Class<E> type) {
+        return (E) unique();
+    }
+
+    @Override
+    public Object unique() throws InfinitumRuntimeException {
+        SqliteCriteria<?> criteria = getRootCriteria();
+
+        Cursor result = criteria.mSession.executeForResult(criteria.getRepresentation());
+        if (result.getCount() > 1) {
+            throw new InfinitumRuntimeException(String.format("Criteria query for '%s' specified unique result but " +
+                    "there were %d results.",
+                    criteria.mEntityClass.getName(), result.getCount()));
+        } else if (result.getCount() == 0) {
+            result.close();
+            return null;
+        }
+        result.moveToFirst();
+        try {
+            Object ret = criteria.mModelFactory.createFromCursor(result, criteria.mEntityClass);
+            // Cache result
+            criteria.mSession.cache(criteria.mPersistencePolicy.computeModelHash(ret), ret);
             return ret;
         } finally {
             result.close();
@@ -95,6 +146,31 @@ public class SqliteAssociationCriteria extends SqliteCriteria<Object> implements
     public AssociationCriteria<Object> offset(int offset) {
         mOffset = offset;
         return this;
+    }
+
+    @Override
+    public long count() {
+        SqliteCriteria<?> criteria = getRootCriteria();
+
+        Cursor result = criteria.mSession.executeForResult(criteria.mSqlBuilder.createCountQuery(this));
+        result.moveToFirst();
+        long ret = result.getLong(0);
+        result.close();
+        return ret;
+    }
+
+    @Override
+    public Cursor cursor() {
+        SqliteCriteria<?> criteria = getRootCriteria();
+        return criteria.mSession.executeForResult(criteria.getRepresentation());
+    }
+
+    private SqliteCriteria<?> getRootCriteria() {
+        SqliteCriteria criteria = this;
+        while (criteria.mParent != null) {
+            criteria = criteria.mParent;
+        }
+        return criteria;
     }
 
 }
