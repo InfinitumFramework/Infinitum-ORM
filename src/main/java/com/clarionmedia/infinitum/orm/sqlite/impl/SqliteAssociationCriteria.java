@@ -152,7 +152,7 @@ public class SqliteAssociationCriteria extends SqliteCriteria<Object> implements
     public long count() {
         SqliteCriteria<?> criteria = getRootCriteria();
 
-        Cursor result = criteria.mSession.executeForResult(criteria.mSqlBuilder.createCountQuery(this));
+        Cursor result = criteria.mSession.executeForResult(criteria.mSqlBuilder.createCountQuery(criteria));
         result.moveToFirst();
         long ret = result.getLong(0);
         result.close();
