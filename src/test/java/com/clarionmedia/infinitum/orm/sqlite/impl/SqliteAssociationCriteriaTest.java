@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Clarion Media, LLC
+ * Copyright (C) 2013 Clarion Media, LLC
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext.SessionType;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
+import com.clarionmedia.infinitum.orm.relationship.ModelRelationship;
 import com.clarionmedia.infinitum.orm.sql.SqlBuilder;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
@@ -30,11 +31,10 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricTestRunner.class)
-public class SqliteCriteriaTest {
+public class SqliteAssociationCriteriaTest {
 
     private SqlBuilder mockSqlBuilder;
     private SqliteSession mockSqliteSession;
@@ -42,9 +42,11 @@ public class SqliteCriteriaTest {
     private SqliteModelFactory mockSqliteModelFactory;
     private SqliteMapper mockSqliteMapper;
     private Class<Object> entityClass;
-    private SqliteCriteria<Object> sqliteCriteria;
+    private SqliteAssociationCriteria sqliteAssociationCriteria;
+    private SqliteCriteria parentCriteria;
     private PersistencePolicy mockPersistencePolicy;
     private Cursor mockCursor;
+    private ModelRelationship mockRelationship;
 
     @Before
     public void setup() {
@@ -55,11 +57,14 @@ public class SqliteCriteriaTest {
         mockSqliteModelFactory = mock(SqliteModelFactory.class);
         mockSqliteMapper = mock(SqliteMapper.class);
         mockPersistencePolicy = mock(PersistencePolicy.class);
+        mockRelationship = mock(ModelRelationship.class);
         when(mockInfinitumContext.getPersistencePolicy()).thenReturn(mockPersistencePolicy);
         when(mockInfinitumContext.getSession(SessionType.SQLITE)).thenReturn(mockSqliteSession);
         when(mockPersistencePolicy.isPersistent(entityClass)).thenReturn(true);
-        sqliteCriteria = new SqliteCriteria<Object>(mockInfinitumContext, entityClass, mockSqliteModelFactory,
+        parentCriteria = new SqliteCriteria<Object>(mockInfinitumContext, entityClass, mockSqliteModelFactory,
                 mockSqlBuilder, null);
+        sqliteAssociationCriteria = new SqliteAssociationCriteria(mockInfinitumContext, entityClass,
+                mockSqliteModelFactory, mockSqlBuilder, mockRelationship, null, parentCriteria);
         mockCursor = mock(Cursor.class);
     }
 
@@ -67,13 +72,13 @@ public class SqliteCriteriaTest {
     public void testGetRepresentation() {
         // Setup
         String expected = "SQL criteria query";
-        when(mockSqlBuilder.createQuery(sqliteCriteria)).thenReturn(expected);
+        when(mockSqlBuilder.createQuery(sqliteAssociationCriteria)).thenReturn(expected);
 
         // Run
-        String actual = sqliteCriteria.getRepresentation();
+        String actual = sqliteAssociationCriteria.getRepresentation();
 
         // Verify
-        verify(mockSqlBuilder).createQuery(sqliteCriteria);
+        verify(mockSqlBuilder).createQuery(sqliteAssociationCriteria);
         assertEquals("Returned query should match expected value", expected, actual);
     }
 
@@ -81,12 +86,12 @@ public class SqliteCriteriaTest {
     public void testList_noResults() {
         // Setup
         String query = "SQL criteria query";
-        when(mockSqlBuilder.createQuery(sqliteCriteria)).thenReturn(query);
+        when(mockSqlBuilder.createQuery(parentCriteria)).thenReturn(query);
         when(mockSqliteSession.executeForResult(query)).thenReturn(mockCursor);
         when(mockCursor.getCount()).thenReturn(0);
 
         // Run
-        List<Object> actual = sqliteCriteria.list();
+        List<Object> actual = sqliteAssociationCriteria.list();
 
         // Verify
         verify(mockSqliteSession).executeForResult(query);
@@ -99,7 +104,7 @@ public class SqliteCriteriaTest {
     public void testList_results() {
         // Setup
         String query = "SQL criteria query";
-        when(mockSqlBuilder.createQuery(sqliteCriteria)).thenReturn(query);
+        when(mockSqlBuilder.createQuery(parentCriteria)).thenReturn(query);
         when(mockSqliteSession.executeForResult(query)).thenReturn(mockCursor);
         final int RESULT_COUNT = 3;
         when(mockCursor.getCount()).thenReturn(RESULT_COUNT);
@@ -107,7 +112,7 @@ public class SqliteCriteriaTest {
         when(mockSqliteModelFactory.createFromCursor(mockCursor, entityClass)).thenReturn(new Object());
 
         // Run
-        List<Object> actual = sqliteCriteria.list();
+        List<Object> actual = sqliteAssociationCriteria.list();
 
         // Verify
         verify(mockSqliteSession).executeForResult(query);
@@ -123,12 +128,12 @@ public class SqliteCriteriaTest {
     public void testUnique_noResult() {
         // Setup
         String query = "SQL criteria query";
-        when(mockSqlBuilder.createQuery(sqliteCriteria)).thenReturn(query);
+        when(mockSqlBuilder.createQuery(parentCriteria)).thenReturn(query);
         when(mockSqliteSession.executeForResult(query)).thenReturn(mockCursor);
         when(mockCursor.getCount()).thenReturn(0);
 
         // Run
-        Object actual = sqliteCriteria.unique();
+        Object actual = sqliteAssociationCriteria.unique();
 
         // Verify
         verify(mockSqliteSession).executeForResult(query);
@@ -141,13 +146,13 @@ public class SqliteCriteriaTest {
     public void testUnique_result() {
         // Setup
         String query = "SQL criteria query";
-        when(mockSqlBuilder.createQuery(sqliteCriteria)).thenReturn(query);
+        when(mockSqlBuilder.createQuery(parentCriteria)).thenReturn(query);
         when(mockSqliteSession.executeForResult(query)).thenReturn(mockCursor);
         when(mockCursor.getCount()).thenReturn(1);
         when(mockSqliteModelFactory.createFromCursor(mockCursor, entityClass)).thenReturn(new Object());
 
         // Run
-        Object actual = sqliteCriteria.unique();
+        Object actual = sqliteAssociationCriteria.unique();
 
         // Verify
         verify(mockSqliteSession).executeForResult(query);
@@ -160,13 +165,13 @@ public class SqliteCriteriaTest {
     public void testUnique_noUnique() {
         // Setup
         String query = "SQL criteria query";
-        when(mockSqlBuilder.createQuery(sqliteCriteria)).thenReturn(query);
+        when(mockSqlBuilder.createQuery(parentCriteria)).thenReturn(query);
         when(mockSqliteSession.executeForResult(query)).thenReturn(mockCursor);
         when(mockCursor.getCount()).thenReturn(3);
         when(mockSqliteModelFactory.createFromCursor(mockCursor, entityClass)).thenReturn(new Object());
 
         // Run
-        sqliteCriteria.unique();
+        sqliteAssociationCriteria.unique();
 
         // Verify
         assertTrue("Exception should have been thrown", false);
@@ -178,7 +183,7 @@ public class SqliteCriteriaTest {
         when(mockSqliteSession.getSqliteMapper()).thenReturn(mockSqliteMapper);
 
         // Run
-        SqliteMapper actual = sqliteCriteria.getObjectMapper();
+        SqliteMapper actual = sqliteAssociationCriteria.getObjectMapper();
 
         // Verify
         verify(mockSqliteSession).getSqliteMapper();
@@ -189,18 +194,18 @@ public class SqliteCriteriaTest {
     public void testCount() {
         // Setup
         String query = "SQL criteria query";
-        when(mockSqlBuilder.createCountQuery(sqliteCriteria)).thenReturn(query);
+        when(mockSqlBuilder.createCountQuery(parentCriteria)).thenReturn(query);
         when(mockSqliteSession.executeForResult(query)).thenReturn(mockCursor);
         when(mockCursor.moveToFirst()).thenReturn(true);
         final long EXPECTED = 5;
         when(mockCursor.getLong(0)).thenReturn(EXPECTED);
 
         // Run
-        long actual = sqliteCriteria.count();
+        long actual = sqliteAssociationCriteria.count();
 
         // Verify
         verify(mockSqliteSession).executeForResult(query);
-        verify(mockSqlBuilder).createCountQuery(sqliteCriteria);
+        verify(mockSqlBuilder).createCountQuery(parentCriteria);
         verify(mockCursor).moveToFirst();
         verify(mockCursor).getLong(0);
         verify(mockCursor).close();
