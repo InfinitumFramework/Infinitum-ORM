@@ -21,6 +21,7 @@ import com.clarionmedia.infinitum.context.exception.InfinitumConfigurationExcept
 import com.clarionmedia.infinitum.di.annotation.Autowired;
 import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
+import com.clarionmedia.infinitum.orm.criteria.AssociationCriteria;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
 import com.clarionmedia.infinitum.orm.criteria.Order;
 import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
@@ -28,9 +29,7 @@ import com.clarionmedia.infinitum.orm.exception.InvalidCriteriaException;
 import com.clarionmedia.infinitum.orm.exception.ModelConfigurationException;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
 import com.clarionmedia.infinitum.orm.persistence.TypeResolutionPolicy.SqliteDataType;
-import com.clarionmedia.infinitum.orm.relationship.ManyToManyRelationship;
-import com.clarionmedia.infinitum.orm.relationship.OneToManyRelationship;
-import com.clarionmedia.infinitum.orm.relationship.OneToOneRelationship;
+import com.clarionmedia.infinitum.orm.relationship.*;
 import com.clarionmedia.infinitum.orm.sql.SqlBuilder;
 import com.clarionmedia.infinitum.orm.sql.SqlConstants;
 import com.clarionmedia.infinitum.reflection.ClassReflector;
@@ -43,7 +42,7 @@ import java.util.List;
  * <p> Implementation of {@link SqlBuilder} for interacting with a SQLite database. </p>
  *
  * @author Tyler Treat
- * @version 1.1.0 06/15/13
+ * @version 1.1.0 06/17/13
  * @since 1.0
  */
 public class SqliteBuilder implements SqlBuilder {
@@ -111,47 +110,7 @@ public class SqliteBuilder implements SqlBuilder {
 
     @Override
     public String createQuery(Criteria<?> criteria) {
-        Class<?> c = criteria.getEntityClass();
-        StringBuilder query = new StringBuilder(SqlConstants.SELECT_ALL_FROM).append(mPersistencePolicy
-                .getModelTableName(c));
-        String prefix = " WHERE ";
-
-        // Append Criterion expressions
-        for (Criterion criterion : criteria.getCriterion()) {
-            query.append(prefix);
-            prefix = ' ' + SqlConstants.AND + ' ';
-            query.append(criterion.toSql(criteria));
-        }
-
-        // Append order by expressions
-        if (criteria.getOrderings().size() > 0) {
-            query.append(' ').append(SqlConstants.ORDER_BY).append(' ');
-            String separator = "";
-            for (Order ordering : criteria.getOrderings()) {
-                query.append(separator);
-                separator = ", ";
-                Field field = mPersistencePolicy.findPersistentField(c, ordering.getProperty());
-                if (field == null)
-                    throw new InvalidCriteriaException(String.format("Invalid Criteria for type '%s'.", c.getName()));
-                String column = mPersistencePolicy.getFieldColumnName(field);
-                query.append(column).append(' ');
-                if (ordering.isIgnoreCase()) {
-                    query.append(SqlConstants.COLLATE_NOCASE).append(' ');
-                }
-                query.append(ordering.getOrdering().name());
-            }
-        }
-
-        // Append limit and offset expressions
-        int limit = criteria.getLimit();
-        if (limit > 0)
-            query.append(' ').append(SqlConstants.LIMIT).append(' ').append(limit);
-        if (criteria.getOffset() > 0) {
-            if (limit == 0)
-                query.append(' ').append(SqlConstants.LIMIT).append(' ').append(Integer.MAX_VALUE);
-            query.append(' ').append(SqlConstants.OFFSET).append(' ').append(criteria.getOffset());
-        }
-        return query.toString();
+        return createQuery(criteria, SqlConstants.SELECT_ALL_FROM);
     }
 
     @Override
@@ -389,6 +348,140 @@ public class SqliteBuilder implements SqlBuilder {
                 update.append(pk);
         }
         return update.toString();
+    }
+
+    /**
+     * Returns a SQL fragment which is a query discriminator for the given {@link AssociationCriteria}. This is used to
+     * query on entity associations.
+     *
+     * @param parentType the parent {@link Criteria} of the given {@code AssociationCriteria}
+     * @param criteria   the {@code AssociationCriteria} to generate the query discriminator for
+     * @return SQL fragment
+     */
+    public String getAssociationCriteriaDiscriminator(Class<?> parentType, AssociationCriteria<?> criteria) {
+        ModelRelationship relationship = criteria.getRelationship();
+        StringBuilder sb = new StringBuilder();
+
+        Field pkField = mPersistencePolicy.getPrimaryKeyField(criteria.getEntityClass());
+        String pkCol = mPersistencePolicy.getFieldColumnName(pkField);
+
+        Field relationshipField = criteria.getRelationshipField();
+        String subQuery;
+
+        switch (relationship.getRelationType()) {
+            case OneToOne:
+                OneToOneRelationship oto = (OneToOneRelationship) relationship;
+                if (oto.getOwner() == criteria.getEntityClass()) {
+                    appendDiscriminatorForFKRelationshipSlave(sb, oto, parentType, criteria);
+                } else {
+                    appendDiscriminatorForFKRelationshipMaster(sb, relationshipField, pkCol, criteria);
+                }
+                break;
+            case ManyToOne:
+                appendDiscriminatorForFKRelationshipMaster(sb, relationshipField, pkCol, criteria);
+                break;
+            case OneToMany:
+                OneToManyRelationship otm = (OneToManyRelationship) relationship;
+                if (otm.getOwner() == criteria.getEntityClass()) {
+                    appendDiscriminatorForFKRelationshipSlave(sb, otm, parentType, criteria);
+                } else {
+                    appendDiscriminatorForFKRelationshipMaster(sb, relationshipField, pkCol, criteria);
+                }
+                break;
+            case ManyToMany:
+                ManyToManyRelationship mtm = (ManyToManyRelationship) relationship;
+                Field parentPkField = mPersistencePolicy.getPrimaryKeyField(parentType);
+                String parentPkCol = mPersistencePolicy.getFieldColumnName(parentPkField);
+                String mtmParent;
+                String mtmChild;
+                if (mtm.getFirstType() == parentType) {
+                    mtmParent = mPersistencePolicy.getModelTableName(parentType) + "_" + parentPkCol +
+                            "_1";
+                    mtmChild = mPersistencePolicy.getModelTableName(criteria.getEntityClass()) + "_" + pkCol + "_2";
+                } else {
+                    mtmParent = mPersistencePolicy.getModelTableName(parentType) + "_" + parentPkCol +
+                            "_2";
+                    mtmChild = mPersistencePolicy.getModelTableName(criteria.getEntityClass()) + "_" + pkCol + "_1";
+                }
+
+                sb.append(parentPkCol).append(" ").append(SqlConstants.IN).append(" (SELECT ").append(mtmParent)
+                        .append(" FROM ").append(mtm.getTableName()).append(" ").append(SqlConstants.WHERE).append(" " +
+                        "").append(mtmChild).append(" ").append(SqlConstants.IN).append(" (");
+                subQuery = createQuery(criteria, "SELECT " + pkCol + " FROM ");
+                sb.append(subQuery).append("))");
+                break;
+        }
+
+        return sb.toString();
+    }
+
+    private void appendDiscriminatorForFKRelationshipSlave(StringBuilder sb, ForeignKeyRelationship fkRelationship,
+                                                           Class<?> parentType, AssociationCriteria<?> criteria) {
+        String fkColumn = fkRelationship.getColumn();
+        Field nonOwnerPkField = mPersistencePolicy.getPrimaryKeyField(parentType);
+        String nonOwnerPkCol = mPersistencePolicy.getFieldColumnName(nonOwnerPkField);
+        sb.append(nonOwnerPkCol).append(" ").append(SqlConstants.IN).append(" (");
+        String subQuery = createQuery(criteria, "SELECT " + fkColumn + " FROM ");
+        sb.append(subQuery).append(")");
+    }
+
+    private void appendDiscriminatorForFKRelationshipMaster(StringBuilder sb, Field relationshipField, String pkCol,
+                                                            AssociationCriteria<?> criteria) {
+        String fkColumn = mPersistencePolicy.getFieldColumnName(relationshipField);
+        sb.append(fkColumn).append(" ").append(SqlConstants.IN).append(" (");
+        String subQuery = createQuery(criteria, "SELECT " + pkCol + " FROM ");
+        sb.append(subQuery).append(")");
+    }
+
+    private String createQuery(Criteria<?> criteria, String selectStatement) {
+        Class<?> c = criteria.getEntityClass();
+        StringBuilder query = new StringBuilder(selectStatement).append(mPersistencePolicy
+                .getModelTableName(c));
+        String prefix = " WHERE ";
+
+        // Append Criterion expressions
+        for (Criterion criterion : criteria.getCriterion()) {
+            query.append(prefix);
+            prefix = ' ' + SqlConstants.AND + ' ';
+            query.append(criterion.toSql(criteria));
+        }
+
+        // Append association Criteria expressions
+        for (AssociationCriteria<?> associationCriteria : criteria.getAssociationCriteria()) {
+            query.append(prefix);
+            prefix = ' ' + SqlConstants.AND + ' ';
+            query.append(getAssociationCriteriaDiscriminator(c, associationCriteria));
+        }
+
+        // Append order by expressions
+        if (criteria.getOrderings().size() > 0) {
+            query.append(' ').append(SqlConstants.ORDER_BY).append(' ');
+            String separator = "";
+            for (Order ordering : criteria.getOrderings()) {
+                query.append(separator);
+                separator = ", ";
+                Field field = mPersistencePolicy.findPersistentField(c, ordering.getProperty());
+                if (field == null)
+                    throw new InvalidCriteriaException(String.format("Invalid Criteria for type '%s'.", c.getName()));
+                String column = mPersistencePolicy.getFieldColumnName(field);
+                query.append(column).append(' ');
+                if (ordering.isIgnoreCase()) {
+                    query.append(SqlConstants.COLLATE_NOCASE).append(' ');
+                }
+                query.append(ordering.getOrdering().name());
+            }
+        }
+
+        // Append limit and offset expressions
+        int limit = criteria.getLimit();
+        if (limit > 0)
+            query.append(' ').append(SqlConstants.LIMIT).append(' ').append(limit);
+        if (criteria.getOffset() > 0) {
+            if (limit == 0)
+                query.append(' ').append(SqlConstants.LIMIT).append(' ').append(Integer.MAX_VALUE);
+            query.append(' ').append(SqlConstants.OFFSET).append(' ').append(criteria.getOffset());
+        }
+        return query.toString();
     }
 
     private String createManyToManyTableString(ManyToManyRelationship rel) throws ModelConfigurationException {

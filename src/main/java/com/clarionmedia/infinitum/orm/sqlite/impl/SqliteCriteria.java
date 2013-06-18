@@ -21,13 +21,18 @@ import com.clarionmedia.infinitum.exception.InfinitumRuntimeException;
 import com.clarionmedia.infinitum.orm.Session;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext;
 import com.clarionmedia.infinitum.orm.context.InfinitumOrmContext.SessionType;
+import com.clarionmedia.infinitum.orm.criteria.AssociationCriteria;
 import com.clarionmedia.infinitum.orm.criteria.Criteria;
 import com.clarionmedia.infinitum.orm.criteria.Order;
 import com.clarionmedia.infinitum.orm.criteria.criterion.Criterion;
 import com.clarionmedia.infinitum.orm.internal.OrmPreconditions;
 import com.clarionmedia.infinitum.orm.persistence.PersistencePolicy;
+import com.clarionmedia.infinitum.orm.relationship.ModelRelationship;
 import com.clarionmedia.infinitum.orm.sql.SqlBuilder;
+import com.clarionmedia.infinitum.reflection.ClassReflector;
+import com.clarionmedia.infinitum.reflection.impl.JavaClassReflector;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,32 +40,38 @@ import java.util.List;
  * <p> Implementation of {@link Criteria} for SQLite queries. </p>
  *
  * @author Tyler Treat
- * @version 1.1.0 06/13/13
+ * @version 1.1.0 06/17/13
  * @since 1.0
  */
 public class SqliteCriteria<T> implements Criteria<T> {
 
-    private Class<T> mEntityClass;
-    private SqliteSession mSession;
-    private SqliteModelFactory mModelFactory;
-    private List<Criterion> mCriterion;
-    private int mLimit;
-    private int mOffset;
-    private SqlBuilder mSqlBuilder;
-    private PersistencePolicy mPersistencePolicy;
+    private InfinitumOrmContext mOrmContext;
+    protected Class<T> mEntityClass;
+    protected SqliteSession mSession;
+    protected SqliteModelFactory mModelFactory;
+    protected List<Criterion> mCriterion;
+    protected int mLimit;
+    protected int mOffset;
+    protected SqlBuilder mSqlBuilder;
+    protected PersistencePolicy mPersistencePolicy;
     private List<Order> mOrderings;
+    private List<AssociationCriteria<?>> mAssociationCriteria;
+    protected SqliteCriteria<?> mParent;
 
     /**
      * Constructs a new {@code SqliteCriteria}.
      *
-     * @param context     the {@link InfinitumOrmContext} this {@code SqliteCriteria} is scoped to
-     * @param entityClass the {@code Class} to create {@code SqliteCriteria} for
-     * @param sqlBuilder  {@link SqlBuilder} for generating SQL statements
+     * @param context      the {@link InfinitumOrmContext} this {@code SqliteCriteria} is scoped to
+     * @param entityClass  the {@code Class} to create {@code SqliteCriteria} for
+     * @param modelFactory {@link SqliteModelFactory} for generating models
+     * @param sqlBuilder   {@link SqlBuilder} for generating SQL statements
+     * @param parent       the parent of this {@code Criteria}
      * @throws InfinitumRuntimeException if {@code entityClass} is transient
      */
     public SqliteCriteria(InfinitumOrmContext context, Class<T> entityClass, SqliteModelFactory modelFactory,
-                          SqlBuilder sqlBuilder) throws InfinitumRuntimeException {
+                          SqlBuilder sqlBuilder, SqliteCriteria<?> parent) throws InfinitumRuntimeException {
         OrmPreconditions.checkPersistenceForLoading(entityClass, context.getPersistencePolicy());
+        mOrmContext = context;
         mSession = (SqliteSession) context.getSession(SessionType.SQLITE);
         mEntityClass = entityClass;
         mModelFactory = modelFactory;
@@ -68,6 +79,8 @@ public class SqliteCriteria<T> implements Criteria<T> {
         mSqlBuilder = sqlBuilder;
         mPersistencePolicy = context.getPersistencePolicy();
         mOrderings = new ArrayList<Order>(5);
+        mAssociationCriteria = new ArrayList<AssociationCriteria<?>>(3);
+        mParent = parent;
     }
 
     @Override
@@ -189,6 +202,38 @@ public class SqliteCriteria<T> implements Criteria<T> {
     @Override
     public List<Order> getOrderings() {
         return mOrderings;
+    }
+
+    @Override
+    public AssociationCriteria<?> createCriteria(String association) {
+        AssociationCriteria<?> associationCriteria = getAssociationCriteria(association);
+        mAssociationCriteria.add(associationCriteria);
+        return associationCriteria;
+    }
+
+    @Override
+    public List<AssociationCriteria<?>> getAssociationCriteria() {
+        return mAssociationCriteria;
+    }
+
+    private AssociationCriteria<?> getAssociationCriteria(String association) {
+        ClassReflector classReflector = new JavaClassReflector();
+        Field associationField = classReflector.getField(mEntityClass, association);
+        if (associationField == null) {
+            throw new InfinitumRuntimeException("No relationship field '" + association + "' in type " + mEntityClass
+                    .getName());
+        }
+
+        ModelRelationship relationship = mPersistencePolicy.getRelationship(associationField);
+        Class associationType;
+        if (relationship.getFirstType() == mEntityClass) {
+            associationType = relationship.getSecondType();
+        } else {
+            associationType = relationship.getFirstType();
+        }
+
+        return new SqliteAssociationCriteria(mOrmContext,
+                associationType, mModelFactory, mSqlBuilder, relationship, associationField, this);
     }
 
 }
