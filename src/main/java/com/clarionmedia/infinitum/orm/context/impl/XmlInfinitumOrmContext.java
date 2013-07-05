@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Clarion Media, LLC
+ * Copyright (C) 2013 Clarion Media, LLC
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ import static java.lang.Boolean.parseBoolean;
  * XmlApplicationContext} instance. </p>
  *
  * @author Tyler Treat
- * @version 1.0.4 03/16/13
+ * @version 1.1.0 07/04/13
  * @since 1.0
  */
 public class XmlInfinitumOrmContext implements InfinitumOrmContext {
@@ -171,7 +171,10 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 
     @Override
     public ConfigurationMode getConfigurationMode() {
-        String mode = mParentContext.getAppConfig().get("mode");
+        Map<String, String> appConfig = mParentContext.getAppConfig();
+        if (appConfig == null)
+            return ConfigurationMode.ANNOTATION;
+        String mode = appConfig.get("mode");
         if (mode == null)
             return ConfigurationMode.ANNOTATION;
         if (mode.equalsIgnoreCase(ConfigurationMode.XML.toString()))
@@ -188,6 +191,8 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 
     @Override
     public String getSqliteDbName() {
+        if (!hasSqliteDb())
+            return null;
         String dbName = mParentContext.getSqliteConfig().get("dbName");
         if (dbName == null || dbName.length() == 0)
             throw new InfinitumConfigurationException("SQLite database name not specified.");
@@ -196,6 +201,8 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 
     @Override
     public int getSqliteDbVersion() {
+        if (!hasSqliteDb())
+            return 0;
         String dbVersion = mParentContext.getSqliteConfig().get("dbVersion");
         if (dbVersion == null)
             throw new InfinitumConfigurationException("SQLite database version not specified.");
@@ -216,12 +223,16 @@ public class XmlInfinitumOrmContext implements InfinitumOrmContext {
 
     @Override
     public boolean isSchemaGenerated() {
+        if (!hasSqliteDb())
+            return false;
         String isGenerated = mParentContext.getSqliteConfig().get("generateSchema");
         return isGenerated == null || parseBoolean(isGenerated);
     }
 
     @Override
     public boolean isAutocommit() {
+        if (!hasSqliteDb())
+            return false;
         String autocommit = mParentContext.getSqliteConfig().get("autocommit");
         return autocommit == null || parseBoolean(autocommit);
     }
